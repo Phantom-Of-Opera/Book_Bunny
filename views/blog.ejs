@@ -1,0 +1,44 @@
+<%-include("partials/header.ejs") %>
+
+<div class="container">
+	<form action="/submit" method="POST">
+		<div class="mb-3">
+			<label for="titleID" class="form-label">Blog Title</label>
+			<input
+				type="text"
+				class="form-control simonetta-black"
+				id="titleID"
+				name="title"
+				value="<%= locals.setTitle%>"
+			/>
+		</div>
+
+		<div class="mb-3">
+			<label for="authorID" class="form-label ">Blog Author</label>
+			<input
+				type="text"
+				class="form-control simonetta-regular-italic"
+				id="authorID"
+				name="author"
+				value="<%= locals.setAuthor%>"
+			/>
+		</div>
+
+		<div class="mb-3">
+			<label for="blogTextID" class="form-label ">Blog Text</label>
+			<textarea class="form-control simonetta-regular" id="blogTextID" name="blogText" rows=8><%= locals.setBlogText%></textarea>
+			</textarea
+			>
+		</div>
+
+		<button type="submit" class="btn btn-primary" id="btnSubmit">Send Post</button>
+		<button type="button" class="btn btn-danger" id="btnDelete">
+			Delete Post
+		</button>
+		<button type="button" class="btn btn-secondary" id="btnCancel">
+			Cancel Changes
+		</button>
+	</form>
+</div>
+
+<%-include("partials/footer.ejs") %>
