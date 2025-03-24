@@ -19,6 +19,7 @@
 	"homepage": "https://github.com/Phantom-Of-Opera/Book_Bunny#readme",
 	"description": "",
 	"dependencies": {
+		"axios": "^1.8.4",
 		"ejs": "^3.1.10",
 		"express": "^4.21.2",
 		"node": "^20.19.0",

@@ -17,9 +17,61 @@ header {
 header h1 {
 	margin: 0;
 	font-size: clamp(1.5rem, 4vw, 5rem);
-	/* font-size: 5rem; */
 	white-space: nowrap;
 	overflow: hidden;
+}
+
+.searchBar {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.searchInput {
+	flex: 1 1 auto;
+	flex-basis: auto;
+}
+
+.searchButton {
+	flex: 0 0 auto;
+	white-space: nowrap;
+	flex-basis: 100px;
+}
+
+.searchLabel {
+	flex: 0 0 auto;
+	white-space: nowrap;
+	flex-basis: auto;
+	margin-left: 20px;
+}
+
+.searchResult {
+	display: flex;
+	flex-direction: row;
+	gap: 0.5rem;
+	padding-left: 40px;
+	margin-bottom: 5px;
+	border-width: 1px;
+	border-radius: 3px;
+	border-style: ridge;
+	border-color: #443627;
+}
+
+.bookResult {
+	flex-basis: auto;
+	flex: 1 1 auto;
+	background-color: #faeed1;
+	border-style: none;
+}
+
+.coverResult {
+	display: flex;
+	white-space: nowrap;
+	height: 70px;
+	text-align: center;
+	min-width: 60px;
+	align-items: center;
 }
 
 .bi {
@@ -51,10 +103,10 @@ form.tab-view .btn {
 	background-color: #f8f0e5;
 }
 
-.searchArea {
+/* .searchArea {
 	margin: 0;
 	background-color: #dac0a3;
-}
+} */
 
 .main-content {
 	flex: 1; /* Pushes the footer down */

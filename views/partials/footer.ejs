@@ -5,9 +5,9 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 
-<% if(page == "blog"){ %>
+<% if(locals.page == "blog"){ %>
     <script src="js/blog.js"></script>
-<%} else if (page == "home"){%>
+<%} else if (locals.page == "home"){%>
     <script src="js/home.js"></script>
 <%}%>
 
