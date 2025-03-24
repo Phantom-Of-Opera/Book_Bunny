@@ -1,18 +1,27 @@
 {
-	"name": "capstone-3---blog-website",
+	"name": "capstone-5---book-library",
 	"version": "1.0.0",
 	"main": "index.js",
 	"type": "module",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Phantom-Of-Opera/Book_Bunny.git"
+	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Phantom-Of-Opera/Book_Bunny/issues"
+	},
+	"homepage": "https://github.com/Phantom-Of-Opera/Book_Bunny#readme",
 	"description": "",
 	"dependencies": {
 		"ejs": "^3.1.10",
 		"express": "^4.21.2",
-		"node": "^18.20.7"
+		"node": "^20.19.0",
+		"pg": "^8.14.1"
 	}
 }

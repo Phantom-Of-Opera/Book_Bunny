@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import * as fs from "node:fs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import pg from "pg";
 
 const app = express();
 const port = 3000;
@@ -36,6 +37,11 @@ app.get("/blog", (req, res) => {
 		setTitle: selectBlog[0].blogTitle,
 		setBlogText: selectBlog[0].blogText,
 	});
+});
+
+app.post("/tab", (req, res) => {
+	console.log(req.body);
+	res.send("OK");
 });
 
 app.post("/select", (req, res) => {

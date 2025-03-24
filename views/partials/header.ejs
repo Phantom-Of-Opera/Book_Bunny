@@ -22,23 +22,51 @@
 		<main class="main-content">
 			<div class="strip">
 				<div class="container">
-					<header class="d-flex flex-wrap py-3 mb-4 border-bottom">
+					<header class="d-flex flex-wrap py-3 border-bottom">
 						<!-- Logo and Title Section -->
 						<div class="d-flex align-items-center">
 							<img
 								src="images/Bunny_Background_Blog.png"
 								class="bi me-2 logo"
-								height="80px"
 							/>
-							<h1 class="m-0 special-elite-regular">Blog Bunny</h1>
+							<h1 class="m-0 special-elite-regular">Books Bunny</h1>
 						</div>
 						<!-- Navigation Section: Home and New Blog -->
-						<div class="d-flex align-items-center gap-3">
-							<a href="/" class="nav-link" aria-current="page">Home</a>
-							<button type="submit" class="btn btn-primary newBlog">
-								New Blog
-							</button>
-						</div>
+						<form
+							class="tab-view d-flex flex-wrap tab-view-height-auto gap-2"
+							action="/tab"
+							method="post"
+						>
+							<input
+								type="submit"
+								name="tab"
+								value="Show Library"
+								id="goLibrary"
+								class="btn"
+							/>
+							<input
+								type="submit"
+								name="tab"
+								value="New Book"
+								id="newBook"
+								class="btn"
+							/>
+							<input
+								type="submit"
+								name="tab"
+								value="New Analysis"
+								id="newAnalysis"
+								class="btn"
+							/>
+
+							<input
+								type="submit"
+								name="report"
+								value="New Report"
+								id="newReport"
+								class="btn"
+							/>
+						</form>
 					</header>
 				</div>
 			</div>
