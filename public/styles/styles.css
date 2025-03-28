@@ -21,11 +21,26 @@ header h1 {
 	overflow: hidden;
 }
 
+.navbar {
+	padding: 0;
+}
+
+.container-fluid {
+	background-color: #faeed1;
+	border-bottom: #a27b5c;
+	border-bottom-style: solid;
+	border-bottom-width: 4px;
+}
+
 .searchBar {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	gap: 0.5rem;
+}
+
+#searchForm{
+	text-align: center;
 }
 
 .searchInput {
@@ -53,7 +68,7 @@ header h1 {
 	padding-left: 40px;
 	margin-bottom: 5px;
 	border-width: 1px;
-	border-radius: 3px;
+	border-radius: 10px;
 	border-style: ridge;
 	border-color: #443627;
 }
@@ -73,13 +88,55 @@ header h1 {
 	min-width: 60px;
 	align-items: center;
 }
+.userPage {
+	margin-top: 20px;
+	text-align: center;
+}
+
+.userFlex {
+	display: flex;
+	gap: 20px;
+	margin-top: 50px;
+	margin-bottom: 50px;
+	flex-wrap: nowrap;
+	justify-content: space-evenly;
+	flex-direction: row;
+}
+
+.userSelect {
+	width: 40%;
+	display: block;
+	text-align: center;
+}
 
 .bi {
 	color: #443627;
 }
 
+.boxBorder {
+	border-style: solid;
+	border-width: 2px;
+	border-color: #a27b5c;
+	border-radius: 5px;
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
 .strip {
 	background-color: #dac0a3;
+}
+
+.userBox {
+	background-color: #a27b5c;
+	margin-top: 10px;
+	color: white;
+	padding-left: 10px;
+	padding-right: 10px;
+	border-radius: 10px;
+	font-size: 1rem;
+	height: 80px;
 }
 
 .tab-view {
@@ -122,10 +179,19 @@ form.tab-view .btn {
 	max-height: 90px;
 }
 
+.userIcon {
+	border-radius: 50%;
+	height: 50px;
+	max-height: 90px;
+}
+
 .btn {
 	background-color: #a27b5c;
 	color: white;
 	border: none;
+}
+
+.fontFlex {
 	font-size: clamp(0.8rem, 1vw, 1rem);
 }
 
@@ -176,4 +242,15 @@ form.tab-view .btn {
 	font-family: "Simonetta", serif;
 	font-weight: 900;
 	font-style: italic;
+}
+
+@media (max-width: 1400px) {
+	.userFlex {
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+	.userSelect {
+		width: 80%;
+	}
 }

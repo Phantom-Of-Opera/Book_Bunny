@@ -6,17 +6,17 @@
 		<h2 class="simonetta-black">Search for a new book to insert</h2>
 		<form id="searchForm" action="/search" method="POST">
 			<div class="mb-3 searchBar">
-				<label class="searchLabel">by Title :</label>
+				<label class="searchLabel fontFlex">by Title :</label>
 				<input
 					type="text"
-					class="simonetta-black searchInput"
+					class="simonetta-black searchInput fontFlex"
 					id="searchTitle"
 					name="searchTitle"
 					placeholder="Book title"
 				/>
 				<button
 					type="submit"
-					class="btn btn-primary searchButton"
+					class="btn btn-primary searchButton fontFlex"
 					id="btnSearch"
 				>
 					Search book
@@ -33,20 +33,20 @@
 					<label class="list-group-item gap-2 bookResult">
 						<input
 							class="form-check-input flex-shrink-0"
-							type="radio"
+							type="checkbox"
 							name="listGroupRadios"
-							value="${olid}"
-							id="book-${index}"
+							value="1234"
+							id="book-1234"
 						/>
 						<span>
-							${title}
-							<small class="d-block text-body-secondary">${authors}</small>
+							What you always wanted to know about the unit circle
+							<small class="d-block text-body-secondary">Math Bunny</small>
 						</span>
 					</label>
 				</div>
 			</div>
-			<button type="button" class="btn btn-primary" id="btnSelect">
-				Select book
+			<button type="button" class="btn btn-primary" id="btnSelect fontFlex">
+				Add Selection
 			</button>
 		</form>
 	</div>
@@ -93,10 +93,10 @@
 									height=60px
 								/>
 							</div>
-							<label class="list-group-item d-flex gap-2 bookResult">
+							<label class="list-group-item d-flex gap-2 bookResult fontFlex">
 								<input
 									class="form-check-input flex-shrink-0"
-									type="radio"
+									type="checkbox"
 									name="listGroupRadios"
 									value="${olid}"
 									id="book-${index}"

@@ -9,6 +9,13 @@ import axios from "axios";
 const app = express();
 const port = 3000;
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const db = new pg.Pool({
+	user: "postgres",
+	host: "localhost",
+	database: "girlslibrary",
+	password: "Ph@nt0m",
+	port: 5432,
+});
 const apiSearch = "https://openlibrary.org/search.json";
 
 const fileBlogs = "./public/files/blogs.json";
@@ -41,6 +48,27 @@ app.get("/", (req, res) => {
 // 		setBlogText: selectBlog[0].blogText,
 // 	});
 // });
+
+app.get("/user", async (req, res) => {
+	const resultUser = await db.query("SELECT * FROM readers");
+	console.log(resultUser.rows);
+	res.render("user.ejs", {
+		usersList: resultUser.rows,
+	});
+});
+
+app.post("/login", async (req, res) => {
+	console.log("This is the body");
+	console.log(req.body);
+	console.log(req.body.user);
+	console.log(req.body.password);
+
+	// const resultUser = await db.query("SELECT password FROM readers WHERE id_reader=$1",['Marie']);
+
+	// res.render("user.ejs", {
+	// 	usersList: resultUser.rows,
+	// });
+});
 
 app.post("/tab", (req, res) => {
 	console.log(req.body);

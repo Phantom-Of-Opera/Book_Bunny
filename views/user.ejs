@@ -1,0 +1,45 @@
+<%-include("partials/header.ejs") %>
+
+<div class="container userPage">
+	<h2>Log in to your library 📚</h2>
+	<div class="userFlex">
+		<div class="userSelect boxBorder">
+			<h3>Pick a reader :</h3>
+			<form action="/login" method="post">
+				<select name="user" id="userSelect" class="btn fontFlex" required>
+					<option value="" disabled selected>Select your user</option>
+					<% locals.usersList.forEach((user)=>{ %>
+					<option value="<%=user.id_reader%>"><%=user.name%></option>
+					<% })%>
+				</select>
+				<input
+					type="text"
+					name="password"
+					placeholder="Your password"
+					class="boxBorder"
+				/>
+				<button class="btn fontFlex" type="submit">OK</button>
+			</form>
+		</div>
+		<div class="userSelect boxBorder">
+			<h3>Enter a new name</h3>
+			<form action="/newUser" method="post">
+				<input
+					type="text"
+					name="newName"
+					placeholder="Your new name"
+					class="boxBorder"
+				/>
+				<input
+					type="text"
+					name="newPassword"
+					placeholder="Your new password"
+					class="boxBorder"
+				/>
+				<button class="btn fontFlex" type="submit">Add</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<%-include("partials/footer.ejs") %>
