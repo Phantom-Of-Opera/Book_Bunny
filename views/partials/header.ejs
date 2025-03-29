@@ -16,7 +16,7 @@
 			href="https://fonts.googleapis.com/css2?family=Simonetta:ital,wght@0,400;0,900;1,400;1,900&family=Special+Elite&display=swap"
 			rel="stylesheet"
 		/>
-		<title>Blog Bunny</title>
+		<title>Books Bunny</title>
 	</head>
 	<body>
 		<main class="main-content">
@@ -31,7 +31,13 @@
 								src="images/Bunny_Background_Blog.png"
 								class="bi me-2 logo"
 							/>
-							<h1 class="m-0 special-elite-regular fs-4">Books Bunny</h1>
+							<h1 class="m-0 special-elite-regular fs-4 fontFlex-h1">
+								Books Bunny
+								<span class="simonetta-regular">
+									<%if(locals.userName !== null){%> : Hi <%=locals.userName%> !
+									<%}%>
+								</span>
+							</h1>
 						</a>
 
 						<!-- Toggler Button -->
@@ -60,20 +66,9 @@
 										id="goLibrary"
 										class="btn fontFlex"
 									/>
-									<input
-										type="submit"
-										name="tab"
-										value="New Book"
-										id="newBook"
-										class="btn fontFlex"
-									/>
-									<input
-										type="submit"
-										name="tab"
-										value="New Analysis"
-										id="newAnalysis"
-										class="btn fontFlex"
-									/>
+									<input type="submit" name="tab" value="New Book" id="newBook"
+									class="btn fontFlex" <%= locals.userName !== null ? '' :
+									'disabled' %> />
 								</form>
 								|
 								<!-- Login and Icon -->

@@ -1,45 +1,103 @@
 <%-include("partials/header.ejs") %>
 
-<div class="container userPage">
-	<h2>Log in to your library 📚</h2>
-	<div class="userFlex">
-		<div class="userSelect boxBorder">
-			<h3>Pick a reader :</h3>
-			<form action="/login" method="post">
-				<select name="user" id="userSelect" class="btn fontFlex" required>
-					<option value="" disabled selected>Select your user</option>
-					<% locals.usersList.forEach((user)=>{ %>
-					<option value="<%=user.id_reader%>"><%=user.name%></option>
-					<% })%>
-				</select>
-				<input
-					type="text"
-					name="password"
-					placeholder="Your password"
-					class="boxBorder"
-				/>
-				<button class="btn fontFlex" type="submit">OK</button>
-			</form>
+<div class="form-signin w-100 m-auto">
+	<h2 class="text-center mb-4">📚 Your library 📚</h2>
+
+	<%if(locals.userName ){%>
+	<!-- log out button -->
+	<a href="/logout" class="btn btn-danger w-100 py-2">Log out</a>
+	<%} else {%>
+
+	<form action="/login" method="post" autocomplete="off">
+		<div class="form-floating">
+			<select name="user" id="userSelect" class="form-control boxBorder">
+				<option value="" disabled selected>Select your name</option>
+				<% locals.usersList.forEach((user)=>{ %>
+				<option value="<%=user.id_reader%>"><%=user.name%></option>
+				<% })%>
+			</select>
+			<!-- <label for="userSelect">Select your name</label> -->
 		</div>
-		<div class="userSelect boxBorder">
-			<h3>Enter a new name</h3>
-			<form action="/newUser" method="post">
-				<input
-					type="text"
-					name="newName"
-					placeholder="Your new name"
-					class="boxBorder"
-				/>
-				<input
-					type="text"
-					name="newPassword"
-					placeholder="Your new password"
-					class="boxBorder"
-				/>
-				<button class="btn fontFlex" type="submit">Add</button>
-			</form>
+		<div class="form-floating">
+			<input
+				type="text"
+				name="password"
+				id="passwordBox"
+				class="boxBorder form-control"
+				placeholder="Your password"
+			/>
+			<label id="passwordLabel" for="passwordBox">Your password here</label>
 		</div>
-	</div>
+
+		<!-- This is for a new user -->
+		<div class="form-floating">
+			<input
+				type="text"
+				name="newName"
+				id="newNameBox"
+				class="boxBorder form-control"
+				hidden
+			/>
+			<label id="newNameLabel" for="newNameBox" style="color: red" hidden
+				>Your new name here</label
+			>
+		</div>
+		<div class="form-floating">
+			<input
+				type="text"
+				name="newPassword"
+				id="newPasswordBox"
+				class="boxBorder form-control"
+				hidden
+			/>
+			<label
+				id="newPasswordLabel"
+				for="newPasswordBox"
+				style="color: red"
+				hidden
+				>Your new password here</label
+			>
+		</div>
+
+		<div class="form-check text-start my-3">
+			<input
+				class="form-check-input"
+				type="checkbox"
+				value="true"
+				id="flexCheckNew"
+				name="isNewUser"
+			/>
+			<label class="form-check-label" for="flexCheckNew"> New User </label>
+		</div>
+		<button class="btn btn-primary w-100 py-2" type="submit">Log in</button>
+	</form>
+	<% if (locals.errPwd){ %>
+	<h3 style="color: red">Sorry, wrong password</h3>
+	<%}%> <%}%>
 </div>
+
+<script>
+	document
+		.getElementById("flexCheckNew")
+		.addEventListener("change", function () {
+			if (this.checked) {
+				document.getElementById("userSelect").hidden = true;
+				document.getElementById("passwordBox").hidden = true;
+				document.getElementById("newNameBox").hidden = false;
+				document.getElementById("newPasswordBox").hidden = false;
+				document.getElementById("newNameLabel").hidden = false;
+				document.getElementById("newPasswordLabel").hidden = false;
+				document.getElementById("passwordLabel").hidden = true;
+			} else {
+				document.getElementById("userSelect").hidden = false;
+				document.getElementById("passwordBox").hidden = false;
+				document.getElementById("newNameBox").hidden = true;
+				document.getElementById("newPasswordBox").hidden = true;
+				document.getElementById("newNameLabel").hidden = true;
+				document.getElementById("newPasswordLabel").hidden = true;
+				document.getElementById("passwordLabel").hidden = false;
+			}
+		});
+</script>
 
 <%-include("partials/footer.ejs") %>

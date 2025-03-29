@@ -19,7 +19,10 @@ const db = new pg.Pool({
 const apiSearch = "https://openlibrary.org/search.json";
 
 const fileBlogs = "./public/files/blogs.json";
-var selectBlog = null;
+
+var selectedUser = null;
+var selectedName = null;
+var errPwd = false;
 
 //------------ Use of App ----------------
 
@@ -37,6 +40,7 @@ app.get("/", (req, res) => {
 	res.render("home.ejs", {
 		page: "home",
 		blogList: getFromFile(),
+		userName: selectedName,
 	});
 });
 
@@ -51,30 +55,52 @@ app.get("/", (req, res) => {
 
 app.get("/user", async (req, res) => {
 	const resultUser = await db.query("SELECT * FROM readers");
-	console.log(resultUser.rows);
 	res.render("user.ejs", {
 		usersList: resultUser.rows,
+		errPwd: errPwd,
+		userName: selectedName,
 	});
 });
 
+app.get("/logout", (req, res) => {
+	selectedUser = null;
+	selectedName = null;
+	errPwd = false;
+	res.redirect("/");
+});
+
 app.post("/login", async (req, res) => {
-	console.log("This is the body");
 	console.log(req.body);
-	console.log(req.body.user);
-	console.log(req.body.password);
-
-	// const resultUser = await db.query("SELECT password FROM readers WHERE id_reader=$1",['Marie']);
-
-	// res.render("user.ejs", {
-	// 	usersList: resultUser.rows,
-	// });
+	selectedUser = parseInt(req.body.user);
+	const submittedPwd = req.body.password;
+	try {
+		const resultPwd = await db.query(
+			"SELECT password, name FROM readers WHERE id_reader=$1",
+			[selectedUser]
+		);
+		const goodPwd = resultPwd.rows[0].password;
+		if (submittedPwd == goodPwd) {
+			errPwd = false;
+			selectedName = resultPwd.rows[0].name;
+			res.redirect("/");
+		} else {
+			selectedUser = null;
+			errPwd = true;
+			selectedName = null;
+			res.redirect("/user");
+		}
+	} catch (error) {
+		res.redirect("/user");
+	}
 });
 
 app.post("/tab", (req, res) => {
 	console.log(req.body);
 	switch (req.body.tab) {
 		case "New Book":
-			res.render("newBook.ejs");
+			res.render("newBook.ejs", {
+				userName: selectedName,
+			});
 			break;
 
 		case "Show Library":

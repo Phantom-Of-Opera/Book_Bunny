@@ -14,7 +14,7 @@ header {
 	justify-content: space-between;
 }
 
-header h1 {
+.fontFlex-h1 {
 	margin: 0;
 	font-size: clamp(1.5rem, 4vw, 5rem);
 	white-space: nowrap;
@@ -39,7 +39,7 @@ header h1 {
 	gap: 0.5rem;
 }
 
-#searchForm{
+#searchForm {
 	text-align: center;
 }
 
@@ -88,6 +88,7 @@ header h1 {
 	min-width: 60px;
 	align-items: center;
 }
+
 .userPage {
 	margin-top: 20px;
 	text-align: center;
@@ -101,6 +102,10 @@ header h1 {
 	flex-wrap: nowrap;
 	justify-content: space-evenly;
 	flex-direction: row;
+}
+
+#userSelect {
+	padding: 10px !important;
 }
 
 .userSelect {
@@ -122,6 +127,11 @@ header h1 {
 	margin-right: 5px;
 	margin-top: 10px;
 	margin-bottom: 10px;
+}
+
+.form-signin {
+	max-width: 330px;
+	padding: 1rem;
 }
 
 .strip {
@@ -177,7 +187,12 @@ form.tab-view .btn {
 	border-radius: 50%;
 	height: 20vh;
 	max-height: 90px;
+	border-color: #a27b5c;
+	border-style: solid;
+	border-width: 2px;
 }
+
+
 
 .userIcon {
 	border-radius: 50%;
