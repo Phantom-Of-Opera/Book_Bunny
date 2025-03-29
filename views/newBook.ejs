@@ -23,29 +23,8 @@
 				</button>
 			</div>
 
-			<div class="list-group">
-				<div class="searchResult">
-					<img
-						src="images/Bunny_Background_Blog.png"
-						alt="bunny"
-						class="coverResult"
-					/>
-					<label class="list-group-item gap-2 bookResult">
-						<input
-							class="form-check-input flex-shrink-0"
-							type="checkbox"
-							name="listGroupRadios"
-							value="1234"
-							id="book-1234"
-						/>
-						<span>
-							What you always wanted to know about the unit circle
-							<small class="d-block text-body-secondary">Math Bunny</small>
-						</span>
-					</label>
-				</div>
-			</div>
-			<button type="button" class="btn btn-primary" id="btnSelect fontFlex">
+			<div class="list-group"></div>
+			<button type="button" class="btn btn-primary fontFlex" id="btnSelect">
 				Add Selection
 			</button>
 		</form>
@@ -54,6 +33,8 @@
 <!-- </div> -->
 
 <script>
+	const selectedBooks = [];
+
 	document
 		.getElementById("searchForm")
 		.addEventListener("submit", async function (e) {
@@ -78,7 +59,6 @@
 				// If your result is an array of books (like from OpenLibrary's search API)
 				if (result.docs && result.docs.length) {
 					result.docs.slice(0, 50).forEach((book, index) => {
-						console.log(book);
 						const title = book.title || "Untitled";
 						const authors = book.author_name?.join(", ") || "Unknown Author";
 						const olid = book.key.split("/").pop(); // Extract OLID if needed
@@ -89,7 +69,7 @@
 							<div class="coverResult">
 								<img
 									src="https://covers.openlibrary.org/b/olid/${coverCode}-S.jpg"
-									alt="bunny"
+									alt="book cover"
 									height=60px
 								/>
 							</div>
@@ -109,6 +89,32 @@
 							</label>
 						</div>
 					`;
+						// Delay event listener attachment until after element is in the DOM
+						setTimeout(() => {
+							const checkbox = document.getElementById(`book-${index}`);
+							checkbox.addEventListener("change", function () {
+								const bookData = {
+									id: olid,
+									title: title,
+									authors: authors,
+								};
+
+								if (this.checked) {
+									if (!selectedBooks.some((b) => b.id === olid)) {
+										selectedBooks.push(bookData);
+									}
+								} else {
+									const indexToRemove = selectedBooks.findIndex(
+										(b) => b.id === olid
+									);
+									if (indexToRemove !== -1) {
+										selectedBooks.splice(indexToRemove, 1);
+									}
+								}
+
+								console.log("Current selectedBooks:", selectedBooks);
+							});
+						}, 0);
 					});
 				} else {
 					listGroup.innerHTML = `<div class="text-muted">No results found.</div>`;

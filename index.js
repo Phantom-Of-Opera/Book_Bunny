@@ -75,28 +75,48 @@ app.get("/logout", (req, res) => {
 
 app.post("/login", async (req, res) => {
 	console.log(req.body);
-	selectedUser = parseInt(req.body.user);
-	const submittedPwd = req.body.password;
-	try {
-		const resultPwd = await db.query(
-			"SELECT * FROM readers WHERE id_reader=$1",
-			[selectedUser]
-		);
-		const goodPwd = resultPwd.rows[0].password;
-		if (submittedPwd == goodPwd) {
-			errPwd = false;
-			selectedName = resultPwd.rows[0].name;
-			selectedIcon = resultPwd.rows[0].icon;
-			res.redirect("/");
-		} else {
-			selectedUser = null;
-			errPwd = true;
-			selectedName = null;
-			selectedIcon = null;
+	const newUser = req.body.isNewUser;
+	if (newUser == false) {
+		selectedUser = parseInt(req.body.user);
+		const submittedPwd = req.body.password;
+		try {
+			const resultPwd = await db.query(
+				"SELECT * FROM readers WHERE id_reader=$1",
+				[selectedUser]
+			);
+			const goodPwd = resultPwd.rows[0].password;
+			if (submittedPwd == goodPwd) {
+				errPwd = false;
+				selectedName = resultPwd.rows[0].name;
+				selectedIcon = resultPwd.rows[0].icon;
+				res.redirect("/");
+			} else {
+				selectedUser = null;
+				errPwd = true;
+				selectedName = null;
+				selectedIcon = null;
+				res.redirect("/user");
+			}
+		} catch (error) {
 			res.redirect("/user");
 		}
-	} catch (error) {
-		res.redirect("/user");
+	} else {
+		const newName = req.body.newName;
+		const newIcon = req.body.newIcon;
+		const newPwd = req.body.newPassword;
+		try {
+			const newID = await db.query(
+				"INSERT INTO readers (name, icon, password) VALUES ($1, $2, $3) RETURNING id_reader",
+				[newName, newIcon, newPwd]
+			);
+			res.redirect("/user");
+			selectedUser = newID.rows[0].id_reader;
+			selectedName = newName;
+			selectedIcon = newIcon;
+		} catch (error) {
+			console.error("Error inserting data:", error);
+			res.status(500).send("Error inserting data");
+		}
 	}
 });
 

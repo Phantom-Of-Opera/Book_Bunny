@@ -5,7 +5,9 @@
 
 	<%if(locals.userName ){%>
 	<!-- log out button -->
-	<a href="/logout" class="btn btn-danger w-100 py-2">Log out</a>
+	<a href="/logout" class="btn btn-danger w-100 py-2"
+		>Log out <%= locals.userName%></a
+	>
 	<%} else {%>
 
 	<form action="/login" method="post" autocomplete="off">
