@@ -22,6 +22,7 @@ const fileBlogs = "./public/files/blogs.json";
 
 var selectedUser = null;
 var selectedName = null;
+var selectedIcon = null;
 var errPwd = false;
 
 //------------ Use of App ----------------
@@ -41,6 +42,7 @@ app.get("/", (req, res) => {
 		page: "home",
 		blogList: getFromFile(),
 		userName: selectedName,
+		userIcon: selectedIcon,
 	});
 });
 
@@ -59,12 +61,14 @@ app.get("/user", async (req, res) => {
 		usersList: resultUser.rows,
 		errPwd: errPwd,
 		userName: selectedName,
+		userIcon: selectedIcon,
 	});
 });
 
 app.get("/logout", (req, res) => {
 	selectedUser = null;
 	selectedName = null;
+	selectedIcon = null;
 	errPwd = false;
 	res.redirect("/");
 });
@@ -75,18 +79,20 @@ app.post("/login", async (req, res) => {
 	const submittedPwd = req.body.password;
 	try {
 		const resultPwd = await db.query(
-			"SELECT password, name FROM readers WHERE id_reader=$1",
+			"SELECT * FROM readers WHERE id_reader=$1",
 			[selectedUser]
 		);
 		const goodPwd = resultPwd.rows[0].password;
 		if (submittedPwd == goodPwd) {
 			errPwd = false;
 			selectedName = resultPwd.rows[0].name;
+			selectedIcon = resultPwd.rows[0].icon;
 			res.redirect("/");
 		} else {
 			selectedUser = null;
 			errPwd = true;
 			selectedName = null;
+			selectedIcon = null;
 			res.redirect("/user");
 		}
 	} catch (error) {
@@ -100,6 +106,7 @@ app.post("/tab", (req, res) => {
 		case "New Book":
 			res.render("newBook.ejs", {
 				userName: selectedName,
+				userIcon: selectedIcon,
 			});
 			break;
 

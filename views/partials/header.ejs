@@ -33,10 +33,6 @@
 							/>
 							<h1 class="m-0 special-elite-regular fs-4 fontFlex-h1">
 								Books Bunny
-								<span class="simonetta-regular">
-									<%if(locals.userName !== null){%> : Hi <%=locals.userName%> !
-									<%}%>
-								</span>
 							</h1>
 						</a>
 
@@ -73,7 +69,10 @@
 								|
 								<!-- Login and Icon -->
 								<a type="button" class="btn" href="/user">Login</a>
-								<img src="images/Bunny_Background_Blog.png" class="userIcon" />
+								<div class="align-items-center text-center">
+								<h2 class="m-0"><%=locals.userIcon%></h2>
+								<p class="m-0"><%=locals.userName%></p>
+							</div>
 							</div>
 						</div>
 					</div>

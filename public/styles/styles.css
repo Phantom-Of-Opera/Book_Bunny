@@ -108,9 +108,23 @@ header {
 	padding: 10px !important;
 }
 
-.userSelect {
-	width: 40%;
-	display: block;
+#newIconLabel {
+	flex-basis: auto;
+	height: 100%;
+}
+
+#iconDiv {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	gap: 10px;
+}
+
+#newIconBox {
+	padding-top: 5px !important;
+	flex-basis: 30%;
+	height: 100%;
+	font-size: 2rem;
 	text-align: center;
 }
 
@@ -192,8 +206,6 @@ form.tab-view .btn {
 	border-width: 2px;
 }
 
-
-
 .userIcon {
 	border-radius: 50%;
 	height: 50px;
@@ -257,15 +269,4 @@ form.tab-view .btn {
 	font-family: "Simonetta", serif;
 	font-weight: 900;
 	font-style: italic;
-}
-
-@media (max-width: 1400px) {
-	.userFlex {
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-	}
-	.userSelect {
-		width: 80%;
-	}
 }
