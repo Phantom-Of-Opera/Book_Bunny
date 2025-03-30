@@ -43,6 +43,13 @@
 	background-color: #f8f0e5;
 }
 
+.container {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden; /* prevent child overflow from breaking layout */
+}
+
 .container-fluid {
 	background-color: #faeed1;
 	border-bottom: #a27b5c;
@@ -60,7 +67,7 @@
 }
 
 .fontFlex {
-	font-size: clamp(0.8rem, 1vw, 1rem);
+	font-size: clamp(0.6rem, 1vw, 1rem);
 }
 
 .fontFlex-h1 {
@@ -69,7 +76,13 @@
 	overflow: hidden;
 	white-space: nowrap;
 }
-
+.fontFlex-h2 {
+	font-size: clamp(1rem, 3vw, 2rem);
+	margin: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-align: center;
+}
 .form-signin {
 	max-width: 330px;
 	padding: 1rem;
@@ -78,6 +91,11 @@
 .img-fluid {
 	max-width: 80%;
 }
+
+/* .list-group {
+	max-height: 55vh; /* Adjust as needed 
+	overflow-y: auto; /* Vertical scroll only when needed 
+} */
 
 .logo {
 	border-color: #a27b5c;
@@ -88,8 +106,11 @@
 	max-height: 90px;
 }
 
-.main-content {
-	flex: 1;
+body > .main-content {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden; /* ✅ Critical: hide page overflow */
 }
 
 .navbar {
@@ -237,7 +258,22 @@
 }
 
 #searchForm {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
 	text-align: center;
+}
+
+#searchArea {
+	flex: 0 0 auto; /* don't grow or shrink */
+}
+
+#resultArea {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	min-height: 0;
+	padding-right: 4px; /* avoid scroll bar overlap */
 }
 
 #userSelect {
@@ -262,6 +298,6 @@ body {
 	display: flex;
 	flex-direction: column;
 	font-size: 16px;
-	height: 100%;
+	height: 100vh;
 	margin: 0;
 }

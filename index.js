@@ -76,7 +76,7 @@ app.get("/logout", (req, res) => {
 app.post("/login", async (req, res) => {
 	console.log(req.body);
 	const newUser = req.body.isNewUser;
-	if (newUser == false) {
+	if (newUser == null || newUser == "false") {
 		selectedUser = parseInt(req.body.user);
 		const submittedPwd = req.body.password;
 		try {

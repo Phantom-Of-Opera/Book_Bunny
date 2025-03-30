@@ -2,9 +2,11 @@
 
 <!-- <div class="strip"> -->
 <div class="container pt-3">
-	<div class="searchArea">
-		<h2 class="simonetta-black">Search for a new book to insert</h2>
-		<form id="searchForm" action="/search" method="POST">
+	<form id="searchForm" action="/search" method="POST">
+		<div class="searchArea" id="searchArea">
+			<h2 class="simonetta-black fontFlex-h2">
+				Search for a new book to insert
+			</h2>
 			<div class="mb-3 searchBar">
 				<label class="searchLabel fontFlex">by Title :</label>
 				<input
@@ -22,13 +24,17 @@
 					Search book
 				</button>
 			</div>
-
-			<div class="list-group"></div>
-			<button type="button" class="btn btn-primary fontFlex" id="btnSelect">
+			<button
+				type="button"
+				class="btn btn-primary fontFlex"
+				id="btnSelect"
+				style="margin-bottom: 16px"
+			>
 				Add Selection
 			</button>
-		</form>
-	</div>
+		</div>
+		<div class="list-group" id="resultArea"></div>
+	</form>
 </div>
 <!-- </div> -->
 
@@ -61,8 +67,10 @@
 					result.docs.slice(0, 50).forEach((book, index) => {
 						const title = book.title || "Untitled";
 						const authors = book.author_name?.join(", ") || "Unknown Author";
+						const author_key = book.author_key || "Unknown Author Key";
 						const olid = book.key.split("/").pop(); // Extract OLID if needed
-						const coverCode = book.cover_edition_key;
+						const coverCode = book.cover_edition_key || "NoCover";
+						const publishedYear = book.first_publish_year || "Unknown Year";
 
 						listGroup.innerHTML += `
 						<div class="searchResult">
@@ -71,6 +79,7 @@
 									src="https://covers.openlibrary.org/b/olid/${coverCode}-S.jpg"
 									alt="book cover"
 									height=60px
+									style="max-width: 60px;"
 								/>
 							</div>
 							<label class="list-group-item d-flex gap-2 bookResult fontFlex">
@@ -80,7 +89,7 @@
 									name="listGroupRadios"
 									value="${olid}"
 									id="book-${index}"
-									${index === 0 ? "checked" : ""}
+									// {index === 0 ? "checked" : ""}
 								/>
 								<span>
 									${title}
@@ -94,9 +103,12 @@
 							const checkbox = document.getElementById(`book-${index}`);
 							checkbox.addEventListener("change", function () {
 								const bookData = {
-									id: olid,
 									title: title,
-									authors: authors,
+									cover: coverCode,
+									publish: publishedYear,
+									oleId: olid,
+									author: authors,
+									author_key: author_key,
 								};
 
 								if (this.checked) {
