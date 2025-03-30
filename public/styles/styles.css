@@ -265,7 +265,19 @@ body > .main-content {
 	text-align: center;
 }
 
+#entryForm {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	text-align: center;
+}
+
 #searchArea {
+	flex: 0 0 auto; /* don't grow or shrink */
+}
+
+#commitArea {
 	flex: 0 0 auto; /* don't grow or shrink */
 }
 

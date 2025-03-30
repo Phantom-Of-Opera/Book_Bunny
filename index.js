@@ -46,15 +46,6 @@ app.get("/", (req, res) => {
 	});
 });
 
-// app.get("/blog", (req, res) => {
-// 	res.render("blog.ejs", {
-// 		page: "blog",
-// 		setAuthor: selectBlog[0].blogAuthor,
-// 		setTitle: selectBlog[0].blogTitle,
-// 		setBlogText: selectBlog[0].blogText,
-// 	});
-// });
-
 app.get("/user", async (req, res) => {
 	const resultUser = await db.query("SELECT * FROM readers");
 	res.render("user.ejs", {
@@ -74,7 +65,6 @@ app.get("/logout", (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-	console.log(req.body);
 	const newUser = req.body.isNewUser;
 	if (newUser == null || newUser == "false") {
 		selectedUser = parseInt(req.body.user);
@@ -121,7 +111,6 @@ app.post("/login", async (req, res) => {
 });
 
 app.post("/tab", (req, res) => {
-	console.log(req.body);
 	switch (req.body.tab) {
 		case "New Book":
 			res.render("newBook.ejs", {
@@ -140,10 +129,8 @@ app.post("/tab", (req, res) => {
 	}
 });
 
-app.post("/search", async (req, res) => {
+app.post("/searchbook", async (req, res) => {
 	try {
-		console.log(req.body);
-
 		let searchString = new URLSearchParams({
 			title: req.body.searchTitle,
 		});
@@ -158,6 +145,87 @@ app.post("/search", async (req, res) => {
 		console.error(error);
 		res.status(500).json({ error: "Something went wrong" });
 	}
+});
+
+app.post("/addbook", async (req, res) => {
+	const bookSelection = JSON.parse(req.body.selectedBooks);
+	var newBook_id = null;
+	var newAuthor_key = null;
+
+	bookSelection.forEach(async (book) => {
+		// Start by inserting the book info into the database
+		try {
+			newBook_id = await db.query(
+				"INSERT INTO books (book_title, book_cover_id, book_first_publish, book_oleid) VALUES ($1, $2, $3, $4) RETURNING id_book",
+				[book.title, book.cover, book.publish, book.oleId]
+			);
+
+			// Now, insert the book's authors into the book_authors table
+			book.author_key.forEach(async (author) => {
+				try {
+					newAuthor_key = await db.query(
+						"INSERT INTO authors (author_key) VALUES ($1) RETURNING id_author",
+						[author]
+					);
+					//get the rest of the information from the API
+					try {
+						const authorURL = `https://openlibrary.org/authors/${author}.json`;
+						const authorData = await axios.get(authorURL);
+						var authorName = authorData.data.name;
+						var authorWork = authorData.data.top_work;
+						var authorBirth = parseDateString(authorData.data.birth_date);
+						var authorDeath = parseDateString(authorData.data.death_date);
+						var authorWiki = authorData.data.remote_ids["wikidata"];
+					} catch (error) {
+						console.error("Error fetching author data:", error);
+						authorName = null;
+						authorWork = null;
+						authorBirth = null;
+						authorDeath = null;
+						authorWiki = null;
+					}
+					// Insert the author into the authors table
+					try {
+						await db.query(
+							"UPDATE authors SET author_name = $1, author_top_work = $2, author_birth_date = $3, author_death_date = $4, author_wikidata = $5 WHERE id_author = $6",
+							[
+								authorName,
+								authorWork,
+								authorBirth,
+								authorDeath,
+								authorWiki,
+								newAuthor_key.rows[0].id_author,
+							]
+						);
+					} catch (error) {
+						console.error("Error updating author:", error);
+					}
+					// Insert the relationship into the book_authors table
+					try {
+						await db.query(
+							"INSERT INTO books_authors (id_book, id_author) VALUES ($1, $2)",
+							[newBook_id.rows[0].id_book, newAuthor_key.rows[0].id_author]
+						);
+					} catch (error) {
+						console.error("Error inserting books_authors:", error);
+					}
+				} catch (error) {
+					console.error("Error inserting author:", error);
+				}
+			});
+			//Insert the relationship into the books_readers table
+			try {
+				await db.query(
+					"INSERT INTO books_readers (id_book, id_reader) VALUES ($1, $2)",
+					[newBook_id.rows[0].id_book, selectedUser]
+				);
+			} catch (error) {
+				console.error("Error inserting books_readers:", error);
+			}
+		} catch (error) {
+			console.error("Error inserting book:", error);
+		}
+	});
 });
 
 // app.post("/select", (req, res) => {
@@ -233,4 +301,15 @@ function selectFromFile(delBlogKey) {
 			(blogsArray) => blogsArray.blogKey == delBlogKey
 		));
 	}
+}
+
+function parseDateString(dateStr) {
+	const parsed = new Date(dateStr);
+
+	if (!isNaN(parsed.getTime())) {
+		// Return in Postgres-friendly YYYY-MM-DD format
+		return parsed.toISOString().split("T")[0];
+	}
+
+	return null;
 }

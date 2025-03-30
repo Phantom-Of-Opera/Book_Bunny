@@ -2,8 +2,8 @@
 
 <!-- <div class="strip"> -->
 <div class="container pt-3">
-	<form id="searchForm" action="/search" method="POST">
-		<div class="searchArea" id="searchArea">
+	<div class="searchArea" id="searchArea">
+		<form id="searchForm" action="/searchbook" method="POST">
 			<h2 class="simonetta-black fontFlex-h2">
 				Search for a new book to insert
 			</h2>
@@ -16,30 +16,45 @@
 					name="searchTitle"
 					placeholder="Book title"
 				/>
+
 				<button
 					type="submit"
 					class="btn btn-primary searchButton fontFlex"
 					id="btnSearch"
+					value="Search"
+					name="btnBook"
 				>
 					Search book
 				</button>
 			</div>
+		</form>
+		<form
+			id="addForm"
+			action="/addbook"
+			method="post"
+			style="text-align: center"
+		>
+			<input type="hidden" name="selectedBooks" id="selectedBooksInput" />
 			<button
-				type="button"
+				type="submit"
 				class="btn btn-primary fontFlex"
-				id="btnSelect"
-				style="margin-bottom: 16px"
+				id="btnAdd"
+				style="margin-bottom: 16px; text-align: center"
+				value="Add"
+				name="btnBook"
+				disabled
 			>
 				Add Selection
 			</button>
-		</div>
-		<div class="list-group" id="resultArea"></div>
-	</form>
+		</form>
+	</div>
+	<div class="list-group" id="resultArea"></div>
 </div>
 <!-- </div> -->
 
 <script>
 	const selectedBooks = [];
+	var numberOfBooks = 0;
 
 	document
 		.getElementById("searchForm")
@@ -49,7 +64,7 @@
 			const title = document.getElementById("searchTitle").value;
 
 			try {
-				const response = await fetch("/search", {
+				const response = await fetch("/searchbook", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -112,17 +127,25 @@
 								};
 
 								if (this.checked) {
-									if (!selectedBooks.some((b) => b.id === olid)) {
+									if (!selectedBooks.some((b) => b.oleId === olid)) {
 										selectedBooks.push(bookData);
 									}
 								} else {
 									const indexToRemove = selectedBooks.findIndex(
-										(b) => b.id === olid
+										(b) => b.oleId === olid
 									);
 									if (indexToRemove !== -1) {
 										selectedBooks.splice(indexToRemove, 1);
 									}
 								}
+								// Update the number of selected books
+								numberOfBooks = selectedBooks.length;
+								//Disable the add button if no books are selected
+								document.getElementById("btnAdd").disabled =
+									numberOfBooks === 0;
+								// Update the button text
+								document.getElementById("btnAdd").innerHTML =
+									"Add Selection : " + numberOfBooks + " book(s)";
 
 								console.log("Current selectedBooks:", selectedBooks);
 							});
@@ -135,6 +158,10 @@
 				console.error("Fetch failed:", error);
 			}
 		});
+	document.getElementById("addForm").addEventListener("submit", function () {
+		document.getElementById("selectedBooksInput").value =
+			JSON.stringify(selectedBooks);
+	});
 </script>
 
 <%-include("partials/footer.ejs") %>
