@@ -265,6 +265,16 @@ body > .main-content {
 	text-align: center;
 }
 
+.searchBorders {
+	border: 1px solid;
+	border-radius: 5px;
+	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	min-height: 15px;
+}
+
 #entryForm {
 	flex: 1 1 auto;
 	display: flex;

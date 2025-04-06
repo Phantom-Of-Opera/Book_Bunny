@@ -8,13 +8,23 @@
 				Search for a new book to insert
 			</h2>
 			<div class="mb-3 searchBar">
-				<label class="searchLabel fontFlex">by Title :</label>
+				<label class="searchLabel fontFlex">Search by :</label>
+				<select
+					name="searchType"
+					class="form-selet fontFlex searchBorders"
+					id="searchType"
+					width="250px"
+				>
+					<option value="title" selected>Title</option>
+					<option value="author">Author</option>
+					<option value="subject">Subject</option>
+				</select>
 				<input
 					type="text"
-					class="simonetta-black searchInput fontFlex"
+					class="simonetta-black searchInput fontFlex searchBorders"
 					id="searchTitle"
 					name="searchTitle"
-					placeholder="Book title"
+					placeholder="What do you want to find?"
 				/>
 
 				<button
@@ -62,6 +72,11 @@
 			e.preventDefault(); // stop the page from reloading
 
 			const title = document.getElementById("searchTitle").value;
+			const type = document.getElementById("searchType").value;
+
+			console.log("I see this");
+			console.log("Title: ", title);
+			console.log("Type: ", type);
 
 			try {
 				const response = await fetch("/searchbook", {
@@ -69,7 +84,7 @@
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify({ searchTitle: title }),
+					body: JSON.stringify({ searchTitle: title, searchType: type }),
 				});
 
 				const result = await response.json();

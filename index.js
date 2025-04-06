@@ -5,6 +5,7 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import pg from "pg";
 import axios from "axios";
+import { Console } from "node:console";
 
 const app = express();
 const port = 3000;
@@ -37,17 +38,20 @@ app.listen(port, () => {
 	console.log(`Server started, listening on port ${port}`);
 });
 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
+	const bookList = await getFromDatabase(selectedUser);
+
+	// console.log("Book list:", bookList);
 	res.render("home.ejs", {
 		page: "home",
-		blogList: getFromFile(),
+		bookList: bookList,
 		userName: selectedName,
 		userIcon: selectedIcon,
 	});
 });
 
 app.get("/user", async (req, res) => {
-	const resultUser = await db.query("SELECT * FROM readers");
+	const resultUser = await db.query("SELECT * FROM readers ORDER BY name");
 	res.render("user.ejs", {
 		usersList: resultUser.rows,
 		errPwd: errPwd,
@@ -130,10 +134,12 @@ app.post("/tab", (req, res) => {
 });
 
 app.post("/searchbook", async (req, res) => {
+	let searchKey = req.body.searchType;
+	let searchValue = req.body.searchTitle;
+	let searchString = new URLSearchParams({
+		[searchKey]: searchValue,
+	});
 	try {
-		let searchString = new URLSearchParams({
-			title: req.body.searchTitle,
-		});
 		let searchURL =
 			apiSearch + "?" + searchString.toString().replace(/%20/g, "+");
 
@@ -149,36 +155,62 @@ app.post("/searchbook", async (req, res) => {
 
 app.post("/addbook", async (req, res) => {
 	const bookSelection = JSON.parse(req.body.selectedBooks);
+	var newBook_key = null;
 	var newBook_id = null;
 	var newAuthor_key = null;
+	var newAuthor_id = null;
 
 	bookSelection.forEach(async (book) => {
 		// Start by inserting the book info into the database
 		try {
-			newBook_id = await db.query(
+			newBook_key = await db.query(
 				"INSERT INTO books (book_title, book_cover_id, book_first_publish, book_oleid) VALUES ($1, $2, $3, $4) RETURNING id_book",
 				[book.title, book.cover, book.publish, book.oleId]
 			);
-
+			newBook_id = newBook_key.rows[0].id_book;
+			console.log("Inserted book:", book.title);
 			// Now, insert the book's authors into the book_authors table
+			console.log("Book authors:", book.author_key);
 			book.author_key.forEach(async (author) => {
 				try {
+					console.log("Trying to insert author:", author);
+
 					newAuthor_key = await db.query(
 						"INSERT INTO authors (author_key) VALUES ($1) RETURNING id_author",
 						[author]
 					);
+					newAuthor_id = newAuthor_key.rows[0].id_author;
+
+					console.log(
+						"Successfully insert author:",
+						author,
+						"with author_id:",
+						newAuthor_id
+					);
+
 					//get the rest of the information from the API
 					try {
+						console.log(
+							"Trying to get author data from OpenLibrary for author:",
+							author
+						);
 						const authorURL = `https://openlibrary.org/authors/${author}.json`;
 						const authorData = await axios.get(authorURL);
 						var authorName = authorData.data.name;
 						var authorWork = authorData.data.top_work;
 						var authorBirth = parseDateString(authorData.data.birth_date);
 						var authorDeath = parseDateString(authorData.data.death_date);
-						var authorWiki = authorData.data.remote_ids["wikidata"];
-					} catch (error) {
-						console.error("Error fetching author data:", error);
-						authorName = null;
+						var authorWiki = "wikidata"; //authorData.data.remote_ids["wikidata"];
+						console.log(
+							"Successfully got the author information for ",
+							authorName
+						);
+					} catch (err) {
+						// If the author data is not available, set default values
+						console.error("Error fetching author data for author:", author);
+						console.error("Error:", err);
+						// Set default values
+						authorName = "Unknown Author";
 						authorWork = null;
 						authorBirth = null;
 						authorDeath = null;
@@ -186,6 +218,11 @@ app.post("/addbook", async (req, res) => {
 					}
 					// Insert the author into the authors table
 					try {
+						console.log(
+							"Trying to update the author info into authors table for author:",
+							authorName
+						);
+
 						await db.query(
 							"UPDATE authors SET author_name = $1, author_top_work = $2, author_birth_date = $3, author_death_date = $4, author_wikidata = $5 WHERE id_author = $6",
 							[
@@ -194,37 +231,136 @@ app.post("/addbook", async (req, res) => {
 								authorBirth,
 								authorDeath,
 								authorWiki,
-								newAuthor_key.rows[0].id_author,
+								newAuthor_id,
 							]
 						);
-					} catch (error) {
-						console.error("Error updating author:", error);
-					}
-					// Insert the relationship into the book_authors table
-					try {
-						await db.query(
-							"INSERT INTO books_authors (id_book, id_author) VALUES ($1, $2)",
-							[newBook_id.rows[0].id_book, newAuthor_key.rows[0].id_author]
+					} catch (err) {
+						console.error(
+							"Error updating author information for author:",
+							authorName
 						);
-					} catch (error) {
-						console.error("Error inserting books_authors:", error);
+						const problem = categorizeSQLError(err);
+						if (problem.type === "DUPLICATE") {
+							// skip
+						} else if (problem.type === "CONNECTION") {
+							// maybe restart DB connection?
+						} else {
+							console.error("Error updating author");
+							console.error("Unexpected SQL issue:", problem);
+						}
 					}
-				} catch (error) {
-					console.error("Error inserting author:", error);
+				} catch (err) {
+					console.log("Failed insert author:", author);
+					console.log("Current author_id:", newAuthor_id);
+					const problem = categorizeSQLError(err);
+					if (problem.type === "DUPLICATE") {
+						console.log("Author already exists in the database: ", author);
+						// Get the newAuthor_id of the author that already exist in the db
+						console.log(
+							"Trying to get the newAuthor_id for existing author:",
+							author
+						);
+						newAuthor_id = await db.query(
+							"SELECT id_author FROM authors WHERE author_key = $1",
+							[author]
+						);
+						console.log("Fetched the newAuthor_id:", newAuthor_id);
+					} else if (problem.type === "CONNECTION") {
+						// maybe restart DB connection?
+						console.log("Connection error while inserting author:", author);
+					} else {
+						console.error("Unexpected SQL issue:", problem);
+					}
+				}
+
+				console.log(
+					"Trying to insert into books_authors table for book:",
+					book.title
+				);
+				console.log(
+					"Trying to insert into books_authors table for author:",
+					author
+				);
+				console.log("newBook_id:", newBook_id);
+				console.log("newAuthor_id:", newAuthor_id);
+
+				// Insert the relationship into the book_authors table
+				try {
+					await db.query(
+						"INSERT INTO books_authors (id_book, id_author) VALUES ($1, $2)",
+						[newBook_id, newAuthor_id]
+					);
+				} catch (err) {
+					console.error("Error inserting books_authors");
+					console.log("Information at time of error:");
+					console.log(
+						"newBook_id: " + newBook_id + "newAuthor_id: " + newAuthor_id
+					);
+					const problem = categorizeSQLError(err);
+					if (problem.type === "DUPLICATE") {
+						console.error("Error inserting books_authors: Shows DUPLICATE");
+					} else if (problem.type === "CONNECTION") {
+						// maybe restart DB connection?
+						console.error("Error inserting books_authors: Shows CONNECTION");
+					} else {
+						console.error("Error inserting books_authors");
+						console.error("Unexpected SQL issue:", problem);
+					}
 				}
 			});
 			//Insert the relationship into the books_readers table
 			try {
 				await db.query(
 					"INSERT INTO books_readers (id_book, id_reader) VALUES ($1, $2)",
-					[newBook_id.rows[0].id_book, selectedUser]
+					[newBook_id, selectedUser]
 				);
-			} catch (error) {
-				console.error("Error inserting books_readers:", error);
+			} catch (err) {
+				const problem = categorizeSQLError(err);
+				if (problem.type === "DUPLICATE") {
+					// skip
+				} else if (problem.type === "CONNECTION") {
+					// maybe restart DB connection?
+				} else {
+					console.error("Error inserting books_readersr");
+					console.error("Unexpected SQL issue:", problem);
+				}
 			}
-		} catch (error) {
-			console.error("Error inserting book:", error);
+		} catch (err) {
+			const problem = categorizeSQLError(err);
+			if (problem.type === "DUPLICATE") {
+				newBook_key = await db.query(
+					"SELECT id_book FROM books WHERE book_oleid = $1",
+					[book.oleId]
+				);
+				newBook_id = newBook_key.rows[0].id_book;
+			} else if (problem.type === "CONNECTION") {
+				// maybe restart DB connection?
+			} else {
+				console.error("Error inserting book");
+				console.error("Unexpected SQL issue:", problem);
+			}
 		}
+		//Insert the relationship into the books_readers table
+		try {
+			await db.query(
+				"INSERT INTO books_readers (id_book, id_reader) VALUES ($1, $2)",
+				[newBook_id, selectedUser]
+			);
+		} catch (err) {
+			const problem = categorizeSQLError(err);
+			if (problem.type === "DUPLICATE") {
+				// skip
+			} else if (problem.type === "CONNECTION") {
+				// maybe restart DB connection?
+			} else {
+				console.error("Error inserting books_readers:");
+				console.error("Unexpected SQL issue:", problem);
+			}
+		}
+	});
+	res.render("newBook.ejs", {
+		userName: selectedName,
+		userIcon: selectedIcon,
 	});
 });
 
@@ -278,6 +414,21 @@ function getFromFile() {
 	return blogsArray;
 }
 
+async function getFromDatabase(idReader) {
+	try {
+		let result = null;
+		if (idReader == null) {
+			result = await db.query("SELECT * FROM book_author_view");
+		} else {
+			result = await db.query("SELECT * FROM get_reader_books($1)", [idReader]);
+		}
+		return result.rows;
+	} catch (err) {
+		console.error("Error executing query", err.stack);
+		return null;
+	}
+}
+
 function addToFile(newBlog) {
 	let blogsArray = getFromFile();
 	blogsArray.push(newBlog);
@@ -312,4 +463,20 @@ function parseDateString(dateStr) {
 	}
 
 	return null;
+}
+
+function categorizeSQLError(err) {
+	switch (err.code) {
+		case "23505":
+			return { type: "DUPLICATE", message: "Duplicate key" };
+		case "08006":
+		case "08003":
+			return { type: "CONNECTION", message: "Connection error" };
+		case "23503":
+			return { type: "FK_VIOLATION", message: "Foreign key constraint failed" };
+		case "22P02":
+			return { type: "BAD_DATA", message: "Invalid format" };
+		default:
+			return { type: "UNKNOWN", message: err.message };
+	}
 }
