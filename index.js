@@ -19,8 +19,6 @@ const db = new pg.Pool({
 });
 const apiSearch = "https://openlibrary.org/search.json";
 
-const fileBlogs = "./public/files/blogs.json";
-
 var selectedUser = null;
 var selectedName = null;
 var selectedIcon = null;
@@ -429,12 +427,6 @@ async function getFromDatabase(idReader) {
 	}
 }
 
-function addToFile(newBlog) {
-	let blogsArray = getFromFile();
-	blogsArray.push(newBlog);
-	fs.writeFileSync(fileBlogs, JSON.stringify(blogsArray, null, 2), "utf8");
-}
-
 function removeFromFile(delBlogKey) {
 	let blogsArray = getFromFile();
 	if (blogsArray.length !== 0) {
@@ -442,15 +434,6 @@ function removeFromFile(delBlogKey) {
 			(blogsArray) => blogsArray.blogKey !== delBlogKey
 		);
 		fs.writeFileSync(fileBlogs, JSON.stringify(blogsArray, null, 2), "utf8");
-	}
-}
-
-function selectFromFile(delBlogKey) {
-	let blogsArray = getFromFile();
-	if (blogsArray.length !== 0) {
-		return (blogsArray = blogsArray.filter(
-			(blogsArray) => blogsArray.blogKey == delBlogKey
-		));
 	}
 }
 
