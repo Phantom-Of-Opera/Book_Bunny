@@ -48,7 +48,7 @@
 
 						<!-- Collapsible Content -->
 						<div class="collapse navbar-collapse" id="navbarBunny">
-							<div class="ms-auto d-flex align-items-center gap-3 flex-wrap">
+							<div class="ms-auto d-flex align-items-center gap-3 flex-wrap mb-1">
 								<!-- Form Buttons -->
 								<form
 									class="d-flex flex-wrap gap-2 me-3"
@@ -68,11 +68,13 @@
 								</form>
 								|
 								<!-- Login and Icon -->
-								<a type="button" class="btn" href="/user">Login</a>
+								<a type="button" class="btn fontFlex" href="/user">
+									<%= locals.userName == null ? 'Login' : 'Logout' %>
+								</a>
 								<div class="align-items-center text-center">
-								<h2 class="m-0"><%=locals.userIcon%></h2>
-								<p class="m-0"><%=locals.userName%></p>
-							</div>
+									<h2 class="m-0"><%=locals.userIcon%></h2>
+									<p class="m-0"><%=locals.userName%></p>
+								</div>
 							</div>
 						</div>
 					</div>

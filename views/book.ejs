@@ -1,39 +1,6 @@
 <%-include("partials/header.ejs") %>
 
-<div class="strip">
-	<div class="container">
-		<div class="searchArea">
-			<p>This is a search area</p>
-			<form action="/submit" method="POST">
-				<div class="mb-3">
-					<label for="titleID" class="form-label">Book title to search</label>
-					<input
-						type="text"
-						class="form-control simonetta-black"
-						id="searchTitle"
-						name="searchTitle"
-					/>
-				</div>
 
-				<div class="mb-3">
-					<label for="blogTextID" class="form-label">Blog Text</label>
-
-					>
-				</div>
-
-				<button type="submit" class="btn btn-primary" id="btnSearch">
-					Search book
-				</button>
-				<button type="button" class="btn btn-primary" id="btnSelect">
-					Select book
-				</button>
-				<button type="button" class="btn btn-secondary" id="btnHide">
-					Hide panel
-				</button>
-			</form>
-		</div>
-	</div>
-</div>
 <div class="container">
 	<div class="bookArea">
 		<form action="/submit" method="POST">

@@ -22,6 +22,7 @@ const apiSearch = "https://openlibrary.org/search.json";
 var selectedUser = null;
 var selectedName = null;
 var selectedIcon = null;
+var selectedBook = null;
 var errPwd = false;
 
 //------------ Use of App ----------------
@@ -158,7 +159,9 @@ app.post("/addbook", async (req, res) => {
 		// Start by inserting the book info into the database
 		newBook_id = await addBookId(book);
 		// Now, manage the various authors of the book
-		for (const author of book.author_key) {
+		// for (const author of book.author_key) {
+		for (const [index, author] of book.author_key.entries()) {
+			const isMain = index === 0;
 			//Retrieve the author_id from the database (add or fetch)
 			newAuthor_id = await addAuthorId(author);
 
@@ -169,7 +172,11 @@ app.post("/addbook", async (req, res) => {
 				console.log("Author info not updated");
 			}
 			// Insert the relationship into the books_authors table
-			let insertAuthorBook = await addAuthorsBooks(newAuthor_id, newBook_id);
+			let insertAuthorBook = await addAuthorsBooks(
+				newAuthor_id,
+				newBook_id,
+				isMain
+			);
 			if (!insertAuthorBook) {
 				console.log("Author-book relationship not inserted");
 			}
@@ -187,11 +194,27 @@ app.post("/addbook", async (req, res) => {
 	});
 });
 
-app.post("/select", (req, res) => {
+app.post("/select", async (req, res) => {
+	console.log("Clicking");
 	console.log(req.body.key);
+	let bookId = parseInt(req.body.key);
+	try {
+		let result = await db.query(
+			"SELECT * FROM main_fields WHERE id_book=$1 AND id_reader=$2",
+			[bookId, selectedUser]
+		);
+		console.log(result.rows);
+		selectedBook = result.rows[0];
+	} catch (error) {
+		console.error("Error executing query", error.stack);
+		return null;
+	}
+	console.log("Selected book:", selectedBook);
+	res.json("OK");
 });
 
 app.get("/book", (req, res) => {
+	console.log("Rendering book page");
 	res.render("book.ejs");
 });
 
@@ -230,7 +253,9 @@ async function getFromDatabase(idReader) {
 	try {
 		let result = null;
 		if (idReader == null) {
-			result = await db.query("SELECT * FROM book_author_view");
+			result = await db.query(
+				"SELECT * FROM book_author_view ORDER BY book_title"
+			);
 		} else {
 			result = await db.query("SELECT * FROM get_reader_books($1)", [idReader]);
 		}
@@ -391,13 +416,13 @@ async function addBookId(bookRef) {
 	return parseInt(bookId);
 }
 
-async function addAuthorsBooks(authorId, bookId) {
+async function addAuthorsBooks(authorId, bookId, isMain) {
 	let insertResult = false;
 	//Insert the relationship into the books_authors table
 	try {
 		await db.query(
-			"INSERT INTO books_authors (id_book, id_author) VALUES ($1, $2)",
-			[bookId, authorId]
+			"INSERT INTO books_authors (id_book, id_author, is_main) VALUES ($1, $2, $3)",
+			[bookId, authorId, isMain]
 		);
 		insertResult = true;
 	} catch (err) {

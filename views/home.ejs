@@ -19,7 +19,9 @@
 					<button
 						type="submit"
 						class="btn btn-primary bookBtn fontFlex"
+						<%= userName == null? 'hidden' : '' %>
 						data-key="<%= book.id_book %>"
+						
 					>
 						Select
 					</button>

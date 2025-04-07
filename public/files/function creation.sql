@@ -4,8 +4,8 @@ RETURNS TABLE (
   book_title TEXT,
   book_cover_id TEXT,
   author_name TEXT,
-  reader_id INT,
-  book_id INT
+  id_reader INT,
+  id_book INT
 ) AS $$
 BEGIN
   RETURN QUERY
