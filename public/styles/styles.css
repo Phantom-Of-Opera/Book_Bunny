@@ -297,6 +297,81 @@ body > .main-content {
 	min-height: 0;
 	padding-right: 4px; /* avoid scroll bar overlap */
 }
+#resultArea::-webkit-scrollbar {
+	width: 8px;
+}
+#resultArea::-webkit-scrollbar-thumb {
+	background-color: #a27b5c;
+	border-radius: 10px;
+}
+#resultArea::-webkit-scrollbar-track {
+	background-color: #faeed1;
+}
+#resultArea::-webkit-scrollbar-thumb:hover {
+	background-color: #6f4e37;
+}
+#resultArea::-webkit-scrollbar-track:hover {
+	background-color: #faeed1;
+}
+#resultArea::-webkit-scrollbar-corner {
+	background-color: #faeed1;
+}
+#resultArea::-webkit-scrollbar-corner:hover {
+	background-color: #faeed1;
+}
+#resultArea::-webkit-scrollbar-button {
+	background-color: #faeed1;
+}
+#resultArea::-webkit-scrollbar-button:hover {
+	background-color: #faeed1;
+}
+#resultArea::-webkit-scrollbar-corner {
+	background-color: #faeed1;
+}
+#resultArea::-webkit-scrollbar-corner:hover {
+	background-color: #faeed1;
+}
+#resultArea::-webkit-scrollbar-button {
+	background-color: #faeed1;
+}
+#resultArea::-webkit-scrollbar-button:hover {
+	background-color: #faeed1;
+}
+
+#bookList {
+	/* flex: 1 1 auto; */
+	overflow-y: auto;
+	min-height: 0;
+	padding-right: 4px; /* avoid scroll bar overlap */
+}
+#bookList::-webkit-scrollbar {
+	width: 8px;
+}
+#bookList::-webkit-scrollbar-thumb {
+	background-color: #a27b5c;
+	border-radius: 10px;
+}
+#bookList::-webkit-scrollbar-track {
+	background-color: #faeed1;
+}
+#bookList::-webkit-scrollbar-thumb:hover {
+	background-color: #6f4e37;
+}
+#bookList::-webkit-scrollbar-track:hover {
+	background-color: #faeed1;
+}
+#bookList::-webkit-scrollbar-corner {
+	background-color: #faeed1;
+}
+#bookList::-webkit-scrollbar-corner:hover {
+	background-color: #faeed1;
+}
+#bookList::-webkit-scrollbar-button {
+	background-color: #faeed1;
+}
+#bookList::-webkit-scrollbar-button:hover {
+	background-color: #faeed1;
+}
 
 #userSelect {
 	padding: 10px !important;
