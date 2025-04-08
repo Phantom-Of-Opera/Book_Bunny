@@ -67,7 +67,7 @@
 }
 
 .fontFlex {
-	font-size: clamp(0.6rem, 1vw, 1rem);
+	font-size: clamp(0.7rem, 1.5vw, 1rem);
 }
 
 .fontFlex-h1 {
@@ -78,6 +78,14 @@
 }
 .fontFlex-h2 {
 	font-size: clamp(1rem, 3vw, 2rem);
+	margin: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-align: center;
+}
+.fontFlex-h3 {
+	font-size: clamp(0.8rem, 2vw, 1.5rem);
+	font-weight: bold;
 	margin: 0;
 	overflow: hidden;
 	white-space: nowrap;
@@ -291,50 +299,59 @@ body > .main-content {
 	flex: 0 0 auto; /* don't grow or shrink */
 }
 
-#resultArea {
+#bookDescription {
 	flex: 1 1 auto;
 	overflow-y: auto;
 	min-height: 0;
 	padding-right: 4px; /* avoid scroll bar overlap */
+	margin-top: 10px;
 }
-#resultArea::-webkit-scrollbar {
+
+/* #resultArea {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	min-height: 0;
+	padding-right: 4px; /* avoid scroll bar overlap */
+/*} */
+
+.scrollable::-webkit-scrollbar {
 	width: 8px;
 }
-#resultArea::-webkit-scrollbar-thumb {
+.scrollable::-webkit-scrollbar-thumb {
 	background-color: #a27b5c;
 	border-radius: 10px;
 }
-#resultArea::-webkit-scrollbar-track {
+.scrollable::-webkit-scrollbar-track {
 	background-color: #faeed1;
 }
-#resultArea::-webkit-scrollbar-thumb:hover {
+.scrollable::-webkit-scrollbar-thumb:hover {
 	background-color: #6f4e37;
 }
-#resultArea::-webkit-scrollbar-track:hover {
+.scrollable::-webkit-scrollbar-track:hover {
 	background-color: #faeed1;
 }
-#resultArea::-webkit-scrollbar-corner {
+.scrollable::-webkit-scrollbar-corner {
 	background-color: #faeed1;
 }
-#resultArea::-webkit-scrollbar-corner:hover {
+.scrollable::-webkit-scrollbar-corner:hover {
 	background-color: #faeed1;
 }
-#resultArea::-webkit-scrollbar-button {
+.scrollable::-webkit-scrollbar-button {
 	background-color: #faeed1;
 }
-#resultArea::-webkit-scrollbar-button:hover {
+.scrollable::-webkit-scrollbar-button:hover {
 	background-color: #faeed1;
 }
-#resultArea::-webkit-scrollbar-corner {
+.scrollable::-webkit-scrollbar-corner {
 	background-color: #faeed1;
 }
-#resultArea::-webkit-scrollbar-corner:hover {
+.scrollable::-webkit-scrollbar-corner:hover {
 	background-color: #faeed1;
 }
-#resultArea::-webkit-scrollbar-button {
+.scrollable::-webkit-scrollbar-button {
 	background-color: #faeed1;
 }
-#resultArea::-webkit-scrollbar-button:hover {
+.scrollable::-webkit-scrollbar-button:hover {
 	background-color: #faeed1;
 }
 
@@ -344,6 +361,14 @@ body > .main-content {
 	min-height: 0;
 	padding-right: 4px; /* avoid scroll bar overlap */
 }
+
+.scrollable {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	min-height: 0;
+	padding-right: 4px; /* avoid scroll bar overlap */
+}
+
 #bookList::-webkit-scrollbar {
 	width: 8px;
 }
@@ -398,3 +423,18 @@ body {
 	height: 100vh;
 	margin: 0;
 }
+
+#bookArea {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+}
+
+
+
+#bookInfoCol {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+

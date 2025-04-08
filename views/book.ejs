@@ -1,54 +1,70 @@
 <%-include("partials/header.ejs") %>
 
+<div class="container my-3">
+	<div class="row align-items-start border-bottom pb-3" style="flex: 1 1 auto">
+		<!-- Book Cover -->
+		<div class="col-4 col-md-3">
+			<img
+				src="https://covers.openlibrary.org/b/olid/<%=locals.thisBook.book_cover_id%>-L.jpg"
+				alt="Book cover"
+				class="img-fluid"
+			/>
+		</div>
 
-<div class="container">
-	<div class="bookArea">
-		<form action="/submit" method="POST">
-			<div class="mb-3">
-				<label for="titleID" class="form-label">Blog Title</label>
-				<input
-					type="text"
-					class="form-control simonetta-black"
-					id="titleID"
-					name="title"
-					value="<%= locals.setTitle%>"
-				/>
-			</div>
+		<!-- Book Info -->
+		<div class="col-8 col-md-9" id="bookInfoCol">
+			<div>
+				<h2 class="simonetta-black fontFlex-h2" style="text-align: left">
+					<%=locals.thisBook.book_title%>
+					(<%=locals.thisBook.book_first_publish%>)
+				</h2>
+				<h3 class="simonetta-regular fontFlex-h3" style="text-align: left">
+					<%=locals.thisBook.author_name%>
+				</h3>
 
-			<div class="mb-3">
-				<label for="authorID" class="form-label">Blog Author</label>
-				<input
-					type="text"
-					class="form-control simonetta-regular-italic"
-					id="authorID"
-					name="author"
-					value="<%= locals.setAuthor%>"
-				/>
-			</div>
+				<p class="fontFlex simonetta-regular-italic" style="margin: 0">
+					<%=locals.thisBook.book_summary%>
+				</p>
 
-			<div class="mb-3">
-				<label for="blogTextID" class="form-label">Blog Text</label>
-				<textarea
-					class="form-control simonetta-regular"
-					id="blogTextID"
-					name="blogText"
-					rows="8"
+				<h3
+					class="simonetta-black fontFlex-h3"
+					style="text-align: left; margin-top: 8px; margin-bottom: 8px"
 				>
-<%= locals.setBlogText%></textarea
-				>
+					My book analysis
+				</h3>
 			</div>
 
-			<button type="submit" class="btn btn-primary" id="btnSubmit">
-				Send Post
-			</button>
-			<button type="button" class="btn btn-danger" id="btnDelete">
-				Delete Post
-			</button>
-			<button type="button" class="btn btn-secondary" id="btnCancel">
-				Cancel Changes
-			</button>
-		</form>
+			<div id="bookArea">
+				<form
+					action="/submit"
+					method="POST"
+					style="display: flex; flex-direction: column; height: 100%"
+				>
+					<div class="mb-3">
+						<button type="submit" class="btn fontFlex" id="btnSubmit">
+							Save
+						</button>
+						<button type="button" class="btn fontFlex" id="btnDelete">
+							Delete
+						</button>
+						<button type="button" class="btn fontFlex" id="btnCancel">
+							Cancel
+						</button>
+					</div>
+					<div class="mb-3 scrollable">
+						<textarea
+							class="form-control simonetta-regular"
+							id="bookAnalysis"
+							name="bookAnalysis"
+							style="height:100%; width: 100%; resize: none"
+						>
+					<%= locals.setBlogText%>
+					</textarea
+						>
+					</div>
+				</form>
+			</div>
+		</div>
 	</div>
 </div>
-
 <%-include("partials/footer.ejs") %>

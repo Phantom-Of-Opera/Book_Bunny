@@ -215,7 +215,12 @@ app.post("/select", async (req, res) => {
 
 app.get("/book", (req, res) => {
 	console.log("Rendering book page");
-	res.render("book.ejs");
+	console.log("Selected book:", selectedBook);
+	res.render("book.ejs", {
+		thisBook: selectedBook,
+		userName: selectedName,
+		userIcon: selectedIcon,
+	});
 });
 
 // app.post("/new", (req, res) => {
@@ -389,13 +394,38 @@ async function addAuthorId(authorRef) {
 	return parseInt(authorId);
 }
 
+async function getBookWork(bookRef) {
+	let bookSummary = null;
+	// Get the works json file from OpenLibrary using the bookRef.works reference
+	try {
+		let worksURL = `https://openlibrary.org/${bookRef.works}.json`;
+		let worksData = await axios.get(worksURL);
+		bookSummary = worksData.data.description.value || "no description";
+	} catch (err) {
+		console.log("Error fetching works data for book:", bookRef.works);
+		console.log("Error:", err);
+		// Set default values
+		bookSummary = null;
+	}
+	return bookSummary;
+}
+
 async function addBookId(bookRef) {
 	let bookId = null;
 	let bookKey = null;
+	bookRef.bookSummary = await getBookWork(bookRef);
+	//Insert the book into a database and return the book_id
 	try {
 		bookKey = await db.query(
-			"INSERT INTO books (book_title, book_cover_id, book_first_publish, book_oleid) VALUES ($1, $2, $3, $4) RETURNING id_book",
-			[bookRef.title, bookRef.cover, bookRef.publish, bookRef.oleId]
+			"INSERT INTO books (book_title, book_cover_id, book_first_publish, book_oleid, book_works,book_summary) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_book",
+			[
+				bookRef.title,
+				bookRef.cover,
+				bookRef.publish,
+				bookRef.oleId,
+				bookRef.works,
+				bookRef.bookSummary,
+			]
 		);
 		bookId = bookKey.rows[0].id_book;
 	} catch (err) {

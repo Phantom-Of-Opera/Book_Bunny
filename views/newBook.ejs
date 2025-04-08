@@ -58,7 +58,7 @@
 			</button>
 		</form>
 	</div>
-	<div class="list-group" id="resultArea"></div>
+	<div class="list-group scrollable" id="resultArea"></div>
 </div>
 <!-- </div> -->
 
@@ -101,6 +101,7 @@
 						const olid = book.key.split("/").pop(); // Extract OLID if needed
 						const coverCode = book.cover_edition_key || "NoCover";
 						const publishedYear = book.first_publish_year || "Unknown Year";
+						const works = book.key || "Unknown Works";
 
 						listGroup.innerHTML += `
 						<div class="searchResult">
@@ -139,6 +140,8 @@
 									oleId: olid,
 									author: authors,
 									author_key: author_key,
+									works: works,
+									summary: "",
 								};
 
 								if (this.checked) {
