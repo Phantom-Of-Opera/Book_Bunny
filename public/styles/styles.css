@@ -315,7 +315,7 @@ body > .main-content {
 /*} */
 
 .scrollable::-webkit-scrollbar {
-	width: 8px;
+	width: 4px;
 }
 .scrollable::-webkit-scrollbar-thumb {
 	background-color: #a27b5c;
@@ -370,7 +370,7 @@ body > .main-content {
 }
 
 #bookList::-webkit-scrollbar {
-	width: 8px;
+	width: 4px;
 }
 #bookList::-webkit-scrollbar-thumb {
 	background-color: #a27b5c;
@@ -428,9 +428,8 @@ body {
 	flex: 1 1 auto;
 	display: flex;
 	flex-direction: column;
+	border-top: 2px solid #a27b5c;
 }
-
-
 
 #bookInfoCol {
 	display: flex;
@@ -438,3 +437,38 @@ body {
 	height: 100%;
 }
 
+#bookDescription {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+#bookAnalysis {
+	height: 100%;
+	width: 100%;
+}
+
+.hidden {
+	display: none;
+}
+
+.slide {
+	transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+	max-height: 0;
+	overflow: hidden;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.slide.open {
+	max-height: 500px; /* Adjust if needed */
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+.toggle-icon {
+	transition: transform 0.3s ease;
+}
+
+.toggle-icon.rotated {
+	transform: rotate(180deg);
+}

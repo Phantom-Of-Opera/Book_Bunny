@@ -1,14 +1,13 @@
 <%-include("partials/header.ejs") %>
 
-<div class="container my-3">
+<div class="container my-3 scrollable">
 	<div class="row align-items-start border-bottom pb-3" style="flex: 1 1 auto">
 		<!-- Book Cover -->
 		<div class="col-4 col-md-3">
-			<img
-				src="https://covers.openlibrary.org/b/olid/<%=locals.thisBook.book_cover_id%>-L.jpg"
-				alt="Book cover"
-				class="img-fluid"
-			/>
+			<img <%if ( locals.thisBook.book_cover_id == "NoCover" ) {%>
+			src="images/blank_cover.jpeg" <%}else{%>
+			src="https://covers.openlibrary.org/b/olid/<%=locals.thisBook.book_cover_id%>-L.jpg"
+			<%}%> alt="Book cover" class="img-fluid" />
 		</div>
 
 		<!-- Book Info -->
@@ -18,20 +17,31 @@
 					<%=locals.thisBook.book_title%>
 					(<%=locals.thisBook.book_first_publish%>)
 				</h2>
-				<h3 class="simonetta-regular fontFlex-h3" style="text-align: left">
-					<%=locals.thisBook.author_name%>
-				</h3>
+				<!-- Add a div to get h3 on the left of the screen and the button on the right on the same line -->
 
-				<p class="fontFlex simonetta-regular-italic" style="margin: 0">
+				<div class="d-flex justify-content-between align-items-center">
+					<h3 class="simonetta-regular fontFlex-h3" style="text-align: left">
+						<%=locals.thisBook.author_name%>
+					</h3>
+					<button
+						type="button"
+						class="btn btn-secondary d-flex align-items-center fontFlex"
+						id="toggleDescription"
+					>
+						<span>Show Description</span>
+						<i
+							class="bi bi-chevron-down ms-2 toggle-icon"
+							id="descIcon"
+							style="color: white"
+						></i>
+					</button>
+				</div>
+				<p
+					class="fontFlex simonetta-regular-italic slide mt-2"
+					id="bookDescription"
+				>
 					<%=locals.thisBook.book_summary%>
 				</p>
-
-				<h3
-					class="simonetta-black fontFlex-h3"
-					style="text-align: left; margin-top: 8px; margin-bottom: 8px"
-				>
-					My book analysis
-				</h3>
 			</div>
 
 			<div id="bookArea">
@@ -40,31 +50,50 @@
 					method="POST"
 					style="display: flex; flex-direction: column; height: 100%"
 				>
-					<div class="mb-3">
-						<button type="submit" class="btn fontFlex" id="btnSubmit">
-							Save
-						</button>
-						<button type="button" class="btn fontFlex" id="btnDelete">
-							Delete
-						</button>
-						<button type="button" class="btn fontFlex" id="btnCancel">
-							Cancel
-						</button>
+					<div class="d-flex justify-content-between align-items-center my-2">
+						<h3 class="simonetta-black fontFlex-h3" style="text-align: left">
+							My book analysis
+						</h3>
+
+						<div>
+							<button type="submit" class="btn fontFlex" id="btnSubmit">
+								Save
+							</button>
+							<button type="button" class="btn fontFlex" id="btnDelete">
+								Delete
+							</button>
+							<button type="button" class="btn fontFlex" id="btnCancel">
+								Cancel
+							</button>
+						</div>
 					</div>
 					<div class="mb-3 scrollable">
-						<textarea
+						<div
+							id="quillEditor"
+							class="form-control simonetta-regular"
+							style="height: 100%"
+						></div>
+						<input type="hidden" name="bookAnalysis" id="bookAnalysis" />
+
+						<!-- <textarea
 							class="form-control simonetta-regular"
 							id="bookAnalysis"
 							name="bookAnalysis"
-							style="height:100%; width: 100%; resize: none"
 						>
-					<%= locals.setBlogText%>
-					</textarea
-						>
+				
+					</textarea -->
+
+						<input
+							type="hidden"
+							name="bookId"
+							value="<%= locals.thisBook.id_book %>"
+						/>
+						<input type="hidden" name="userId" value="<%= locals.userId %>" />
 					</div>
 				</form>
 			</div>
 		</div>
 	</div>
 </div>
+
 <%-include("partials/footer.ejs") %>

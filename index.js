@@ -217,6 +217,7 @@ app.get("/book", (req, res) => {
 	console.log("Rendering book page");
 	console.log("Selected book:", selectedBook);
 	res.render("book.ejs", {
+		page: "book",
 		thisBook: selectedBook,
 		userName: selectedName,
 		userIcon: selectedIcon,
