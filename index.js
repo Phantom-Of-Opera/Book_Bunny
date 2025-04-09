@@ -120,7 +120,7 @@ app.post("/tab", (req, res) => {
 			});
 			break;
 
-		case "Show Library":
+		case "Library":
 			res.redirect("/");
 			break;
 
@@ -195,27 +195,22 @@ app.post("/addbook", async (req, res) => {
 });
 
 app.post("/select", async (req, res) => {
-	console.log("Clicking");
-	console.log(req.body.key);
 	let bookId = parseInt(req.body.key);
 	try {
 		let result = await db.query(
 			"SELECT * FROM main_fields WHERE id_book=$1 AND id_reader=$2",
 			[bookId, selectedUser]
 		);
-		console.log(result.rows);
 		selectedBook = result.rows[0];
 	} catch (error) {
 		console.error("Error executing query", error.stack);
 		return null;
 	}
-	console.log("Selected book:", selectedBook);
 	res.json("OK");
 });
 
 app.get("/book", (req, res) => {
-	console.log("Rendering book page");
-	console.log("Selected book:", selectedBook);
+	console.log(selectedBook);
 	res.render("book.ejs", {
 		page: "book",
 		thisBook: selectedBook,
@@ -235,22 +230,43 @@ app.get("/book", (req, res) => {
 // 	res.send("OK");
 // });
 
-// app.post("/submit", (req, res) => {
-// 	var newBlog = {
-// 		blogAuthor: req.body.author,
-// 		blogTitle: req.body.title,
-// 		blogText: req.body.blogText,
-// 		blogKey: req.body.title + "|" + req.body.author,
-// 		blogDate: new Date(),
-// 	};
+app.post("/submit", (req, res) => {
+	console.log("Submit request received");
+	console.log(req.body);
+	let saveOk = updateBookAnalysis(
+		req.body.bookId,
+		req.body.userId,
+		req.body.bookAnalysis,
+		req.body.bookStructure,
+		req.body.bookRating
+	);
+	if (saveOk) {
+		console.log("Update successful");
+		res.status(200);
+	} else {
+		console.log("Update failed");
+		res.status(500);
+	}
+	// res.redirect("/");
+});
 
-// 	addToFile(newBlog);
-// 	res.redirect("/");
-// });
-
-app.post("/delete", (req, res) => {
-	removeFromFile(req.body.key);
-	res.json("Deletion successful");
+app.post("/delete", async (req, res) => {
+	console.log("Delete request received");
+	console.log(req.body);
+	//Delete the record in books_readers with the bookId and userId
+	const bookId = req.body.bookId;
+	const userId = req.body.userId;
+	const deleteWork = await db.query("SELECT delete_reader_cleanup($1,$2)", [
+		bookId,
+		userId,
+	]);
+	if (deleteWork) {
+		console.log("Delete successful");
+		res.redirect("/");
+	} else {
+		console.log("Delete failed");
+		res.status(500);
+	}
 });
 
 //---------------- Functions ----------------
@@ -495,4 +511,28 @@ async function addBooksReaders(readerId, bookId) {
 		}
 	}
 	return insertResult;
+}
+
+async function updateBookAnalysis(bookId, userId, Analysis, Structure, Rating) {
+	let updateResult = false;
+	//Insert the relationship into the books_readers table
+	try {
+		await db.query(
+			"UPDATE books_readers SET book_notes = $1, book_structure = $2, book_rating = $3 WHERE id_book = $4 AND id_reader = $5",
+			[Analysis, Structure, Rating, bookId, userId]
+		);
+		updateResult = true;
+	} catch (err) {
+		console.log("Error updating books_readers");
+		const problem = categorizeSQLError(err);
+		if (problem.type === "DUPLICATE") {
+			console.error("Error updating books_readers: Shows DUPLICATE");
+		} else if (problem.type === "CONNECTION") {
+			console.error("Error updating books_readers: Shows CONNECTION");
+		} else {
+			console.error("Error updating books_readers");
+			console.error("Unexpected SQL issue in update book analysis:", problem);
+		}
+	}
+	return updateResult;
 }

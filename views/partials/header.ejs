@@ -62,16 +62,18 @@
 									action="/tab"
 									method="post"
 								>
-									<input
+									<button
 										type="submit"
 										name="tab"
-										value="Show Library"
+										value="Library"
 										id="goLibrary"
 										class="btn fontFlex"
-									/>
+									>
+										<%= locals.userName !== null ? 'My books':'Library'%>
+									</button>
 									<input type="submit" name="tab" value="New Book" id="newBook"
 									class="btn fontFlex" <%= locals.userName !== null ? '' :
-									'disabled' %> />
+									'hidden' %> />
 								</form>
 								|
 								<!-- Login and Icon -->

@@ -28,16 +28,16 @@
 						class="btn btn-secondary d-flex align-items-center fontFlex"
 						id="toggleDescription"
 					>
-						<span>Show Description</span>
+						<span id="toggleText">Hide Description</span>
 						<i
-							class="bi bi-chevron-down ms-2 toggle-icon"
+							class="bi bi-chevron-down ms-2 toggle-icon rotated"
 							id="descIcon"
 							style="color: white"
 						></i>
 					</button>
 				</div>
 				<p
-					class="fontFlex simonetta-regular-italic slide mt-2"
+					class="fontFlex simonetta-regular-italic slide open mt-2"
 					id="bookDescription"
 				>
 					<%=locals.thisBook.book_summary%>
@@ -49,6 +49,7 @@
 					action="/submit"
 					method="POST"
 					style="display: flex; flex-direction: column; height: 100%"
+					id="bookAnalysisForm"
 				>
 					<div class="d-flex justify-content-between align-items-center my-2">
 						<h3 class="simonetta-black fontFlex-h3" style="text-align: left">
@@ -71,24 +72,31 @@
 						<div
 							id="quillEditor"
 							class="form-control simonetta-regular"
-							style="height: 100%"
-						></div>
-						<input type="hidden" name="bookAnalysis" id="bookAnalysis" />
-
-						<!-- <textarea
-							class="form-control simonetta-regular"
-							id="bookAnalysis"
-							name="bookAnalysis"
+							style="height: 100%; font-size: 1rem"
 						>
-				
-					</textarea -->
+							<%- thisBook.book_notes%>
+						</div>
+						<input type="hidden" name="bookAnalysis" id="bookAnalysis" />
+						<input
+							type="hidden"
+							name="bookStructure"
+							id="bookStructure"
+							value="No Structure"
+						/>
+						<input type="hidden" name="bookRating" id="bookRating" value="2" />
 
 						<input
 							type="hidden"
 							name="bookId"
+							id="bookId"
 							value="<%= locals.thisBook.id_book %>"
 						/>
-						<input type="hidden" name="userId" value="<%= locals.userId %>" />
+						<input
+							type="hidden"
+							name="userId"
+							id="userId"
+							value="<%= locals.thisBook.id_reader %>"
+						/>
 					</div>
 				</form>
 			</div>
