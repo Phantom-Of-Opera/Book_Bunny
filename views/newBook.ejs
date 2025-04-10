@@ -4,29 +4,54 @@
 <div class="container pt-3">
 	<div class="searchArea" id="searchArea">
 		<form id="searchForm" action="/searchbook" method="POST">
-			<h2 class="simonetta-black fontFlex-h2">
-				Search for a new book to insert
+			<h2 class="simonetta-black fontFlex-h2 mb-2">
+				! Add books to your library !
 			</h2>
 			<div class="mb-3 searchBar">
-				<label class="searchLabel fontFlex">Search by :</label>
-				<select
-					name="searchType"
-					class="form-selet fontFlex searchBorders"
-					id="searchType"
-					width="250px"
-				>
-					<option value="title" selected>Title</option>
-					<option value="author">Author</option>
-					<option value="subject">Subject</option>
-				</select>
-				<input
-					type="text"
-					class="simonetta-black searchInput fontFlex searchBorders"
-					id="searchTitle"
-					name="searchTitle"
-					placeholder="What do you want to find?"
-				/>
-
+				<div class="searchInput">
+					<label class="fontFlex searchLabel">Criteria 2 :</label>
+					<select
+						name="searchType"
+						class="form-selet fontFlex searchBorders"
+						id="searchType"
+						width="250px"
+					>
+						<option value="" disabled selected>Search by</option>
+						<option value="title">Title</option>
+						<option value="author">Author</option>
+						<option value="subject">Subject</option>
+						<option value="language">Language</option>
+					</select>
+					<input
+						type="text"
+						class="simonetta-black fontFlex searchField searchBorders"
+						id="searchValue"
+						name="searchValue"
+						placeholder="What do you want to find?"
+					/>
+				</div>
+				<div class="searchInput">
+					<label class="fontFlex searchLabel">Criteria 2 :</label>
+					<select
+						name="searchType2"
+						class="form-selet fontFlex searchBorders"
+						id="searchType2"
+						width="250px"
+					>
+						<option value="" disabled selected>Search by</option>
+						<option value="title">Title</option>
+						<option value="author">Author</option>
+						<option value="subject">Subject</option>
+						<option value="language">Language</option>
+					</select>
+					<input
+						type="text"
+						class="simonetta-black searchField fontFlex searchBorders"
+						id="searchValue2"
+						name="searchValue2"
+						placeholder="What do you want to find?"
+					/>
+				</div>
 				<button
 					type="submit"
 					class="btn btn-primary searchButton fontFlex"
@@ -54,7 +79,7 @@
 				name="btnBook"
 				disabled
 			>
-				Add Selection
+				Check your books
 			</button>
 		</form>
 	</div>
@@ -71,12 +96,10 @@
 		.addEventListener("submit", async function (e) {
 			e.preventDefault(); // stop the page from reloading
 
-			const title = document.getElementById("searchTitle").value;
+			const value = document.getElementById("searchValue").value;
 			const type = document.getElementById("searchType").value;
-
-			console.log("I see this");
-			console.log("Title: ", title);
-			console.log("Type: ", type);
+			const value2 = document.getElementById("searchValue2").value;
+			const type2 = document.getElementById("searchType2").value;
 
 			try {
 				const response = await fetch("/searchbook", {
@@ -84,7 +107,12 @@
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify({ searchTitle: title, searchType: type }),
+					body: JSON.stringify({
+						searchValue: value,
+						searchType: type,
+						searchValue2: value2,
+						searchType2: type2,
+					}),
 				});
 
 				const result = await response.json();
@@ -94,7 +122,7 @@
 
 				// If your result is an array of books (like from OpenLibrary's search API)
 				if (result.docs && result.docs.length) {
-					result.docs.slice(0, 50).forEach((book, index) => {
+					result.docs.slice(0, 100).forEach((book, index) => {
 						const title = book.title || "Untitled";
 						const authors = book.author_name?.join(", ") || "Unknown Author";
 						const author_key = book.author_key || "Unknown Author Key";

@@ -1,9 +1,9 @@
+//Opent the details of the selected book
 $(".bookBtn").on("click", function (event) {
 	event.preventDefault(); // Prevent form submission
 
 	// Retrieve data from the button's data-* attributes
 	const bookKey = $(this).data("key");
-	console.log(bookKey);
 	// Send data to the server using jQuery's AJAX method
 	$.ajax({
 		url: "/select",
@@ -21,19 +21,23 @@ $(".bookBtn").on("click", function (event) {
 	});
 });
 
-$(".newBlog").on("click", function (event) {
+//Add the selected book to my books
+$(".addBtn").on("click", function (event) {
 	event.preventDefault(); // Prevent form submission
-	// Send data to the server using jQuery's AJAX method
 
+	// Retrieve data from the button's data-* attributes
+	const bookKey = $(this).data("key");
+	const user_Id = $("#userId").val();
+	// Send data to the server using jQuery's AJAX method
 	$.ajax({
-		url: "/new",
+		url: "/addOne",
 		type: "POST",
 		contentType: "application/json",
-		data: JSON.stringify({ key: "new" }),
+		data: JSON.stringify({ bookId: bookKey, userId: user_Id }),
 		success: function (response) {
 			console.log("Data sent successfully:", response);
 			// Handle response (redirect, show message, etc.)
-			location.assign("/blog");
+			location.assign("/myBooks");
 		},
 		error: function (xhr, status, error) {
 			console.log("Error:", error);

@@ -52,7 +52,7 @@ $("#btnDelete").on("click", function () {
 });
 
 $("#btnCancel").on("click", function () {
-	location.assign("/");
+	location.assign("/myBooks");
 });
 
 document
@@ -61,3 +61,31 @@ document
 		const html = quill.root.innerHTML;
 		document.getElementById("bookAnalysis").value = html;
 	});
+
+//Star rating functionality
+const stars = document.querySelectorAll(".star-rating.interactive i");
+const ratingInput = document.getElementById("book_rating");
+
+function updateStars(rating) {
+	stars.forEach((star, index) => {
+		if (index < rating) {
+			star.classList.add("bi-star-fill");
+			star.classList.remove("bi-star");
+		} else {
+			star.classList.add("bi-star");
+			star.classList.remove("bi-star-fill");
+		}
+	});
+	document.getElementById("bookRating").value = rating;
+}
+
+stars.forEach((star) => {
+	star.addEventListener("click", function () {
+		const selectedRating = parseInt(this.getAttribute("data-value"));
+		ratingInput.value = selectedRating;
+		updateStars(selectedRating);
+	});
+});
+
+// Initialize from the input's current value
+updateStars(parseInt(ratingInput.value));

@@ -38,12 +38,28 @@ app.listen(port, () => {
 });
 
 app.get("/", async (req, res) => {
-	const bookList = await getFromDatabase(selectedUser);
+	const bookList = await getLibrary();
 	res.render("home.ejs", {
 		page: "home",
 		bookList: bookList,
 		userName: selectedName,
+		userId: selectedUser,
 		userIcon: selectedIcon,
+		myBooks: false,
+		hideAdd: selectedName === null,
+	});
+});
+
+app.get("/myBooks", async (req, res) => {
+	const bookList = await getMyBooks(selectedUser);
+	res.render("home.ejs", {
+		page: "home",
+		bookList: bookList,
+		userName: selectedName,
+		userId: selectedUser,
+		userIcon: selectedIcon,
+		myBooks: true,
+		hideAdd: true,
 	});
 });
 
@@ -80,7 +96,7 @@ app.post("/login", async (req, res) => {
 				errPwd = false;
 				selectedName = resultPwd.rows[0].name;
 				selectedIcon = resultPwd.rows[0].icon;
-				res.redirect("/");
+				res.redirect("/myBooks");
 			} else {
 				selectedUser = null;
 				errPwd = true;
@@ -120,6 +136,10 @@ app.post("/tab", (req, res) => {
 			});
 			break;
 
+		case "myBooks":
+			res.redirect("/myBooks");
+			break;
+
 		case "Library":
 			res.redirect("/");
 			break;
@@ -131,11 +151,19 @@ app.post("/tab", (req, res) => {
 });
 
 app.post("/searchbook", async (req, res) => {
+	console.log("Search request received");
+	console.log(req.body);
+
 	let searchKey = req.body.searchType;
-	let searchValue = req.body.searchTitle;
+	let searchValue = req.body.searchValue;
+	let searchKey2 = req.body.searchType2;
+	let searchValue2 = req.body.searchValue2;
+
 	let searchString = new URLSearchParams({
 		[searchKey]: searchValue,
+		[searchKey2]: searchValue2,
 	});
+	console.log(searchString.toString());
 	try {
 		let searchURL =
 			apiSearch + "?" + searchString.toString().replace(/%20/g, "+");
@@ -145,7 +173,6 @@ app.post("/searchbook", async (req, res) => {
 
 		res.json(result);
 	} catch (error) {
-		console.error(error);
 		res.status(500).json({ error: "Something went wrong" });
 	}
 });
@@ -210,6 +237,7 @@ app.post("/select", async (req, res) => {
 });
 
 app.get("/book", (req, res) => {
+	console.log("Book request received");
 	console.log(selectedBook);
 	res.render("book.ejs", {
 		page: "book",
@@ -219,16 +247,21 @@ app.get("/book", (req, res) => {
 	});
 });
 
-// app.post("/new", (req, res) => {
-// 	selectBlog = [
-// 		{
-// 			blogAuthor: "Your name",
-// 			blogTitle: "Title of your blog",
-// 			blogText: "Your blog text",
-// 		},
-// 	];
-// 	res.send("OK");
-// });
+app.post("/addOne", async (req, res) => {
+	console.log("AddOne request received");
+	console.log(req.body);
+	const bookId = parseInt(req.body.bookId);
+	const userId = parseInt(req.body.userId);
+	const insertBookReader = await addBooksReaders(userId, bookId);
+	if (insertBookReader) {
+		console.log("Insert successful");
+		res.status(200);
+		res.redirect("/myBooks");
+	} else {
+		console.log("Insert failed");
+		res.status(500);
+	}
+});
 
 app.post("/submit", (req, res) => {
 	console.log("Submit request received");
@@ -262,25 +295,40 @@ app.post("/delete", async (req, res) => {
 	]);
 	if (deleteWork) {
 		console.log("Delete successful");
-		res.redirect("/");
+		res.redirect("/myBooks");
 	} else {
 		console.log("Delete failed");
 		res.status(500);
 	}
 });
 
+//----------------
+//----------------
+//----------------
 //---------------- Functions ----------------
+//----------------
+//----------------
+//----------------
 
-async function getFromDatabase(idReader) {
+async function getLibrary() {
 	try {
 		let result = null;
-		if (idReader == null) {
-			result = await db.query(
-				"SELECT * FROM book_author_view ORDER BY book_title"
-			);
-		} else {
-			result = await db.query("SELECT * FROM get_reader_books($1)", [idReader]);
-		}
+		result = await db.query(
+			"SELECT * FROM book_author_view ORDER BY book_title"
+		);
+		return result.rows;
+	} catch (err) {
+		console.error("Error executing query", err.stack);
+		return null;
+	}
+}
+
+async function getMyBooks(idReader) {
+	try {
+		let result = null;
+
+		result = await db.query("SELECT * FROM get_reader_books($1)", [idReader]);
+
 		return result.rows;
 	} catch (err) {
 		console.error("Error executing query", err.stack);

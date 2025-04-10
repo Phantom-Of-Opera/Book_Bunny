@@ -69,8 +69,20 @@
 										id="goLibrary"
 										class="btn fontFlex"
 									>
-										<%= locals.userName !== null ? 'My books':'Library'%>
+										Library
 									</button>
+
+									<button
+									type="submit"
+									name="tab"
+									value="myBooks"
+									id="goMyBooks"
+									class="btn fontFlex"
+									<%= locals.userName !== null ? '' :
+									'hidden' %>
+								>My Books
+								</button>
+
 									<input type="submit" name="tab" value="New Book" id="newBook"
 									class="btn fontFlex" <%= locals.userName !== null ? '' :
 									'hidden' %> />

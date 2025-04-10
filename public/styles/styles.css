@@ -129,7 +129,9 @@ body > .main-content {
 	align-items: center;
 	display: flex;
 	flex-direction: row;
-	gap: 0.5rem;
+	gap: 1rem;
+	flex-wrap: wrap;
+	justify-content: space-evenly;
 }
 
 .searchButton {
@@ -140,7 +142,15 @@ body > .main-content {
 
 .searchInput {
 	flex: 1 1 auto;
-	flex-basis: auto;
+	display: flex;
+	flex-direction: row;
+	gap: 1rem;
+}
+
+.searchField {
+	flex: 1 1 auto;
+	flex-wrap: nowrap;
+	width: 100%;
 }
 
 .searchLabel {
@@ -471,4 +481,12 @@ body {
 
 .toggle-icon.rotated {
 	transform: rotate(180deg);
+}
+
+.star-rating i {
+	color: gold;
+	font-size: 1.5rem;
+	margin-right: 4px;
+	cursor: pointer;
+	transition: color 0.2s ease;
 }
