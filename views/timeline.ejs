@@ -1,0 +1,86 @@
+<%-include("partials/header.ejs") %>
+
+<!-- Timeline Container -->
+<div class="container my-4">
+	<h2 class="text-center">Books & Authors Timeline</h2>
+	<div id="timeline"></div>
+</div>
+
+<!-- Include vis-timeline CSS/JS -->
+<script src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
+<link
+	href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css"
+	rel="stylesheet"
+/>
+
+<script>
+	    // Timeline setup
+	    const container = document.getElementById("timeline");
+
+	    // Define groups
+	    const groups = new vis.DataSet([
+	    { id: 1, content: "My Books" },
+	    { id: 2, content: "Other Books" },
+	    { id: 3, content: "Authors" },
+	]);
+
+	    // Define items
+	    const items = new vis.DataSet([
+
+	    // My books
+	    <%if (locals.myBooks !==null) {%>
+	        <% locals.myBooks.forEach((book, index) => { %>
+	        {
+	            id:  <%= index %>,
+	            group: 1,
+	            content: "<%= book.book_title %>",
+	            start: "<%= book.book_first_publish %>-01-01",
+	               className: "group-mybooks"
+	        },
+	        <% }) %>
+	    <% }%>
+
+	    // Other books
+	    <% locals.otherBooks.forEach((book, index) => { %>
+	    {
+	        id: 100 + <%= index %>,
+	        group: 2,
+	        content: "<%= book.book_title %>",
+	        start: "<%= book.book_first_publish %>-01-01",
+	           className: "group-otherbooks"
+	    },
+	    <% }) %>
+
+	       // Authors
+	       <% locals.authors.forEach((author, index) => { %>
+	       {
+	           id: 200+ <%= index + 1 %>,
+	           group: 3,
+	           content: "<%= author.author_name %>",
+	           start: "<%= author.author_birth_date %>",
+	           end: "<%= author.author_death_date || new Date().toISOString().split('T')[0] %>",
+	           type: "range",
+	           className: "group-authors"
+	       },
+	       <% }) %>
+
+	   ]);
+
+	   const options = {
+	       stack: true,
+	       showMajorLabels: true,
+	       zoomable: true,
+	       editable: false,
+	       margin: {
+	       item: 10,
+	       axis: 5,
+	       },
+	       orientation: "bottom",
+	       start: "1800-01-01",
+	       end: "2050-01-01"
+	   };
+
+	   const timeline = new vis.Timeline(container, items, groups, options);
+</script>
+
+<%-include("partials/footer.ejs") %>

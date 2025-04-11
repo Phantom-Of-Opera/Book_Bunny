@@ -70,6 +70,7 @@ app.get("/user", async (req, res) => {
 		errPwd: errPwd,
 		userName: selectedName,
 		userIcon: selectedIcon,
+		userId: selectedUser,
 	});
 });
 
@@ -142,6 +143,10 @@ app.post("/tab", (req, res) => {
 
 		case "Library":
 			res.redirect("/");
+			break;
+
+		case "Timeline":
+			res.redirect("/timeline");
 			break;
 
 		default:
@@ -237,8 +242,6 @@ app.post("/select", async (req, res) => {
 });
 
 app.get("/book", (req, res) => {
-	console.log("Book request received");
-	console.log(selectedBook);
 	res.render("book.ejs", {
 		page: "book",
 		thisBook: selectedBook,
@@ -248,8 +251,6 @@ app.get("/book", (req, res) => {
 });
 
 app.post("/addOne", async (req, res) => {
-	console.log("AddOne request received");
-	console.log(req.body);
 	const bookId = parseInt(req.body.bookId);
 	const userId = parseInt(req.body.userId);
 	const insertBookReader = await addBooksReaders(userId, bookId);
@@ -264,8 +265,6 @@ app.post("/addOne", async (req, res) => {
 });
 
 app.post("/submit", (req, res) => {
-	console.log("Submit request received");
-	console.log(req.body);
 	let saveOk = updateBookAnalysis(
 		req.body.bookId,
 		req.body.userId,
@@ -284,8 +283,6 @@ app.post("/submit", (req, res) => {
 });
 
 app.post("/delete", async (req, res) => {
-	console.log("Delete request received");
-	console.log(req.body);
 	//Delete the record in books_readers with the bookId and userId
 	const bookId = req.body.bookId;
 	const userId = req.body.userId;
@@ -300,6 +297,52 @@ app.post("/delete", async (req, res) => {
 		console.log("Delete failed");
 		res.status(500);
 	}
+});
+
+app.get("/timeline", async (req, res) => {
+	let timeAllBooks = null;
+	let timeAuthors = null;
+	let timeMyBooks = null;
+	let timeOtherBooks = null;
+	//Get all the list of Authors names, year of birth and year of death
+	let resultAuthors = await db.query(
+		"SELECT DISTINCT author_name, author_birth_date, author_death_date FROM authors JOIN books_authors ON books_authors.id_author = authors.id_author WHERE books_authors.is_main = true and author_birth_date IS NOT NULL ORDER BY author_birth_date"
+	);
+	timeAuthors = resultAuthors.rows;
+	console.log("Authors:", timeAuthors.rows);
+	if (selectedUser == null) {
+		timeAllBooks = await db.query(
+			"SELECT book_title, book_first_publish, author_name FROM book_author_view ORDER BY book_first_publish"
+		);
+		timeMyBooks = null;
+		timeOtherBooks = timeAllBooks.rows;
+		console.log("Other Books:", timeAllBooks.rows);
+	} else {
+		//Get all the list of the current user books names, year of publication and author name
+		let resultMyBooks = await db.query(
+			"SELECT book_title, book_first_publish, author_name FROM main_fields WHERE id_reader=$1 ORDER BY book_first_publish",
+			[selectedUser]
+		);
+		timeMyBooks = resultMyBooks.rows;
+		console.log("My Books:", timeMyBooks.rows);
+		//Get all the list of the other books names, year of publication and author name
+		let resultOtherBooks = await db.query(
+			"SELECT DISTINCT book_title, book_first_publish, author_name FROM main_fields WHERE id_reader != $1 ORDER BY book_first_publish",
+			[selectedUser]
+		);
+		timeOtherBooks = resultOtherBooks.rows;
+		console.log("Other Books:", timeOtherBooks.rows);
+	}
+
+	res.render("timeline.ejs", {
+		authors: timeAuthors,
+		myBooks: timeMyBooks,
+		otherBooks: timeOtherBooks,
+		userName: selectedName,
+		userIcon: selectedIcon,
+		userId: selectedUser,
+		hideAdd: selectedName === null,
+	});
 });
 
 //----------------

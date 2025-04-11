@@ -92,7 +92,7 @@
 	text-align: center;
 }
 .form-signin {
-	max-width: 330px;
+	width: 400px;
 	padding: 1rem;
 }
 
@@ -489,4 +489,27 @@ body {
 	margin-right: 4px;
 	cursor: pointer;
 	transition: color 0.2s ease;
+}
+
+#timeline {
+	height: auto;
+	border: 1px solid #ccc;
+	overflow-y: auto;
+}
+.vis-item.group-authors {
+	background-color: #ffdd99;
+	border-color: #e6b800;
+	color: #000;
+}
+
+.vis-item.group-mybooks {
+	background-color: #c1f0c1;
+	border-color: #33cc33;
+	color: #000;
+}
+
+.vis-item.group-otherbooks {
+	background-color: #d0d0f0;
+	border-color: #7777cc;
+	color: #000;
 }
