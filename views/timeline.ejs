@@ -27,50 +27,54 @@
 	    // Define items
 	    const items = new vis.DataSet([
 
-	    // My books
-	    <%if (locals.myBooks !==null) {%>
-	        <% locals.myBooks.forEach((book, index) => { %>
-	        {
-	            id:  <%= index %>,
-	            group: 1,
-	            content: "<%= book.book_title %>",
-	            start: "<%= book.book_first_publish %>-01-01",
-	               className: "group-mybooks"
-	        },
-	        <% }) %>
-	    <% }%>
+			// My books
+			<% if (locals.myBooks !== null) { %>
+				<% locals.myBooks.forEach((book, index) => { %>
+				{
+					id:  <%=index%>,
+					group: 1,
+					content: "<%= book.book_title %>",
+					start: "<%= book.book_first_publish %>-01-01",
+					className: "group-mybooks"
+				},
+				<% }) %>
+			<% };%>
 
-	    // Other books
-	    <% locals.otherBooks.forEach((book, index) => { %>
-	    {
-	        id: 100 + <%= index %>,
-	        group: 2,
-	        content: "<%= book.book_title %>",
-	        start: "<%= book.book_first_publish %>-01-01",
-	           className: "group-otherbooks"
-	    },
-	    <% }) %>
+			// Other books
+			<% locals.otherBooks.forEach((book, index) => { %>
+			{
+				id: 100 + <%= index %>,
+				group: 2,
+				content: "<%= book.book_title %>",
+				start: "<%= book.book_first_publish %>-01-01",
+				className: "group-otherbooks"
+			},
+			<% }); %>
 
-	       // Authors
-	       <% locals.authors.forEach((author, index) => { %>
-	       {
-	           id: 200+ <%= index + 1 %>,
-	           group: 3,
-	           content: "<%= author.author_name %>",
-	           start: "<%= author.author_birth_date %>",
-	           end: "<%= author.author_death_date || new Date().toISOString().split('T')[0] %>",
-	           type: "range",
-	           className: "group-authors"
-	       },
-	       <% }) %>
+			// Authors
+			<% locals.authors.forEach((author, index) => { %>
+			{
+				id: 200+ <%= index + 1 %>,
+				group: 3,
+				content: "<%= author.author_name %>",
+				start: "<%= author.author_birth_date %>",
+				end: "<%= author.author_death_date || new Date().toISOString().split('T')[0] %>",
+				type: "range",
+				className: "group-authors"
+			},
+			<% }); %>
 
-	   ]);
+	    ]);
 
 	   const options = {
+			height : "450px",
+	       width: "100%",
 	       stack: true,
-	       showMajorLabels: true,
+	       showMajorLabels: false,
 	       zoomable: true,
 	       editable: false,
+		   verticalScroll: true,
+	       horizontalScroll: true,
 	       margin: {
 	       item: 10,
 	       axis: 5,

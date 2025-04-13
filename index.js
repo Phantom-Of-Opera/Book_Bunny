@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import pg from "pg";
 import axios from "axios";
 import { Console } from "node:console";
+import e from "express";
 
 const app = express();
 const port = 3000;
@@ -23,7 +24,7 @@ var selectedUser = null;
 var selectedName = null;
 var selectedIcon = null;
 var selectedBook = null;
-var errPwd = false;
+var errMsg = null;
 
 //------------ Use of App ----------------
 
@@ -67,7 +68,7 @@ app.get("/user", async (req, res) => {
 	const resultUser = await db.query("SELECT * FROM readers ORDER BY name");
 	res.render("user.ejs", {
 		usersList: resultUser.rows,
-		errPwd: errPwd,
+		errMsg: errMsg,
 		userName: selectedName,
 		userIcon: selectedIcon,
 		userId: selectedUser,
@@ -78,7 +79,7 @@ app.get("/logout", (req, res) => {
 	selectedUser = null;
 	selectedName = null;
 	selectedIcon = null;
-	errPwd = false;
+	errMsg = null;
 	res.redirect("/");
 });
 
@@ -87,25 +88,11 @@ app.post("/login", async (req, res) => {
 	if (newUser == null || newUser == "false") {
 		selectedUser = parseInt(req.body.user);
 		const submittedPwd = req.body.password;
-		try {
-			const resultPwd = await db.query(
-				"SELECT * FROM readers WHERE id_reader=$1",
-				[selectedUser]
-			);
-			const goodPwd = resultPwd.rows[0].password;
-			if (submittedPwd == goodPwd) {
-				errPwd = false;
-				selectedName = resultPwd.rows[0].name;
-				selectedIcon = resultPwd.rows[0].icon;
-				res.redirect("/myBooks");
-			} else {
-				selectedUser = null;
-				errPwd = true;
-				selectedName = null;
-				selectedIcon = null;
-				res.redirect("/user");
-			}
-		} catch (error) {
+		let passwordOK = checkPassword(selectedUser, submittedPwd);
+
+		if (passwordOK) {
+			res.redirect("/myBooks");
+		} else {
 			res.redirect("/user");
 		}
 	} else {
@@ -343,6 +330,41 @@ app.get("/timeline", async (req, res) => {
 		userId: selectedUser,
 		hideAdd: selectedName === null,
 	});
+});
+
+app.post("/deleteReader", async (req, res) => {
+	if (req.body.confirmPhrase === "I want to delete my Account!") {
+		console.log("Delete request confirmed");
+		if (await checkPassword(selectedUser, req.body.deletePwd)) {
+			console.log("Password is correct");
+			// Delete the record in readers with the userId
+			const deleteWork = await db.query(
+				"SELECT delete_reader_and_cleanup($1)",
+				[selectedUser]
+			);
+			if (deleteWork) {
+				console.log("Delete successful");
+				selectedUser = null;
+				selectedName = null;
+				selectedIcon = null;
+				errMsg = null;
+
+				res.redirect("/");
+			} else {
+				console.log("Delete failed");
+				res.status(500);
+			}
+		} else {
+			console.log("Password is incorrect");
+			errMsg = "Password is incorrect, you have been logged out";
+			res.redirect("/user");
+		}
+	} else {
+		console.log("Delete request not confirmed");
+		errMsg =
+			"Please confirm the deletion by typing 'I want to delete my Account!'";
+		res.redirect("/user");
+	}
 });
 
 //----------------
@@ -626,4 +648,29 @@ async function updateBookAnalysis(bookId, userId, Analysis, Structure, Rating) {
 		}
 	}
 	return updateResult;
+}
+
+async function checkPassword(userId, tryPwd) {
+	try {
+		const resultPwd = await db.query(
+			"SELECT * FROM readers WHERE id_reader=$1",
+			[userId]
+		);
+		const goodPwd = resultPwd.rows[0].password;
+		if (tryPwd == goodPwd) {
+			errMsg = null;
+			selectedName = resultPwd.rows[0].name;
+			selectedIcon = resultPwd.rows[0].icon;
+			return true;
+		} else {
+			selectedUser = null;
+			errMsg = "Password is incorrect";
+			selectedName = null;
+			selectedIcon = null;
+			return false;
+		}
+	} catch (error) {
+		console.error("Error executing query", error.stack);
+		return false;
+	}
 }

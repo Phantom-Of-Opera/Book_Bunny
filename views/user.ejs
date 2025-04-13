@@ -96,8 +96,8 @@
 		</div>
 		<button class="btn btn-primary py-2" type="submit" >Log in</button>
 	</form>
-	<% if (locals.errPwd){ %>
-	<h3 style="color: red">Sorry, wrong password</h3>
+	<% if (locals.errMsg){ %>
+	<h3 style="color: red"><%= locals.errMsg %></h3>
 	<%}%> <%}%>
 </div>
 
@@ -107,8 +107,13 @@
 >
 	<h2 class="text-center mb-4">🗑️ Delete your account 🗑️</h2>
 	<form action="/deleteReader" method="post" autocomplete="off">
+		<input type="text" name="confirmPhrase" class="boxBorder form-control" placeholder="type : I want to delete my Account!" />
+		<input type="text" name="deletePwd" class="boxBorder form-control" placeholder="Your password" />
 		<button class="btn w-100 btn-danger py-2" type="submit" style="background-color: red;">Delete</button>
 	</form>
+	<% if (locals.errMsg){ %>
+		<h3 style="color: red"><%= locals.errMsg %></h3>
+		<%}%> 
 </div>
 </div>
 

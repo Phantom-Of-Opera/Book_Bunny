@@ -492,9 +492,8 @@ body {
 }
 
 #timeline {
-	height: auto;
+	max-height: 600px;
 	border: 1px solid #ccc;
-	overflow-y: auto;
 }
 .vis-item.group-authors {
 	background-color: #ffdd99;
