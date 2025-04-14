@@ -144,13 +144,16 @@ app.post("/tab", (req, res) => {
 
 app.post("/searchbook", async (req, res) => {
 	console.log("Search request received");
-	console.log(req.body);
 
 	let searchKey = req.body.searchType;
 	let searchValue = req.body.searchValue;
 	let searchKey2 = req.body.searchType2;
 	let searchValue2 = req.body.searchValue2;
 
+	if (searchKey2 == searchKey) {
+		searchKey2 = null;
+		searchValue2 = null;
+	}
 	let searchString = new URLSearchParams({
 		[searchKey]: searchValue,
 		[searchKey2]: searchValue2,
@@ -229,6 +232,7 @@ app.post("/select", async (req, res) => {
 });
 
 app.get("/book", (req, res) => {
+	console.log("Selected book:", selectedBook);
 	res.render("book.ejs", {
 		page: "book",
 		thisBook: selectedBook,
@@ -251,7 +255,8 @@ app.post("/addOne", async (req, res) => {
 	}
 });
 
-app.post("/submit", (req, res) => {
+app.post("/save", (req, res) => {
+	//Save the book analysis in the database
 	let saveOk = updateBookAnalysis(
 		req.body.bookId,
 		req.body.userId,
@@ -296,14 +301,12 @@ app.get("/timeline", async (req, res) => {
 		"SELECT DISTINCT author_name, author_birth_date, author_death_date FROM authors JOIN books_authors ON books_authors.id_author = authors.id_author WHERE books_authors.is_main = true and author_birth_date IS NOT NULL ORDER BY author_birth_date"
 	);
 	timeAuthors = resultAuthors.rows;
-	console.log("Authors:", timeAuthors.rows);
 	if (selectedUser == null) {
 		timeAllBooks = await db.query(
 			"SELECT book_title, book_first_publish, author_name FROM book_author_view ORDER BY book_first_publish"
 		);
 		timeMyBooks = null;
 		timeOtherBooks = timeAllBooks.rows;
-		console.log("Other Books:", timeAllBooks.rows);
 	} else {
 		//Get all the list of the current user books names, year of publication and author name
 		let resultMyBooks = await db.query(
@@ -311,7 +314,6 @@ app.get("/timeline", async (req, res) => {
 			[selectedUser]
 		);
 		timeMyBooks = resultMyBooks.rows;
-		console.log("My Books:", timeMyBooks.rows);
 		//Get all the list of the other books names, year of publication and author name
 		let resultOtherBooks = await db.query(
 			"SELECT DISTINCT book_title, book_first_publish, author_name FROM main_fields WHERE id_reader != $1 ORDER BY book_first_publish",

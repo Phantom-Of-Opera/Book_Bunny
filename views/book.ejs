@@ -35,7 +35,10 @@
 
 				<!-- Add a div to get h3 on the left of the screen and the button on the right on the same line -->
 
-				<div class="d-flex justify-content-between align-items-center">
+				<div
+					class="d-flex justify-content-between align-items-center"
+					style="flex-wrap: wrap"
+				>
 					<h3 class="simonetta-regular fontFlex-h3" style="text-align: left">
 						<%=locals.thisBook.author_name%>
 					</h3>
@@ -62,24 +65,27 @@
 
 			<div id="bookArea">
 				<form
-					action="/submit"
-					method="POST"
+					action="/myBooks"
+					method="GET"
 					style="display: flex; flex-direction: column; height: 100%"
 					id="bookAnalysisForm"
 				>
-					<div class="d-flex justify-content-between align-items-center my-2">
+					<div
+						class="d-flex justify-content-between align-items-center my-2"
+						style="flex-wrap: wrap"
+					>
 						<h3 class="simonetta-black fontFlex-h3" style="text-align: left">
 							My book analysis
 						</h3>
 
 						<div>
-							<button type="submit" class="btn fontFlex" id="btnSubmit">
+							<button type="button" class="btn fontFlex" id="btnSave">
 								Save
 							</button>
 							<button type="button" class="btn fontFlex" id="btnDelete">
 								Delete
 							</button>
-							<button type="button" class="btn fontFlex" id="btnCancel">
+							<button type="submit" class="btn fontFlex" id="btnCancel">
 								Cancel
 							</button>
 						</div>

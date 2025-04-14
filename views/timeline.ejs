@@ -43,7 +43,7 @@
 			// Other books
 			<% locals.otherBooks.forEach((book, index) => { %>
 			{
-				id: 100 + <%= index %>,
+				id: 500 + <%= index %>,
 				group: 2,
 				content: "<%= book.book_title %>",
 				start: "<%= book.book_first_publish %>-01-01",
@@ -54,7 +54,7 @@
 			// Authors
 			<% locals.authors.forEach((author, index) => { %>
 			{
-				id: 200+ <%= index + 1 %>,
+				id: 1000+ <%= index + 1 %>,
 				group: 3,
 				content: "<%= author.author_name %>",
 				start: "<%= author.author_birth_date %>",

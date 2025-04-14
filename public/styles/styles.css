@@ -32,6 +32,10 @@
 	color: white;
 }
 
+.highlight {
+	background-color: yellow;
+}
+
 .card {
 	border-color: #443627;
 	border-radius: 30px;

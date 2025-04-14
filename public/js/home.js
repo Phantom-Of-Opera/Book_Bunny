@@ -44,3 +44,22 @@ $(".addBtn").on("click", function (event) {
 		},
 	});
 });
+
+//Add the selected book to my books
+function filterBooks() {
+	const searchInput = document.getElementById("filterBar").value.toLowerCase();
+	const cards = document.querySelectorAll(".card-body");
+	cards.forEach((card) => {
+		const title = card.querySelector(".card-title").textContent.toLowerCase();
+		const author = card.querySelector(".card-text").textContent.toLowerCase();
+		console.log(`The title is ${title}`);
+		console.log(`The author is ${author}`);
+		if (title.includes(searchInput) || author.includes(searchInput)) {
+			card.parentElement.style.display = "block";
+			// card.classList.remove("hidden");
+		} else {
+			// card.classList.add("hidden");
+			card.parentElement.style.display = "none";
+		}
+	});
+}

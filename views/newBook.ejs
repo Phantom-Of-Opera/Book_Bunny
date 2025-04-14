@@ -12,21 +12,21 @@
 					<label class="fontFlex searchLabel">Criteria 2 :</label>
 					<select
 						name="searchType"
-						class="form-selet fontFlex searchBorders"
+						class="form-selet fontFlex searchBorders fieldType"
 						id="searchType"
 						width="250px"
 					>
-						<option value="" disabled selected>Search by</option>
 						<option value="title">Title</option>
 						<option value="author">Author</option>
 						<option value="subject">Subject</option>
-						<option value="language">Language</option>
+						<option value="place">Place</option>
 					</select>
 					<input
 						type="text"
 						class="simonetta-black fontFlex searchField searchBorders"
 						id="searchValue"
 						name="searchValue"
+						value="*"
 						placeholder="What do you want to find?"
 					/>
 				</div>
@@ -34,21 +34,21 @@
 					<label class="fontFlex searchLabel">Criteria 2 :</label>
 					<select
 						name="searchType2"
-						class="form-selet fontFlex searchBorders"
+						class="form-selet fontFlex searchBorders fieldType"
 						id="searchType2"
 						width="250px"
 					>
-						<option value="" disabled selected>Search by</option>
 						<option value="title">Title</option>
-						<option value="author">Author</option>
+						<option value="author" selected>Author</option>
 						<option value="subject">Subject</option>
-						<option value="language">Language</option>
+						<option value="place">Place</option>
 					</select>
 					<input
 						type="text"
 						class="simonetta-black searchField fontFlex searchBorders"
 						id="searchValue2"
 						name="searchValue2"
+						value="*"
 						placeholder="What do you want to find?"
 					/>
 				</div>
@@ -91,6 +91,22 @@
 	const selectedBooks = [];
 	var numberOfBooks = 0;
 
+	// Highlight the search type select elements if they are the same
+	document.querySelectorAll(".fieldType").forEach((field) => {
+		field.addEventListener("change", function () {
+			const searchType1 = document.getElementById("searchType").value;
+			const searchType2 = document.getElementById("searchType2").value;
+
+			if (searchType1 === searchType2) {
+				document.getElementById("searchType").classList.add("highlight");
+				document.getElementById("searchType2").classList.add("highlight");
+			} else {
+				document.getElementById("searchType").classList.remove("highlight");
+				document.getElementById("searchType2").classList.remove("highlight");
+			}
+		});
+	});
+
 	document
 		.getElementById("searchForm")
 		.addEventListener("submit", async function (e) {
@@ -100,6 +116,20 @@
 			const type = document.getElementById("searchType").value;
 			const value2 = document.getElementById("searchValue2").value;
 			const type2 = document.getElementById("searchType2").value;
+
+			// Check if both search fields are empty
+			if (value.trim() === "" || value2.trim() === "") {
+				alert(
+					"Please enter a search term in at least one field and use * on the other."
+				);
+				return;
+			}
+
+			// Check if both search types are the same
+			if (type === type2) {
+				alert("Please select different search criteria.");
+				return;
+			}
 
 			try {
 				const response = await fetch("/searchbook", {
@@ -192,8 +222,6 @@
 								// Update the button text
 								document.getElementById("btnAdd").innerHTML =
 									"Add Selection : " + numberOfBooks + " book(s)";
-
-								console.log("Current selectedBooks:", selectedBooks);
 							});
 						}, 0);
 					});

@@ -11,11 +11,39 @@ const quill = new Quill("#quillEditor", {
 	},
 });
 
-// On form submit, copy HTML into hidden input
-document.querySelector("form").addEventListener("submit", function () {
-	document.getElementById("bookAnalysis").value = quill.root.innerHTML;
+//Does the autosave of quill on localstorage
+
+// Define a unique key for this book/page/user
+const storageKey = "autosave_bookAnalysis";
+// 🔁 Load existing saved content
+const saved = localStorage.getItem(storageKey);
+
+if (saved) {
+	quill.root.innerHTML = saved;
+} else {
+	const initialFromServer = "<%- thisBook.book_notes%>";
+	localStorage.setItem(storageKey, initialFromServer);
+}
+
+// 💾 Save on change (debounced)
+let timeout = null;
+quill.on("text-change", () => {
+	clearTimeout(timeout);
+	timeout = setTimeout(() => {
+		const html = quill.root.innerHTML;
+		localStorage.setItem(storageKey, html);
+		console.log("Autosaved");
+	}, 1000); // 1 second debounce
 });
 
+//Trigger a save to the database when leaving the page
+window.addEventListener("beforeunload", () => {
+	saveData();
+	//emply localStorage
+	localStorage.removeItem(storageKey);
+});
+
+//Toggle description
 document.getElementById("toggleDescription").addEventListener("click", () => {
 	const description = document.getElementById("bookDescription");
 	const icon = document.getElementById("descIcon");
@@ -26,7 +54,12 @@ document.getElementById("toggleDescription").addEventListener("click", () => {
 	text.textContent = isOpen ? "Hide Description" : "Show Description";
 });
 
-// Attach event listener to the button
+//Save the data
+$("#btnSave").on("click", function () {
+	saveData();
+});
+
+// Attach event listener to the delete button
 $("#btnDelete").on("click", function () {
 	// Show an alert for confirmation
 	if (confirm("Are you sure you want to delete this book and you summaries?")) {
@@ -50,17 +83,6 @@ $("#btnDelete").on("click", function () {
 		});
 	}
 });
-
-$("#btnCancel").on("click", function () {
-	location.assign("/myBooks");
-});
-
-document
-	.getElementById("bookAnalysisForm")
-	.addEventListener("submit", function () {
-		const html = quill.root.innerHTML;
-		document.getElementById("bookAnalysis").value = html;
-	});
 
 //Star rating functionality
 const stars = document.querySelectorAll(".star-rating.interactive i");
@@ -89,3 +111,32 @@ stars.forEach((star) => {
 
 // Initialize from the input's current value
 updateStars(parseInt(ratingInput.value));
+
+//-----------------------------------------
+//--------------- Functions ---------------
+//-----------------------------------------
+
+function saveData() {
+	//Send POST request to /save route
+	$.ajax({
+		url: "/save", // Server endpoint
+		type: "POST", // HTTP method
+		contentType: "application/json", // Sending JSON data
+		data: JSON.stringify({
+			bookId: $("#bookId").val(),
+			userId: $("#userId").val(),
+			bookAnalysis: quill.root.innerHTML,
+			bookStructure: "No structuer yet",
+			bookRating: $("#bookRating").val(),
+		}), // Optional data
+		success: function (response) {
+			localStorage.removeItem(storageKey);
+			console.log("Save successful:", response);
+			alert("Save was successful!");
+		},
+		error: function (xhr, status, error) {
+			console.error("Save failed:", error);
+			alert("Save failed. Please try again.");
+		},
+	});
+}

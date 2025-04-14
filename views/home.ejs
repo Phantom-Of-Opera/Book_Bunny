@@ -1,6 +1,18 @@
 <%-include("partials/header.ejs") %>
 
 <div class="container mt-4">
+		<div class="mb-3">
+			<input
+				type="text"
+				id="filterBar"
+				class="form-control"
+				placeholder="Filter your books..."
+				onkeyup="filterBooks()"
+			/>
+		</div>
+
+
+
 	<div class="row justify-content-start" id="bookList">
 		<!-- Save the user id for future use. -->
 		<input type="hidden" id="userId" value="<%= locals.userId %>" />
@@ -26,7 +38,6 @@
 						class="btn btn-primary bookBtn fontFlex"
 						<%= myBooks == false? 'hidden' : '' %>
 						data-key="<%= book.id_book %>"
-						
 					>
 						Select
 					</button>
