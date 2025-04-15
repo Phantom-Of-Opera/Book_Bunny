@@ -11,13 +11,25 @@ import e from "express";
 const app = express();
 const port = process.env.PORT || 3000;
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const db = new pg.Pool({
-	user: "postgres",
-	host: "localhost",
-	database: "girlslibrary",
-	password: "Ph@nt0m",
-	port: 5432,
+// const db = new pg.Pool({
+// 	user: "postgres",
+// 	host: "localhost",
+// 	database: "girlslibrary",
+// 	password: "Ph@nt0m",
+// 	port: 5432,
+// });
+
+// const { Pool } = require('pg');
+
+// Use DATABASE_URL if on Render, else fallback to local for dev
+const db = new Pool({
+	connectionString: process.env.DATABASE_URL,
+	ssl:
+		process.env.NODE_ENV === "production"
+			? { rejectUnauthorized: false }
+			: false,
 });
+
 const apiSearch = "https://openlibrary.org/search.json";
 
 var listOfCollections = null;
