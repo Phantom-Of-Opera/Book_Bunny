@@ -9,26 +9,31 @@ import { Console } from "node:console";
 import e from "express";
 
 const app = express();
-const port = process.env.PORT || 3000;
-const __dirname = dirname(fileURLToPath(import.meta.url));
-// const db = new pg.Pool({
-// 	user: "postgres",
-// 	host: "localhost",
-// 	database: "girlslibrary",
-// 	password: "Ph@nt0m",
-// 	port: 5432,
-// });
 
-// const { Pool } = require('pg');
+const port = process.env.PORT || 3000;
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Use the commented lines below for local test of the code
+
+const db = new pg.Pool({
+	user: "postgres",
+	host: "localhost",
+	database: "girlslibrary",
+	password: "Ph@nt0m",
+	port: 5432,
+});
+
+//Use the paragraph below for Render deployment
 
 // Use DATABASE_URL if on Render, else fallback to local for dev
-const db = new pg.Pool({
-	connectionString: process.env.DATABASE_URL,
-	ssl:
-		process.env.NODE_ENV === "production"
-			? { rejectUnauthorized: false }
-			: false,
-});
+// const db = new pg.Pool({
+// 	connectionString: process.env.DATABASE_URL,
+// 	ssl:
+// 		process.env.NODE_ENV === "production"
+// 			? { rejectUnauthorized: false }
+// 			: false,
+// });
 
 const apiSearch = "https://openlibrary.org/search.json";
 
