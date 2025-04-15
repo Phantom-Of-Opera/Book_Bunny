@@ -22,7 +22,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // const { Pool } = require('pg');
 
 // Use DATABASE_URL if on Render, else fallback to local for dev
-const db = new Pool({
+const db = new pg.Pool({
 	connectionString: process.env.DATABASE_URL,
 	ssl:
 		process.env.NODE_ENV === "production"
