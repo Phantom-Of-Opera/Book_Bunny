@@ -20,6 +20,7 @@ const db = new pg.Pool({
 });
 const apiSearch = "https://openlibrary.org/search.json";
 
+var listOfCollections = null;
 var selectedUser = null;
 var selectedName = null;
 var selectedIcon = null;
@@ -39,6 +40,9 @@ app.listen(port, () => {
 });
 
 app.get("/", async (req, res) => {
+	//Get the list of collections from the database
+	listOfCollections = await getCollections();
+	//Get the list of books from the database
 	const bookList = await getLibrary();
 	res.render("home.ejs", {
 		page: "home",
@@ -231,13 +235,16 @@ app.post("/select", async (req, res) => {
 	res.json("OK");
 });
 
-app.get("/book", (req, res) => {
-	console.log("Selected book:", selectedBook);
+app.get("/book", async (req, res) => {
+	//Get the list of collections from the database
+	listOfCollections = await getCollections();
+	//Get the book information from the database
 	res.render("book.ejs", {
 		page: "book",
 		thisBook: selectedBook,
 		userName: selectedName,
 		userIcon: selectedIcon,
+		collections: listOfCollections,
 	});
 });
 
@@ -262,10 +269,10 @@ app.post("/save", (req, res) => {
 		req.body.userId,
 		req.body.bookAnalysis,
 		req.body.bookStructure,
-		req.body.bookRating
+		req.body.bookRating,
+		req.body.bookCollection
 	);
 	if (saveOk) {
-		console.log("Update successful");
 		res.status(200);
 	} else {
 		console.log("Update failed");
@@ -628,13 +635,21 @@ async function addBooksReaders(readerId, bookId) {
 	return insertResult;
 }
 
-async function updateBookAnalysis(bookId, userId, Analysis, Structure, Rating) {
+async function updateBookAnalysis(
+	bookId,
+	userId,
+	Analysis,
+	Structure,
+	Rating,
+	Collection
+) {
 	let updateResult = false;
 	//Insert the relationship into the books_readers table
+
 	try {
 		await db.query(
-			"UPDATE books_readers SET book_notes = $1, book_structure = $2, book_rating = $3 WHERE id_book = $4 AND id_reader = $5",
-			[Analysis, Structure, Rating, bookId, userId]
+			"UPDATE books_readers SET book_notes = $1, book_structure = $2, book_rating = $3, book_collection= $4 WHERE id_book = $5 AND id_reader = $6",
+			[Analysis, Structure, Rating, Collection, bookId, userId]
 		);
 		updateResult = true;
 	} catch (err) {
@@ -675,4 +690,12 @@ async function checkPassword(userId, tryPwd) {
 		console.error("Error executing query", error.stack);
 		return false;
 	}
+}
+
+async function getCollections() {
+	//Get the list of collections from the database
+	const collectList = await db.query(
+		"SELECT collection_name FROM collections ORDER BY collection_name"
+	);
+	return collectList.rows;
 }

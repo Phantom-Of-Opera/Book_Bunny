@@ -128,6 +128,7 @@ function saveData() {
 			bookAnalysis: quill.root.innerHTML,
 			bookStructure: "No structuer yet",
 			bookRating: $("#bookRating").val(),
+			bookCollection: $("#bookCollectionSelect").val(),
 		}), // Optional data
 		success: function (response) {
 			localStorage.removeItem(storageKey);

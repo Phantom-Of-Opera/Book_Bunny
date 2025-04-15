@@ -1,13 +1,34 @@
 <%-include("partials/header.ejs") %>
 
 <div class="container my-3 scrollable">
-	<div class="row align-items-start border-bottom pb-3" style="flex: 1 1 auto">
+	<div class="row align-items-start border-bottom" style="flex: 1 1 auto">
 		<!-- Book Cover -->
 		<div class="col-4 col-md-3" style="text-align: center">
 			<img <%if ( locals.thisBook.book_cover_id == "NoCover" ) {%>
 			src="images/blank_cover.jpeg" <%}else{%>
 			src="https://covers.openlibrary.org/b/olid/<%=locals.thisBook.book_cover_id%>-L.jpg"
 			<%}%> alt="Book cover" class="img-fluid" />
+			
+			<!-- Add a dropdown menu to select the book collection and select the one coming from thisBook.book_collection -->
+			<div class="dropdown">
+				<select
+					class="form-select simonetta-regular my-2 searchBorders text-center"
+					id="bookCollectionSelect"
+					name="bookCollection"
+					style="width: 100%"
+				>	
+				<% locals.collections.forEach((collection) => { %>
+					<option
+						value="<%= collection.collection_name %>"
+						<% if (collection.collection_name == locals.thisBook.book_collection) { %>
+							selected
+						<% } %>
+					>
+						<%= collection.collection_name %>
+					</option>
+				<% }); %>
+				</select>
+			</div>
 			<!-- Star rating system -->
 			<div class="star-rating interactive">
 				<input
@@ -25,18 +46,20 @@
 			</div>
 		</div>
 
+
 		<!-- Book Info -->
 		<div class="col-8 col-md-9" id="bookInfoCol">
 			<div>
 				<h2 class="simonetta-black fontFlex-h2" style="text-align: left">
 					<%=locals.thisBook.book_title%>
-					(<%=locals.thisBook.book_first_publish%>)
+					<span style="font-size: small;">(<%=locals.thisBook.book_first_publish%>)</span>
 				</h2>
+				
 
 				<!-- Add a div to get h3 on the left of the screen and the button on the right on the same line -->
 
 				<div
-					class="d-flex justify-content-between align-items-center"
+					class="d-flex justify-content-between align-items-center mt-2"
 					style="flex-wrap: wrap"
 				>
 					<h3 class="simonetta-regular fontFlex-h3" style="text-align: left">
@@ -94,7 +117,7 @@
 						<div
 							id="quillEditor"
 							class="form-control simonetta-regular"
-							style="height: 100%; font-size: 1rem"
+							style="height: 90%; font-size: 1rem"
 						>
 							<%- thisBook.book_notes%>
 						</div>
@@ -124,6 +147,6 @@
 			</div>
 		</div>
 	</div>
-</div>
 
-<%-include("partials/footer.ejs") %>
+	<%-include("partials/footer.ejs") %>
+</div>
