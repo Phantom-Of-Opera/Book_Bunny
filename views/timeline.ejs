@@ -3,6 +3,18 @@
 <!-- Timeline Container -->
 <div class="container my-4">
 	<h2 class="text-center">Books & Authors Timeline</h2>
+
+	<!-- Tab Buttons -->
+	//TODO: Change the buttons to be tabs
+	<div class="d-flex justify-content-center mb-3">
+		<button id="toggleBooks" class="btn btn-primary mx-2 fontFlex">
+			Show/Hide All Books
+		</button>
+		<button id="toggleAuthors" class="btn btn-secondary mx-2 fontFlex">
+			Show/Hide Authors
+		</button>
+	</div>
+
 	<div id="timeline"></div>
 </div>
 
@@ -14,77 +26,97 @@
 />
 
 <script>
-	    // Timeline setup
-	    const container = document.getElementById("timeline");
+	// Timeline setup
+	const container = document.getElementById("timeline");
 
-	    // Define groups
-	    const groups = new vis.DataSet([
+	// Define groups
+	const groups = new vis.DataSet([
 	    { id: 1, content: "My Books" },
 	    { id: 2, content: "Other Books" },
 	    { id: 3, content: "Authors" },
 	]);
 
-	    // Define items
-	    const items = new vis.DataSet([
+	// Define items
+	const items = new vis.DataSet([
+	    // My books
+	    <% if (locals.myBooks !== null) { %>
+	        <% locals.myBooks.forEach((book, index) => { %>
+	        {
+	            id: <%= index %>,
+	            group: 1,
+	            content: "<%= book.book_title %>",
+	            start: "<%= book.book_first_publish %>-01-01",
+	            className: "group-mybooks"
+	        },
+	        <% }); %>
+	    <% } %>
 
-			// My books
-			<% if (locals.myBooks !== null) { %>
-				<% locals.myBooks.forEach((book, index) => { %>
-				{
-					id:  <%=index%>,
-					group: 1,
-					content: "<%= book.book_title %>",
-					start: "<%= book.book_first_publish %>-01-01",
-					className: "group-mybooks"
-				},
-				<% }) %>
-			<% };%>
+	    // Other books
+	    <% locals.otherBooks.forEach((book, index) => { %>
+	    {
+	        id: 500 + <%= index %>,
+	        group: 2,
+	        content: "<%= book.book_title %>",
+	        start: "<%= book.book_first_publish %>-01-01",
+	        className: "group-otherbooks"
+	    },
+	    <% }); %>
 
-			// Other books
-			<% locals.otherBooks.forEach((book, index) => { %>
-			{
-				id: 500 + <%= index %>,
-				group: 2,
-				content: "<%= book.book_title %>",
-				start: "<%= book.book_first_publish %>-01-01",
-				className: "group-otherbooks"
-			},
-			<% }); %>
+	    // Authors
+	    <% locals.authors.forEach((author, index) => { %>
+	    {
+	        id: 1000 + <%= index + 1 %>,
+	        group: 3,
+	        content: "<%= author.author_name %>",
+	        start: "<%= author.author_birth_date %>",
+	        end: "<%= author.author_death_date || new Date().toISOString().split('T')[0] %>",
+	        type: "range",
+	        className: "group-authors"
+	    },
+	    <% }); %>
+	]);
 
-			// Authors
-			<% locals.authors.forEach((author, index) => { %>
-			{
-				id: 1000+ <%= index + 1 %>,
-				group: 3,
-				content: "<%= author.author_name %>",
-				start: "<%= author.author_birth_date %>",
-				end: "<%= author.author_death_date || new Date().toISOString().split('T')[0] %>",
-				type: "range",
-				className: "group-authors"
-			},
-			<% }); %>
+	const options = {
+	    height: "450px",
+	    width: "100%",
+	    stack: true,
+	    showMajorLabels: false,
+	    zoomable: true,
+	    editable: false,
+	    verticalScroll: true,
+	    horizontalScroll: true,
+	    margin: {
+	        item: 10,
+	        axis: 5,
+	    },
+	    orientation: "bottom",
+	    start: "1800-01-01",
+	    end: "2050-01-01",
+	};
 
-	    ]);
+	const timeline = new vis.Timeline(container, items, groups, options);
 
-	   const options = {
-			height : "450px",
-	       width: "100%",
-	       stack: true,
-	       showMajorLabels: false,
-	       zoomable: true,
-	       editable: false,
-		   verticalScroll: true,
-	       horizontalScroll: true,
-	       margin: {
-	       item: 10,
-	       axis: 5,
-	       },
-	       orientation: "bottom",
-	       start: "1800-01-01",
-	       end: "2050-01-01"
-	   };
+	// Button Event Listeners
+	document.getElementById("toggleBooks").addEventListener("click", () => {
+	    const booksVisible = groups.get(2)// && groups.get(2);
+	    if (booksVisible) {
+	        groups.remove([2]); // Hide "Other Books"
+	    } else {
+	        groups.add([
+	            { id: 2, content: "Other Books" },
+	        ]); // Show "My Books" and "Other Books"
+	    }
+	});
 
-	   const timeline = new vis.Timeline(container, items, groups, options);
+	document.getElementById("toggleAuthors").addEventListener("click", () => {
+		//TODO : Create 2 groups of authors, one for mybooks and anther one for the whole library
+	    const authorsVisible = groups.get(3);
+	    if (authorsVisible) {
+	        groups.remove(3); // Hide "Authors"
+	    } else {
+	        groups.add({ id: 3, content: "Authors" }); // Show "Authors"
+	    }
+	});
 </script>
 
 <%-include("partials/footer.ejs") %>

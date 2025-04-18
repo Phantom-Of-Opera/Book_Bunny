@@ -181,12 +181,15 @@
 									// {index === 0 ? "checked" : ""}
 								/>
 								<span>
-									${title}
+									${title} - ${publishedYear}
 									<small class="d-block text-body-secondary">${authors}</small>
 								</span>
 							</label>
 						</div>
 					`;
+						// Call the sort function after rendering the results
+						sortSearchResults();
+
 						// Delay event listener attachment until after element is in the DOM
 						setTimeout(() => {
 							const checkbox = document.getElementById(`book-${index}`);
@@ -236,6 +239,29 @@
 		document.getElementById("selectedBooksInput").value =
 			JSON.stringify(selectedBooks);
 	});
+
+	function sortSearchResults() {
+		const resultArea = document.getElementById("resultArea");
+		const searchResults = Array.from(
+			resultArea.getElementsByClassName("searchResult")
+		);
+
+		// Sort the search results by published year
+		searchResults.sort((a, b) => {
+			const yearA =
+				parseInt(
+					a.querySelector(".bookResult span").textContent.split(" - ")[1]
+				) || 0;
+			const yearB =
+				parseInt(
+					b.querySelector(".bookResult span").textContent.split(" - ")[1]
+				) || 0;
+			return yearB - yearA; // Sort in descending order (newest first)
+		});
+
+		// Reorder the elements in the DOM
+		searchResults.forEach((result) => resultArea.appendChild(result));
+	}
 </script>
 
 <%-include("partials/footer.ejs") %>
