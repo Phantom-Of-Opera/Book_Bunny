@@ -73,6 +73,8 @@ app.get("/", async (req, res) => {
 	});
 });
 
+//TODO: Add the handler for the authors access
+
 app.get("/myBooks", async (req, res) => {
 	const bookList = await getMyBooks(selectedUser);
 	res.render("home.ejs", {
@@ -317,7 +319,6 @@ app.post("/delete", async (req, res) => {
 });
 
 app.get("/timeline", async (req, res) => {
-	// TODO: Get a 4 tables, one for allbooks and allauthors, the other one for just mybooks and myauthors
 	let timeAllBooks = null;
 	let timeAllAuthors = null;
 	let timeMyBooks = null;
@@ -717,3 +718,5 @@ async function getCollections() {
 	);
 	return collectList.rows;
 }
+
+//TODO: Write a function to query the authors of the database

@@ -402,6 +402,8 @@
 	padding-right: 4px;
 }
 
+/* TODO: Add a class fot the authors (or make bookList more general) to keep the scrollbar */
+
 #bookList::-webkit-scrollbar {
 	width: 4px;
 }
