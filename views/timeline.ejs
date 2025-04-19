@@ -5,14 +5,73 @@
 	<h2 class="text-center">Books & Authors Timeline</h2>
 
 	<!-- Tab Buttons -->
-	//TODO: Change the buttons to be tabs
 	<div class="d-flex justify-content-center mb-3">
-		<button id="toggleBooks" class="btn btn-primary mx-2 fontFlex">
-			Show/Hide All Books
-		</button>
-		<button id="toggleAuthors" class="btn btn-secondary mx-2 fontFlex">
-			Show/Hide Authors
-		</button>
+		<div class="btn-group me-2" role="group" aria-label="Books Filter">
+			<input
+				type="radio"
+				class="btn-check"
+				name="btnBooks"
+				id="btnMyBooks"
+				autocomplete="off"
+			/>
+			<label class="btn btn-outline-primary fontFlex" for="btnMyBooks"
+				>My books</label
+			>
+			<input
+				type="radio"
+				class="btn-check"
+				name="btnBooks"
+				id="btnAllBooks"
+				autocomplete="off"
+				checked
+			/>
+			<label class="btn btn-outline-primary fontFlex" for="btnAllBooks"
+				>All books</label
+			>
+			<input
+				type="radio"
+				class="btn-check"
+				name="btnBooks"
+				id="btnNoBook"
+				autocomplete="off"
+			/>
+			<label class="btn btn-outline-primary fontFlex" for="btnNoBook"
+				>No book</label
+			>
+		</div>
+		<div class="btn-group me-2" role="group" aria-label="Author Filter">
+			<input
+				type="radio"
+				class="btn-check"
+				name="btnAuthors"
+				id="btnMyAuthors"
+				autocomplete="off"
+			/>
+			<label class="btn btn-outline-primary fontFlex" for="btnMyAuthors"
+				>My authors</label
+			>
+			<input
+				type="radio"
+				class="btn-check"
+				name="btnAuthors"
+				id="btnAllAuthors"
+				autocomplete="off"
+				checked
+			/>
+			<label class="btn btn-outline-primary fontFlex" for="btnAllAuthors"
+				>All authors</label
+			>
+			<input
+				type="radio"
+				class="btn-check"
+				name="btnAuthors"
+				id="btnNoAuthor"
+				autocomplete="off"
+			/>
+			<label class="btn btn-outline-primary fontFlex" for="btnNoAuthor"
+				>No authors</label
+			>
+		</div>
 	</div>
 
 	<div id="timeline"></div>
@@ -26,97 +85,156 @@
 />
 
 <script>
-	// Timeline setup
-	const container = document.getElementById("timeline");
+			// Timeline setup
+			const container = document.getElementById("timeline");
 
-	// Define groups
-	const groups = new vis.DataSet([
-	    { id: 1, content: "My Books" },
-	    { id: 2, content: "Other Books" },
-	    { id: 3, content: "Authors" },
-	]);
+			// Define groups
+			const groups = new vis.DataSet([
+			    { id: 1, content: "My Books" },
+			    { id: 2, content: "My Authors" },
+				{ id: 3, content: "All Books" },
+			    { id: 4, content: "All Authors" },
+			]);
 
-	// Define items
-	const items = new vis.DataSet([
-	    // My books
-	    <% if (locals.myBooks !== null) { %>
-	        <% locals.myBooks.forEach((book, index) => { %>
-	        {
-	            id: <%= index %>,
-	            group: 1,
-	            content: "<%= book.book_title %>",
-	            start: "<%= book.book_first_publish %>-01-01",
-	            className: "group-mybooks"
-	        },
-	        <% }); %>
-	    <% } %>
+			// Define items
+			const items = new vis.DataSet([
+			    // My books
+			    <% if (locals.myBooks !== null) { %>
+			        <% locals.myBooks.forEach((book, index) => { %>
+			        {
+			            id: <%= index %>,
+			            group: 1,
+			            content: "<%= book.book_title %>",
+			            start: "<%= book.book_first_publish %>-01-01",
+			            className: "group-myBooks fontFlex",
+			        },
+			        <% }); %>
+			    <% } %>
 
-	    // Other books
-	    <% locals.otherBooks.forEach((book, index) => { %>
-	    {
-	        id: 500 + <%= index %>,
-	        group: 2,
-	        content: "<%= book.book_title %>",
-	        start: "<%= book.book_first_publish %>-01-01",
-	        className: "group-otherbooks"
-	    },
-	    <% }); %>
+				 // All books
+					<% locals.allBooks.forEach((book, index) => { %>
+			    {
+			        id: 100 + <%= index %>,
+			        group: 2,
+			        content: "<%= book.book_title %>",
+			        start: "<%= book.book_first_publish %>-01-01",
+			        className: "group-allBooks fontFlex",
+			    },
+			    <% }); %>
 
-	    // Authors
-	    <% locals.authors.forEach((author, index) => { %>
-	    {
-	        id: 1000 + <%= index + 1 %>,
-	        group: 3,
-	        content: "<%= author.author_name %>",
-	        start: "<%= author.author_birth_date %>",
-	        end: "<%= author.author_death_date || new Date().toISOString().split('T')[0] %>",
-	        type: "range",
-	        className: "group-authors"
-	    },
-	    <% }); %>
-	]);
+				// My authors
+				<% if (locals.myAuthors !== null) { %>
+			    	<% locals.myAuthors.forEach((author, index) => { %>
+			        {
+			            id: 200 + <%= index %>,
+						group:3,
+						content: "<%= author.author_name %>",
+			        start: "<%= author.author_birth_date %>",
+			        end: "<%= author.author_death_date || new Date().toISOString().split('T')[0] %>",
+			        type: "range",
+			        className: "group-myAuthors fontFlex",
+			        },
+			        <% }); %>
+			    <% } %>
 
-	const options = {
-	    height: "450px",
-	    width: "100%",
-	    stack: true,
-	    showMajorLabels: false,
-	    zoomable: true,
-	    editable: false,
-	    verticalScroll: true,
-	    horizontalScroll: true,
-	    margin: {
-	        item: 10,
-	        axis: 5,
-	    },
-	    orientation: "bottom",
-	    start: "1800-01-01",
-	    end: "2050-01-01",
-	};
+			    // All Authors
+			    <% locals.allAuthors.forEach((author, index) => { %>
+			    {
+			        id: 300 + <%= index + 1 %>,
+			        group: 4,
+			        content: "<%= author.author_name %>",
+			        start: "<%= author.author_birth_date %>",
+			        end: "<%= author.author_death_date || new Date().toISOString().split('T')[0] %>",
+			        type: "range",
+			        className: "group-allAuthors fontFlex",
+			    },
+			    <% }); %>
+			]);
 
-	const timeline = new vis.Timeline(container, items, groups, options);
+			const options = {
+			    height: "100%",
+			    width: "100%",
+			    stack: true,
+			    showMajorLabels: false,
+			    zoomable: true,
+			    editable: false,
+			    verticalScroll: true,
+			    horizontalScroll: true,
+			    margin: {
+			        item: 10,
+			        axis: 5,
+			    },
+			    orientation: "bottom",
+			    start: "1800-01-01",
+			    end: "2050-01-01",
+			};
+			// Remove the default group "My Books" and "My Authors"
+			groups.remove([1]); // Remove "My Books"
+			groups.remove([3]); // Remove "My Authors"
+			// Set the default group to "All Books"
+			// groups.add({ id: 3, content: "All Books" });
+			// Set the default group to "All Authors"
+			// groups.add({ id: 4, content: "All Authors" });
 
-	// Button Event Listeners
-	document.getElementById("toggleBooks").addEventListener("click", () => {
-	    const booksVisible = groups.get(2)// && groups.get(2);
-	    if (booksVisible) {
-	        groups.remove([2]); // Hide "Other Books"
-	    } else {
-	        groups.add([
-	            { id: 2, content: "Other Books" },
-	        ]); // Show "My Books" and "Other Books"
-	    }
-	});
+			const timeline = new vis.Timeline(container, items, groups, options);
 
-	document.getElementById("toggleAuthors").addEventListener("click", () => {
-		//TODO : Create 2 groups of authors, one for mybooks and anther one for the whole library
-	    const authorsVisible = groups.get(3);
-	    if (authorsVisible) {
-	        groups.remove(3); // Hide "Authors"
-	    } else {
-	        groups.add({ id: 3, content: "Authors" }); // Show "Authors"
-	    }
-	});
+		// Radio Button Event Listeners
+
+		// My Books and All Books - Hide and remove the corresponding book groups
+		document.getElementById("btnMyBooks").addEventListener("change", () => {
+			groups.remove([2]); // Remove "All Books"
+			if (!groups.get(1)) {
+				groups.add({ id: 1, content: "My Books" }); // Add "My Books"
+			}
+			sortGroups(); // Sort the groups
+		});
+
+		document.getElementById("btnAllBooks").addEventListener("change", () => {
+			groups.remove([1]); // Remove "My Books"
+			if (!groups.get(2)) {
+				groups.add({ id: 2, content: "All Books" }); // Add "All Books"
+			}
+			sortGroups(); // Sort the groups
+		});
+		document.getElementById("btnNoBook").addEventListener("change", () => {
+			groups.remove([1]); // Remove "My Books"
+			groups.remove([2]); // Remove "All Books"
+			sortGroups(); // Sort the groups
+		});
+
+		// My Authors and All Authors - Hide and remove the corresponding author groups
+		document.getElementById("btnMyAuthors").addEventListener("change", () => {
+			groups.remove([4]); // Remove "All Authors"
+			if (!groups.get(3)) {
+				groups.add({ id: 3, content: "My Authors" }); // Add "My Authors"
+			}
+			sortGroups(); // Sort the groups
+		});
+		document.getElementById("btnAllAuthors").addEventListener("change", () => {
+			groups.remove([3]); // Remove "My Authors"
+			if (!groups.get(4)) {
+				groups.add({ id: 4, content: "All Authors" }); // Add "All Authors"
+			}
+			sortGroups(); // Sort the groups
+		});
+		document.getElementById("btnNoAuthor").addEventListener("change", () => {
+			groups.remove([3]); // Remove "My Authors"
+			groups.remove([4]); // Remove "All Authors"
+			sortGroups(); // Sort the groups
+		});
+	//Function that sorts the groups in the timeline in growing order
+	function sortGroups() {
+		// Get the current groups
+		const currentGroups = groups.get();
+		console.log("Before : ",currentGroups);
+		// Sort the groups based on their id
+		currentGroups.sort((a, b) => a.id - b.id);
+		// Clear the current groups
+		groups.clear();
+		console.log("After : ",currentGroups);
+		// Add the sorted groups back to the DataSet
+		groups.add(currentGroups);
+	}
 </script>
 
 <%-include("partials/footer.ejs") %>

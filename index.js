@@ -7,6 +7,7 @@ import pg from "pg";
 import axios from "axios";
 import { Console } from "node:console";
 import e from "express";
+import { todo } from "node:test";
 
 const app = express();
 
@@ -316,41 +317,41 @@ app.post("/delete", async (req, res) => {
 });
 
 app.get("/timeline", async (req, res) => {
+	// TODO: Get a 4 tables, one for allbooks and allauthors, the other one for just mybooks and myauthors
 	let timeAllBooks = null;
-	let timeAuthors = null;
+	let timeAllAuthors = null;
 	let timeMyBooks = null;
-	let timeOtherBooks = null;
-	//Get all the list of Authors names, year of birth and year of death
+	let timeMyAuthors = null;
+	// Has a first go at all the library authors
 	let resultAuthors = await db.query(
 		"SELECT DISTINCT author_name, author_birth_date, author_death_date FROM authors JOIN books_authors ON books_authors.id_author = authors.id_author WHERE books_authors.is_main = true and author_birth_date IS NOT NULL ORDER BY author_birth_date"
 	);
-	timeAuthors = resultAuthors.rows;
-	if (selectedUser == null) {
-		timeAllBooks = await db.query(
-			"SELECT book_title, book_first_publish, author_name FROM book_author_view ORDER BY book_first_publish"
-		);
-		timeMyBooks = null;
-		timeOtherBooks = timeAllBooks.rows;
-	} else {
-		//Get all the list of the current user books names, year of publication and author name
+	timeAllAuthors = resultAuthors.rows;
+	// Has a first go at all the library books
+	let resultBooks = await db.query(
+		"SELECT DISTINCT books.book_title, books.book_first_publish FROM books ORDER BY book_first_publish"
+	);
+	timeAllBooks = resultBooks.rows;
+	//Check if there is a user selected
+	if (selectedUser !== null) {
+		//Get the list of myBooks
 		let resultMyBooks = await db.query(
-			"SELECT book_title, book_first_publish, author_name FROM main_fields WHERE id_reader=$1 ORDER BY book_first_publish",
+			"SELECT book_title, book_first_publish FROM main_fields WHERE id_reader=$1 ORDER BY book_first_publish",
 			[selectedUser]
 		);
 		timeMyBooks = resultMyBooks.rows;
-		//Get all the list of the other books names, year of publication and author name
-		let resultOtherBooks = await db.query(
-			"SELECT DISTINCT book_title, book_first_publish, author_name FROM main_fields WHERE id_reader != $1 ORDER BY book_first_publish",
+		//Get the list of myAuthors
+		let resultMyAuthors = await db.query(
+			"SELECT author_name, author_birth_date, author_death_date FROM main_fields WHERE id_reader=$1 ORDER BY author_birth_date",
 			[selectedUser]
 		);
-		timeOtherBooks = resultOtherBooks.rows;
-		console.log("Other Books:", timeOtherBooks.rows);
+		timeMyAuthors = resultMyAuthors.rows;
 	}
-
 	res.render("timeline.ejs", {
-		authors: timeAuthors,
+		allAuthors: timeAllAuthors,
+		myAuthors: timeMyAuthors,
 		myBooks: timeMyBooks,
-		otherBooks: timeOtherBooks,
+		allBooks: timeAllBooks,
 		userName: selectedName,
 		userIcon: selectedIcon,
 		userId: selectedUser,

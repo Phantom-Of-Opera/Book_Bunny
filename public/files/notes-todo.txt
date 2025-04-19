@@ -1,0 +1,16 @@
+Timeline:
+[] change the filters to reflect my library or the full one
+[] sort the authors for my own collection
+
+Home:
+- replace the "select" button by a "more", swivel the card and put the summary in the back with the "add to my library" button.
+
+Authors:
+- get cards of the various authors in the library with some information about them
+- add the picture of the author to the detail card of the author
+
+Statistics:
+- add a statistic page 
+
+Extra:
+- tie with the historical library to get an historical context to the book 
