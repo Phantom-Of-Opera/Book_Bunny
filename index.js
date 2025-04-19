@@ -718,5 +718,8 @@ async function getCollections() {
 	);
 	return collectList.rows;
 }
+//TODO: Add a function to query with axios the openlibrary website and collect the information on that author's work
+//	The author key has an URL that returns a json https://openlibrary.org/authors/OL23919A.json
+//	The json has a bio field, links field for websites
 
 //TODO: Write a function to query the authors of the database

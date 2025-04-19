@@ -1,6 +1,5 @@
 //TODO: Reconfigure for authors
 
-
 //Opent the details of the selected book
 $(".bookBtn").on("click", function (event) {
 	event.preventDefault(); // Prevent form submission
@@ -49,6 +48,7 @@ $(".addBtn").on("click", function (event) {
 });
 
 //Add the selected book to my books
+//TODO: Change the function to filter for authors
 function filterBooks() {
 	const searchInput = document.getElementById("filterBar").value.toLowerCase();
 	const cards = document.querySelectorAll(".card-body");
