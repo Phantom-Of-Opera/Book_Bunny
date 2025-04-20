@@ -343,7 +343,7 @@ app.get("/timeline", async (req, res) => {
 		timeMyBooks = resultMyBooks.rows;
 		//Get the list of myAuthors
 		let resultMyAuthors = await db.query(
-			"SELECT author_name, author_birth_date, author_death_date FROM main_fields WHERE id_reader=$1 ORDER BY author_birth_date",
+			"SELECT DISTINCT author_name, author_birth_date, author_death_date FROM main_fields WHERE id_reader=$1 ORDER BY author_birth_date",
 			[selectedUser]
 		);
 		timeMyAuthors = resultMyAuthors.rows;
@@ -718,5 +718,8 @@ async function getCollections() {
 	);
 	return collectList.rows;
 }
+//TODO: Add a function to query with axios the openlibrary website and collect the information on that author's work
+//	The author key has an URL that returns a json https://openlibrary.org/authors/OL23919A.json
+//	The json has a bio field, links field for websites
 
 //TODO: Write a function to query the authors of the database
