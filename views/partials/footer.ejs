@@ -1,12 +1,13 @@
 
 
-
+</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src = "https://cdn.quilljs.com/1.3.6/quill.js"> </script>
 
 <% if(locals.page == "book"){ %>
     <script src="js/book.js"></script>
+    
 <%} else if (locals.page == "home"){%>
     <script src="js/home.js"></script>
 <%}%>
@@ -16,19 +17,19 @@
  <footer>
 <div class="strip">
     <div class="container">
-        <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 border-top">
+        <footer class="d-flex flex-wrap justify-content-between align-items-center py-2 border-top">
             <div class="col-md-4 d-flex align-items-center">
-                <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1">
+                <!-- <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1">
                     <svg class="bi" width="30" height="24">
                         <use xlink:href="#bootstrap"></use>
                     </svg>
-                </a>
-                <span class="mb-3 mb-md-0 text-emphasis">© Math Bunny</span>
+                </a> -->
+                <span class="mb-md-0 text-emphasis">© Math Bunny</span>
             </div>
 
             <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
                 <li class="ms-3">
-                    <a class="text-secondary" href="mailto:phantom.of.op3ra@gmail.com">
+                    <a class="text-secondary" href="mailto:phantom.of.op3ra@gmail.com" aria-label="Email link">
                         <svg xmlns="http://www.w3.org/2000/svg" height="32" fill="currentColor"
                             class="bi bi-envelope-at" viewBox="0 0 16 16">
                             <path
@@ -39,7 +40,7 @@
                     </a>
                 </li>
                 <li class="ms-3">
-                    <a class="text-secondary" href="https://www.instagram.com/math__bunny/">
+                    <a class="text-secondary" href="https://www.instagram.com/math__bunny/" aria-label="Instagram link">
                         <svg xmlns="http://www.w3.org/2000/svg" height="32" fill="currentColor" class="bi bi-instagram"
                             viewBox="0 0 16 16">
                             <path
@@ -53,6 +54,48 @@
     </div>
     </div>
 </footer>
+<script>
+    function hideOverlay() {
+      const overlay = document.getElementById("loadingOverlay");
+      overlay.style.opacity = 0;
+      setTimeout(() => {
+        overlay.style.display = "none";
+      }, 500);
+    }
+  
+    function showOverlay() {
+      const overlay = document.getElementById("loadingOverlay");
+      overlay.style.display = "flex";
+      overlay.style.opacity = 1;
+    }
+  
+    function showPageContent(withFade = false) {
+      const content = document.getElementById("pageContent");
+      content.classList.remove("hidden");
+  
+      if (withFade) {
+        setTimeout(() => content.classList.add("visible"), 10); // triggers transition
+      } else {
+        content.classList.add("visible"); // show instantly
+      }
+    }
+  
+    window.addEventListener("load", function () {
+      const isFirstVisit = !sessionStorage.getItem("hasSeenBunnySpinner");
+  
+      if (isFirstVisit) {
+        showOverlay();
+  
+        setTimeout(() => {
+          hideOverlay();
+          showPageContent(true); // fade in
+          sessionStorage.setItem("hasSeenBunnySpinner", "true");
+        }, 800);
+      } else {
+        showPageContent(false); // no fade
+      }
+    });
+  </script>
 
 </body>
 </html>

@@ -343,7 +343,7 @@ app.get("/timeline", async (req, res) => {
 		timeMyBooks = resultMyBooks.rows;
 		//Get the list of myAuthors
 		let resultMyAuthors = await db.query(
-			"SELECT author_name, author_birth_date, author_death_date FROM main_fields WHERE id_reader=$1 ORDER BY author_birth_date",
+			"SELECT DISTINCT author_name, author_birth_date, author_death_date FROM main_fields WHERE id_reader=$1 ORDER BY author_birth_date",
 			[selectedUser]
 		);
 		timeMyAuthors = resultMyAuthors.rows;
