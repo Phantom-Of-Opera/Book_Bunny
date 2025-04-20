@@ -549,3 +549,78 @@ body {
 	border-style: solid;
 	border-width: 1px;
 }
+
+#loadingOverlay {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: #FAEED1;
+	z-index: 9999;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transition: opacity 0.5s ease;
+  }
+  
+  .bunny-spinner {
+	position: relative;
+	width: 100px;
+	height: 100px;
+	animation: hop 1.2s infinite ease-in-out;
+  }
+  
+  .face {
+	width: 100px;
+	height: 100px;
+	background-color: #443627;
+	border-radius: 50%;
+  }
+  
+  .ear {
+	position: absolute;
+	width: 20px;
+	height: 50px;
+	background-color: #443627;
+	border-radius: 50%;
+  }
+  
+  .ear-left {
+	top: -40px;
+	left: 10px;
+  }
+  
+  .ear-right {
+	top: -40px;
+	right: 10px;
+  }
+  
+  @keyframes hop {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-10px); }
+  }
+
+  .fade-target {
+	opacity: 0;
+	transition: opacity 0.5s ease-in-out;
+  }
+  
+  .fade-target.visible {
+	opacity: 1;
+  }
+  
+  #pageContent {
+	display: flex;
+	flex-direction: column;
+	height: 100%; /* Fill full screen height */
+	opacity: 0;
+	transition: opacity 0.5s ease-in-out;
+  }
+  
+  #pageContent.visible {
+	opacity: 1;
+  }
+  
+  .hidden {
+	display: none;
+  }

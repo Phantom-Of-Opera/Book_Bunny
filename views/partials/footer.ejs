@@ -1,12 +1,13 @@
 
 
-
+</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src = "https://cdn.quilljs.com/1.3.6/quill.js"> </script>
 
 <% if(locals.page == "book"){ %>
     <script src="js/book.js"></script>
+    
 <%} else if (locals.page == "home"){%>
     <script src="js/home.js"></script>
 <%}%>
@@ -53,6 +54,48 @@
     </div>
     </div>
 </footer>
+<script>
+    function hideOverlay() {
+      const overlay = document.getElementById("loadingOverlay");
+      overlay.style.opacity = 0;
+      setTimeout(() => {
+        overlay.style.display = "none";
+      }, 500);
+    }
+  
+    function showOverlay() {
+      const overlay = document.getElementById("loadingOverlay");
+      overlay.style.display = "flex";
+      overlay.style.opacity = 1;
+    }
+  
+    function showPageContent(withFade = false) {
+      const content = document.getElementById("pageContent");
+      content.classList.remove("hidden");
+  
+      if (withFade) {
+        setTimeout(() => content.classList.add("visible"), 10); // triggers transition
+      } else {
+        content.classList.add("visible"); // show instantly
+      }
+    }
+  
+    window.addEventListener("load", function () {
+      const isFirstVisit = !sessionStorage.getItem("hasSeenBunnySpinner");
+  
+      if (isFirstVisit) {
+        showOverlay();
+  
+        setTimeout(() => {
+          hideOverlay();
+          showPageContent(true); // fade in
+          sessionStorage.setItem("hasSeenBunnySpinner", "true");
+        }, 800);
+      } else {
+        showPageContent(false); // no fade
+      }
+    });
+  </script>
 
 </body>
 </html>

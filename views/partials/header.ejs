@@ -31,7 +31,15 @@
 		<meta name="description" content="Books Bunny - Your personal library fed by the web" />
 		<title>Books Bunny</title>
 	</head>
+	
 	<body>
+		<div id="loadingOverlay" style="display: none;">
+			<div class="bunny-spinner">
+			  <div class="ear ear-left"></div>
+			  <div class="ear ear-right"></div>
+			  <div class="face"></div>
+			</div>
+		  </div>
 		<main class="main-content">
 			<div class="strip">
 				<nav
@@ -135,4 +143,4 @@
 					</div>
 				</nav>
 			</div>
-
+			<div id="pageContent" class="fade-target hidden">
