@@ -7,28 +7,34 @@ import pg from "pg";
 import axios from "axios";
 import { Console } from "node:console";
 import e from "express";
+import { todo } from "node:test";
 
 const app = express();
-const port = process.env.PORT || 3000;
-const __dirname = dirname(fileURLToPath(import.meta.url));
-// const db = new pg.Pool({
-// 	user: "postgres",
-// 	host: "localhost",
-// 	database: "girlslibrary",
-// 	password: "Ph@nt0m",
-// 	port: 5432,
-// });
 
-// const { Pool } = require('pg');
+const port = process.env.PORT || 3000;
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Use the commented lines below for local test of the code
+
+const db = new pg.Pool({
+	user: "postgres",
+	host: "localhost",
+	database: "girlslibrary",
+	password: "Ph@nt0m",
+	port: 5432,
+});
+
+//Use the paragraph below for Render deployment
 
 // Use DATABASE_URL if on Render, else fallback to local for dev
-const db = new pg.Pool({
-	connectionString: process.env.DATABASE_URL,
-	ssl:
-		process.env.NODE_ENV === "production"
-			? { rejectUnauthorized: false }
-			: false,
-});
+// const db = new pg.Pool({
+// 	connectionString: process.env.DATABASE_URL,
+// 	ssl:
+// 		process.env.NODE_ENV === "production"
+// 			? { rejectUnauthorized: false }
+// 			: false,
+// });
 
 const apiSearch = "https://openlibrary.org/search.json";
 
@@ -66,6 +72,8 @@ app.get("/", async (req, res) => {
 		hideAdd: selectedName === null,
 	});
 });
+
+//TODO: Add the handler for the authors access
 
 app.get("/myBooks", async (req, res) => {
 	const bookList = await getMyBooks(selectedUser);
@@ -312,40 +320,39 @@ app.post("/delete", async (req, res) => {
 
 app.get("/timeline", async (req, res) => {
 	let timeAllBooks = null;
-	let timeAuthors = null;
+	let timeAllAuthors = null;
 	let timeMyBooks = null;
-	let timeOtherBooks = null;
-	//Get all the list of Authors names, year of birth and year of death
+	let timeMyAuthors = null;
+	// Has a first go at all the library authors
 	let resultAuthors = await db.query(
 		"SELECT DISTINCT author_name, author_birth_date, author_death_date FROM authors JOIN books_authors ON books_authors.id_author = authors.id_author WHERE books_authors.is_main = true and author_birth_date IS NOT NULL ORDER BY author_birth_date"
 	);
-	timeAuthors = resultAuthors.rows;
-	if (selectedUser == null) {
-		timeAllBooks = await db.query(
-			"SELECT book_title, book_first_publish, author_name FROM book_author_view ORDER BY book_first_publish"
-		);
-		timeMyBooks = null;
-		timeOtherBooks = timeAllBooks.rows;
-	} else {
-		//Get all the list of the current user books names, year of publication and author name
+	timeAllAuthors = resultAuthors.rows;
+	// Has a first go at all the library books
+	let resultBooks = await db.query(
+		"SELECT DISTINCT books.book_title, books.book_first_publish FROM books ORDER BY book_first_publish"
+	);
+	timeAllBooks = resultBooks.rows;
+	//Check if there is a user selected
+	if (selectedUser !== null) {
+		//Get the list of myBooks
 		let resultMyBooks = await db.query(
-			"SELECT book_title, book_first_publish, author_name FROM main_fields WHERE id_reader=$1 ORDER BY book_first_publish",
+			"SELECT book_title, book_first_publish FROM main_fields WHERE id_reader=$1 ORDER BY book_first_publish",
 			[selectedUser]
 		);
 		timeMyBooks = resultMyBooks.rows;
-		//Get all the list of the other books names, year of publication and author name
-		let resultOtherBooks = await db.query(
-			"SELECT DISTINCT book_title, book_first_publish, author_name FROM main_fields WHERE id_reader != $1 ORDER BY book_first_publish",
+		//Get the list of myAuthors
+		let resultMyAuthors = await db.query(
+			"SELECT DISTINCT author_name, author_birth_date, author_death_date FROM main_fields WHERE id_reader=$1 ORDER BY author_birth_date",
 			[selectedUser]
 		);
-		timeOtherBooks = resultOtherBooks.rows;
-		console.log("Other Books:", timeOtherBooks.rows);
+		timeMyAuthors = resultMyAuthors.rows;
 	}
-
 	res.render("timeline.ejs", {
-		authors: timeAuthors,
+		allAuthors: timeAllAuthors,
+		myAuthors: timeMyAuthors,
 		myBooks: timeMyBooks,
-		otherBooks: timeOtherBooks,
+		allBooks: timeAllBooks,
 		userName: selectedName,
 		userIcon: selectedIcon,
 		userId: selectedUser,
@@ -711,3 +718,8 @@ async function getCollections() {
 	);
 	return collectList.rows;
 }
+//TODO: Add a function to query with axios the openlibrary website and collect the information on that author's work
+//	The author key has an URL that returns a json https://openlibrary.org/authors/OL23919A.json
+//	The json has a bio field, links field for websites
+
+//TODO: Write a function to query the authors of the database

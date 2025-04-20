@@ -3,12 +3,32 @@
 <div class="container my-3 scrollable">
 	<div class="row align-items-start border-bottom" style="flex: 1 1 auto">
 		<!-- Book Cover -->
-		<div class="col-4 col-md-3" style="text-align: center">
-			<img <%if ( locals.thisBook.book_cover_id == "NoCover" ) {%>
-			src="images/blank_cover.jpeg" <%}else{%>
-			src="https://covers.openlibrary.org/b/olid/<%=locals.thisBook.book_cover_id%>-L.jpg"
-			<%}%> alt="Book cover" class="img-fluid" />
+		<div class="col-12 col-md-3" style="text-align: center">
 			
+			<picture>
+				<!-- Medium size for small screens -->
+				<source 
+					srcset="https://covers.openlibrary.org/b/olid/<%= locals.thisBook.book_cover_id %>-M.jpg" 
+					media="(max-width: 768px)" 
+				/>
+				<!-- Large size for larger screens -->
+				<source 
+					srcset="https://covers.openlibrary.org/b/olid/<%= locals.thisBook.book_cover_id %>-L.jpg" 
+					media="(min-width: 769px)" 
+				/>
+				<!-- Fallback image -->
+				<img 
+					<% if (locals.thisBook.book_cover_id == "NoCover") { %>
+						src="images/blank_cover.jpeg" 
+					<% } else { %>
+						src="https://covers.openlibrary.org/b/olid/<%= locals.thisBook.book_cover_id %>-L.jpg"
+					<% } %>
+					alt="Book cover" 
+					class="img-fluid" 
+				/>
+			</picture>
+
+
 			<!-- Add a dropdown menu to select the book collection and select the one coming from thisBook.book_collection -->
 			<div class="dropdown">
 				<select
@@ -48,7 +68,7 @@
 
 
 		<!-- Book Info -->
-		<div class="col-8 col-md-9" id="bookInfoCol">
+		<div class="col-12 col-md-9" id="bookInfoCol">
 			<div>
 				<h2 class="simonetta-black fontFlex-h2" style="text-align: left">
 					<%=locals.thisBook.book_title%>

@@ -32,10 +32,6 @@
 	color: white;
 }
 
-.highlight {
-	background-color: yellow;
-}
-
 .card {
 	border-color: #443627;
 	border-radius: 30px;
@@ -51,7 +47,7 @@
 	flex: 1 1 auto;
 	display: flex;
 	flex-direction: column;
-	overflow: hidden; /* prevent child overflow from breaking layout */
+	overflow: hidden;
 }
 
 .container-fluid {
@@ -80,6 +76,7 @@
 	overflow: hidden;
 	white-space: nowrap;
 }
+
 .fontFlex-h2 {
 	font-size: clamp(1rem, 3vw, 2rem);
 	margin: 0;
@@ -87,6 +84,7 @@
 	white-space: nowrap;
 	text-align: center;
 }
+
 .fontFlex-h3 {
 	font-size: clamp(0.8rem, 2vw, 1.5rem);
 	font-weight: bold;
@@ -95,19 +93,23 @@
 	white-space: nowrap;
 	text-align: center;
 }
+
 .form-signin {
 	width: 400px;
 	padding: 1rem;
 }
 
+.hidden {
+	display: none;
+}
+
+.highlight {
+	background-color: yellow;
+}
+
 .img-fluid {
 	max-width: 80%;
 }
-
-/* .list-group {
-	max-height: 55vh; /* Adjust as needed 
-	overflow-y: auto; /* Vertical scroll only when needed 
-} */
 
 .logo {
 	border-color: #a27b5c;
@@ -118,15 +120,68 @@
 	max-height: 90px;
 }
 
-body > .main-content {
-	flex: 1 1 auto;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden; /* ✅ Critical: hide page overflow */
-}
-
 .navbar {
 	padding: 0;
+}
+
+.scrollable {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	min-height: 0;
+	padding-right: 4px;
+}
+
+.scrollable::-webkit-scrollbar {
+	width: 4px;
+}
+
+.scrollable::-webkit-scrollbar-button {
+	background-color: #faeed1;
+}
+
+.scrollable::-webkit-scrollbar-button {
+	background-color: #faeed1;
+}
+
+.scrollable::-webkit-scrollbar-button:hover {
+	background-color: #faeed1;
+}
+
+.scrollable::-webkit-scrollbar-button:hover {
+	background-color: #faeed1;
+}
+
+.scrollable::-webkit-scrollbar-corner {
+	background-color: #faeed1;
+}
+
+.scrollable::-webkit-scrollbar-corner {
+	background-color: #faeed1;
+}
+
+.scrollable::-webkit-scrollbar-corner:hover {
+	background-color: #faeed1;
+}
+
+.scrollable::-webkit-scrollbar-corner:hover {
+	background-color: #faeed1;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+	background-color: #a27b5c;
+	border-radius: 10px;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+	background-color: #6f4e37;
+}
+
+.scrollable::-webkit-scrollbar-track {
+	background-color: #faeed1;
+}
+
+.scrollable::-webkit-scrollbar-track:hover {
+	background-color: #faeed1;
 }
 
 .searchBar {
@@ -138,10 +193,26 @@ body > .main-content {
 	justify-content: space-evenly;
 }
 
+.searchBorders {
+	border: 1px solid;
+	border-radius: 5px;
+	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	min-height: 15px;
+}
+
 .searchButton {
 	flex: 0 0 auto;
 	flex-basis: 100px;
 	white-space: nowrap;
+}
+
+.searchField {
+	flex: 1 1 auto;
+	flex-wrap: nowrap;
+	width: 100%;
 }
 
 .searchInput {
@@ -149,12 +220,6 @@ body > .main-content {
 	display: flex;
 	flex-direction: row;
 	gap: 1rem;
-}
-
-.searchField {
-	flex: 1 1 auto;
-	flex-wrap: nowrap;
-	width: 100%;
 }
 
 .searchLabel {
@@ -200,10 +265,32 @@ body > .main-content {
 	font-weight: 400;
 }
 
+.slide {
+	transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+	max-height: 0;
+	overflow: hidden;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.slide.open {
+	max-height: 500px; /* Adjust if needed */
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
 .special-elite-regular {
 	font-family: "Special Elite", serif;
 	font-style: normal;
 	font-weight: 600;
+}
+
+.star-rating i {
+	color: gold;
+	font-size: 1.5rem;
+	margin-right: 4px;
+	cursor: pointer;
+	transition: color 0.2s ease;
 }
 
 .strip {
@@ -212,6 +299,14 @@ body > .main-content {
 
 .tab-view {
 	margin-top: 10px;
+}
+
+.toggle-icon {
+	transition: transform 0.3s ease;
+}
+
+.toggle-icon.rotated {
+	transform: rotate(180deg);
 }
 
 .userBox {
@@ -246,6 +341,106 @@ body > .main-content {
 	text-align: center;
 }
 
+.vis-item.group-myAuthors {
+	background-color: #ffdd99;
+	border-color: #e6b800;
+	color: #000;
+}
+
+.vis-item.group-myBooks {
+	background-color: #c1f0c1;
+	border-color: #33cc33;
+	color: #000;
+}
+
+.vis-item.group-allBooks {
+	background-color: #d0d0f0;
+	border-color: #7777cc;
+	color: #000;
+}
+
+.vis-item.group-allAuthors {
+	background-color: blueviolet;
+	border-color: #7777cc;
+	color: whitesmoke;
+}
+
+#bookAnalysis {
+	height: 100%;
+	width: 100%;
+}
+
+#bookArea {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	border-top: 2px solid #a27b5c;
+}
+
+#bookDescription {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	min-height: 0;
+	padding-right: 4px;
+	margin-top: 10px;
+}
+
+#bookDescription {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+#bookInfoCol {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+#bookList {
+	overflow-y: auto;
+	min-height: 0;
+	padding-right: 4px;
+}
+
+/* TODO: Add a class fot the authors (or make bookList more general) to keep the scrollbar */
+
+#bookList::-webkit-scrollbar {
+	width: 4px;
+}
+
+#bookList::-webkit-scrollbar-button {
+	background-color: #faeed1;
+}
+
+#bookList::-webkit-scrollbar-button:hover {
+	background-color: #faeed1;
+}
+
+#bookList::-webkit-scrollbar-corner {
+	background-color: #faeed1;
+}
+
+#bookList::-webkit-scrollbar-corner:hover {
+	background-color: #faeed1;
+}
+
+#bookList::-webkit-scrollbar-thumb {
+	background-color: #a27b5c;
+	border-radius: 10px;
+}
+
+#bookList::-webkit-scrollbar-thumb:hover {
+	background-color: #6f4e37;
+}
+
+#bookList::-webkit-scrollbar-track {
+	background-color: #faeed1;
+}
+
+#bookList::-webkit-scrollbar-track:hover {
+	background-color: #faeed1;
+}
+
 #btnCancel:hover {
 	background-color: yellow;
 	color: black;
@@ -257,6 +452,18 @@ body > .main-content {
 
 #btnSubmit:hover {
 	background-color: green;
+}
+
+#commitArea {
+	flex: 0 0 auto;
+}
+
+#entryForm {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	text-align: center;
 }
 
 #iconDiv {
@@ -279,6 +486,10 @@ body > .main-content {
 	height: 100%;
 }
 
+#searchArea {
+	flex: 0 0 auto;
+}
+
 #searchForm {
 	flex: 1 1 auto;
 	display: flex;
@@ -287,133 +498,21 @@ body > .main-content {
 	text-align: center;
 }
 
-.searchBorders {
-	border: 1px solid;
-	border-radius: 5px;
-	padding-left: 2px;
-	padding-right: 2px;
-	padding-top: 1px;
-	padding-bottom: 1px;
-	min-height: 15px;
-}
-
-#entryForm {
+#timeline {
+	max-height: 600px;
+	border: 1px solid #ccc;
 	flex: 1 1 auto;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-	text-align: center;
-}
-
-#searchArea {
-	flex: 0 0 auto; /* don't grow or shrink */
-}
-
-#commitArea {
-	flex: 0 0 auto; /* don't grow or shrink */
-}
-
-#bookDescription {
-	flex: 1 1 auto;
-	overflow-y: auto;
-	min-height: 0;
-	padding-right: 4px; /* avoid scroll bar overlap */
-	margin-top: 10px;
-}
-
-/* #resultArea {
-	flex: 1 1 auto;
-	overflow-y: auto;
-	min-height: 0;
-	padding-right: 4px; /* avoid scroll bar overlap */
-/*} */
-
-.scrollable::-webkit-scrollbar {
-	width: 4px;
-}
-.scrollable::-webkit-scrollbar-thumb {
-	background-color: #a27b5c;
-	border-radius: 10px;
-}
-.scrollable::-webkit-scrollbar-track {
-	background-color: #faeed1;
-}
-.scrollable::-webkit-scrollbar-thumb:hover {
-	background-color: #6f4e37;
-}
-.scrollable::-webkit-scrollbar-track:hover {
-	background-color: #faeed1;
-}
-.scrollable::-webkit-scrollbar-corner {
-	background-color: #faeed1;
-}
-.scrollable::-webkit-scrollbar-corner:hover {
-	background-color: #faeed1;
-}
-.scrollable::-webkit-scrollbar-button {
-	background-color: #faeed1;
-}
-.scrollable::-webkit-scrollbar-button:hover {
-	background-color: #faeed1;
-}
-.scrollable::-webkit-scrollbar-corner {
-	background-color: #faeed1;
-}
-.scrollable::-webkit-scrollbar-corner:hover {
-	background-color: #faeed1;
-}
-.scrollable::-webkit-scrollbar-button {
-	background-color: #faeed1;
-}
-.scrollable::-webkit-scrollbar-button:hover {
-	background-color: #faeed1;
-}
-
-#bookList {
-	/* flex: 1 1 auto; */
-	overflow-y: auto;
-	min-height: 0;
-	padding-right: 4px; /* avoid scroll bar overlap */
-}
-
-.scrollable {
-	flex: 1 1 auto;
-	overflow-y: auto;
-	min-height: 0;
-	padding-right: 4px; /* avoid scroll bar overlap */
-}
-
-#bookList::-webkit-scrollbar {
-	width: 4px;
-}
-#bookList::-webkit-scrollbar-thumb {
-	background-color: #a27b5c;
-	border-radius: 10px;
-}
-#bookList::-webkit-scrollbar-track {
-	background-color: #faeed1;
-}
-#bookList::-webkit-scrollbar-thumb:hover {
-	background-color: #6f4e37;
-}
-#bookList::-webkit-scrollbar-track:hover {
-	background-color: #faeed1;
-}
-#bookList::-webkit-scrollbar-corner {
-	background-color: #faeed1;
-}
-#bookList::-webkit-scrollbar-corner:hover {
-	background-color: #faeed1;
-}
-#bookList::-webkit-scrollbar-button {
-	background-color: #faeed1;
-}
-#bookList::-webkit-scrollbar-button:hover {
-	background-color: #faeed1;
 }
 
 #userSelect {
 	padding: 10px !important;
+}
+
+body > .main-content {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
 }
 
 form.tab-view .btn {
@@ -438,81 +537,90 @@ body {
 	margin: 0;
 }
 
-#bookArea {
-	flex: 1 1 auto;
+.btn-check:checked + .btn {
+	background-color: #dac0a3;
+	border-color: #a27b5c;
+	color: #443627;
+}
+
+.btn-check + .btn:hover {
+	color: #443627;
+	border-color: #443627;
+	border-style: solid;
+	border-width: 1px;
+}
+
+#loadingOverlay {
+	position: fixed;
+	top: 0; left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: #FAEED1;
+	z-index: 9999;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transition: opacity 0.5s ease;
+  }
+  
+  .bunny-spinner {
+	position: relative;
+	width: 100px;
+	height: 100px;
+	animation: hop 1.2s infinite ease-in-out;
+  }
+  
+  .face {
+	width: 100px;
+	height: 100px;
+	background-color: #443627;
+	border-radius: 50%;
+  }
+  
+  .ear {
+	position: absolute;
+	width: 20px;
+	height: 50px;
+	background-color: #443627;
+	border-radius: 50%;
+  }
+  
+  .ear-left {
+	top: -40px;
+	left: 10px;
+  }
+  
+  .ear-right {
+	top: -40px;
+	right: 10px;
+  }
+  
+  @keyframes hop {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-10px); }
+  }
+
+  .fade-target {
+	opacity: 0;
+	transition: opacity 0.5s ease-in-out;
+  }
+  
+  .fade-target.visible {
+	opacity: 1;
+  }
+  
+  #pageContent {
 	display: flex;
 	flex-direction: column;
-	border-top: 2px solid #a27b5c;
-}
-
-#bookInfoCol {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-}
-
-#bookDescription {
-	margin-top: 5px;
-	margin-bottom: 5px;
-}
-
-#bookAnalysis {
-	height: 100%;
-	width: 100%;
-}
-
-.hidden {
+	height: 100%; /* Fill full screen height */
+	opacity: 0;
+	transition: opacity 0.5s ease-in-out;
+  }
+  
+  #pageContent.visible {
+	opacity: 1;
+  }
+  
+  .hidden {
 	display: none;
-}
-
-.slide {
-	transition: max-height 0.4s ease-out, padding 0.4s ease-out;
-	max-height: 0;
-	overflow: hidden;
-	padding-top: 0;
-	padding-bottom: 0;
-}
-
-.slide.open {
-	max-height: 500px; /* Adjust if needed */
-	padding-top: 8px;
-	padding-bottom: 8px;
-}
-
-.toggle-icon {
-	transition: transform 0.3s ease;
-}
-
-.toggle-icon.rotated {
-	transform: rotate(180deg);
-}
-
-.star-rating i {
-	color: gold;
-	font-size: 1.5rem;
-	margin-right: 4px;
-	cursor: pointer;
-	transition: color 0.2s ease;
-}
-
-#timeline {
-	max-height: 600px;
-	border: 1px solid #ccc;
-}
-.vis-item.group-authors {
-	background-color: #ffdd99;
-	border-color: #e6b800;
-	color: #000;
-}
-
-.vis-item.group-mybooks {
-	background-color: #c1f0c1;
-	border-color: #33cc33;
-	color: #000;
-}
-
-.vis-item.group-otherbooks {
-	background-color: #d0d0f0;
-	border-color: #7777cc;
-	color: #000;
-}
+  }

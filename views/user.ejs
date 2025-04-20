@@ -1,8 +1,8 @@
 <%-include("partials/header.ejs") %>
-<div class="container" style="flex-wrap: wrap; align-items:center;">
+<div class="container" style="flex-wrap: nowrap; align-items:center;" style="width: 100%;">
 
 
-<div class="form-signin text-center m-3">
+<div class="form-signin text-center m-3" style="width: auto;">
 	<h2 class="text-center mb-4">📚 Your library 📚</h2>
 
 	<%if(locals.userName ){%>
@@ -102,9 +102,8 @@
 </div>
 
 <!-- One more form with one button to delete the reader by calling a post request 'deleteReader' -->
-<div class="form-signin text-center"
-<%= userId === null ? 'hidden' : '' %>
->
+<div class="form-signin text-center" style="width: auto"
+<%= userId === null ? 'hidden' : '' %>>
 	<h2 class="text-center mb-4">🗑️ Delete your account 🗑️</h2>
 	<form action="/deleteReader" method="post" autocomplete="off">
 		<input type="text" name="confirmPhrase" class="boxBorder form-control" placeholder="type : I want to delete my Account!" />

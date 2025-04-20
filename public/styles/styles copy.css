@@ -1,0 +1,518 @@
+.bi {
+	color: #443627;
+}
+
+.bookResult {
+	background-color: #faeed1;
+	border-style: none;
+	flex: 1 1 auto;
+	flex-basis: auto;
+}
+
+.boxBorder {
+	border-color: #a27b5c;
+	border-radius: 5px;
+	border-style: solid;
+	border-width: 2px;
+	margin-bottom: 10px;
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-top: 10px;
+}
+
+.btn {
+	background-color: #a27b5c;
+	border: none;
+	color: white;
+}
+
+.btn:hover {
+	background-color: #6f4e37;
+	border: none;
+	color: white;
+}
+
+.highlight {
+	background-color: yellow;
+}
+
+.card {
+	border-color: #443627;
+	border-radius: 30px;
+	border-style: solid;
+	overflow: hidden;
+}
+
+.card-body {
+	background-color: #f8f0e5;
+}
+
+.container {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden; /* prevent child overflow from breaking layout */
+}
+
+.container-fluid {
+	background-color: #faeed1;
+	border-bottom: #a27b5c;
+	border-bottom-style: solid;
+	border-bottom-width: 4px;
+}
+
+.coverResult {
+	align-items: center;
+	display: flex;
+	height: 70px;
+	min-width: 60px;
+	text-align: center;
+	white-space: nowrap;
+}
+
+.fontFlex {
+	font-size: clamp(0.7rem, 1.5vw, 1rem);
+}
+
+.fontFlex-h1 {
+	font-size: clamp(1.5rem, 4vw, 5rem);
+	margin: 0;
+	overflow: hidden;
+	white-space: nowrap;
+}
+.fontFlex-h2 {
+	font-size: clamp(1rem, 3vw, 2rem);
+	margin: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-align: center;
+}
+.fontFlex-h3 {
+	font-size: clamp(0.8rem, 2vw, 1.5rem);
+	font-weight: bold;
+	margin: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-align: center;
+}
+.form-signin {
+	width: 400px;
+	padding: 1rem;
+}
+
+.img-fluid {
+	max-width: 80%;
+}
+
+/* .list-group {
+	max-height: 55vh; /* Adjust as needed 
+	overflow-y: auto; /* Vertical scroll only when needed 
+} */
+
+.logo {
+	border-color: #a27b5c;
+	border-radius: 50%;
+	border-style: solid;
+	border-width: 2px;
+	height: 20vh;
+	max-height: 90px;
+}
+
+body > .main-content {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden; /* ✅ Critical: hide page overflow */
+}
+
+.navbar {
+	padding: 0;
+}
+
+.searchBar {
+	align-items: center;
+	display: flex;
+	flex-direction: row;
+	gap: 1rem;
+	flex-wrap: wrap;
+	justify-content: space-evenly;
+}
+
+.searchButton {
+	flex: 0 0 auto;
+	flex-basis: 100px;
+	white-space: nowrap;
+}
+
+.searchInput {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: row;
+	gap: 1rem;
+}
+
+.searchField {
+	flex: 1 1 auto;
+	flex-wrap: nowrap;
+	width: 100%;
+}
+
+.searchLabel {
+	flex: 0 0 auto;
+	flex-basis: auto;
+	margin-left: 20px;
+	white-space: nowrap;
+}
+
+.searchResult {
+	border-color: #443627;
+	border-radius: 10px;
+	border-style: ridge;
+	border-width: 1px;
+	display: flex;
+	flex-direction: row;
+	gap: 0.5rem;
+	margin-bottom: 5px;
+	padding-left: 40px;
+}
+
+.simonetta-black {
+	font-family: "Simonetta", serif;
+	font-style: normal;
+	font-weight: 900;
+}
+
+.simonetta-black-italic {
+	font-family: "Simonetta", serif;
+	font-style: italic;
+	font-weight: 900;
+}
+
+.simonetta-regular {
+	font-family: "Simonetta", serif;
+	font-style: normal;
+	font-weight: 400;
+}
+
+.simonetta-regular-italic {
+	font-family: "Simonetta", serif;
+	font-style: italic;
+	font-weight: 400;
+}
+
+.special-elite-regular {
+	font-family: "Special Elite", serif;
+	font-style: normal;
+	font-weight: 600;
+}
+
+.strip {
+	background-color: #dac0a3;
+}
+
+.tab-view {
+	margin-top: 10px;
+}
+
+.userBox {
+	background-color: #a27b5c;
+	border-radius: 10px;
+	color: white;
+	font-size: 1rem;
+	height: 80px;
+	margin-top: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.userFlex {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	gap: 20px;
+	justify-content: space-evenly;
+	margin-bottom: 50px;
+	margin-top: 50px;
+}
+
+.userIcon {
+	border-radius: 50%;
+	height: 50px;
+	max-height: 90px;
+}
+
+.userPage {
+	margin-top: 20px;
+	text-align: center;
+}
+
+#btnCancel:hover {
+	background-color: yellow;
+	color: black;
+}
+
+#btnDelete:hover {
+	background-color: red;
+}
+
+#btnSubmit:hover {
+	background-color: green;
+}
+
+#iconDiv {
+	align-items: center;
+	display: flex;
+	flex-direction: row;
+	gap: 10px;
+}
+
+#newIconBox {
+	flex-basis: 30%;
+	font-size: 2rem;
+	height: 100%;
+	padding-top: 5px !important;
+	text-align: center;
+}
+
+#newIconLabel {
+	flex-basis: auto;
+	height: 100%;
+}
+
+#searchForm {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	text-align: center;
+}
+
+.searchBorders {
+	border: 1px solid;
+	border-radius: 5px;
+	padding-left: 2px;
+	padding-right: 2px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	min-height: 15px;
+}
+
+#entryForm {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	text-align: center;
+}
+
+#searchArea {
+	flex: 0 0 auto; /* don't grow or shrink */
+}
+
+#commitArea {
+	flex: 0 0 auto; /* don't grow or shrink */
+}
+
+#bookDescription {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	min-height: 0;
+	padding-right: 4px; /* avoid scroll bar overlap */
+	margin-top: 10px;
+}
+
+/* #resultArea {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	min-height: 0;
+	padding-right: 4px; /* avoid scroll bar overlap */
+/*} */
+
+.scrollable::-webkit-scrollbar {
+	width: 4px;
+}
+.scrollable::-webkit-scrollbar-thumb {
+	background-color: #a27b5c;
+	border-radius: 10px;
+}
+.scrollable::-webkit-scrollbar-track {
+	background-color: #faeed1;
+}
+.scrollable::-webkit-scrollbar-thumb:hover {
+	background-color: #6f4e37;
+}
+.scrollable::-webkit-scrollbar-track:hover {
+	background-color: #faeed1;
+}
+.scrollable::-webkit-scrollbar-corner {
+	background-color: #faeed1;
+}
+.scrollable::-webkit-scrollbar-corner:hover {
+	background-color: #faeed1;
+}
+.scrollable::-webkit-scrollbar-button {
+	background-color: #faeed1;
+}
+.scrollable::-webkit-scrollbar-button:hover {
+	background-color: #faeed1;
+}
+.scrollable::-webkit-scrollbar-corner {
+	background-color: #faeed1;
+}
+.scrollable::-webkit-scrollbar-corner:hover {
+	background-color: #faeed1;
+}
+.scrollable::-webkit-scrollbar-button {
+	background-color: #faeed1;
+}
+.scrollable::-webkit-scrollbar-button:hover {
+	background-color: #faeed1;
+}
+
+#bookList {
+	/* flex: 1 1 auto; */
+	overflow-y: auto;
+	min-height: 0;
+	padding-right: 4px; /* avoid scroll bar overlap */
+}
+
+.scrollable {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	min-height: 0;
+	padding-right: 4px; /* avoid scroll bar overlap */
+}
+
+#bookList::-webkit-scrollbar {
+	width: 4px;
+}
+#bookList::-webkit-scrollbar-thumb {
+	background-color: #a27b5c;
+	border-radius: 10px;
+}
+#bookList::-webkit-scrollbar-track {
+	background-color: #faeed1;
+}
+#bookList::-webkit-scrollbar-thumb:hover {
+	background-color: #6f4e37;
+}
+#bookList::-webkit-scrollbar-track:hover {
+	background-color: #faeed1;
+}
+#bookList::-webkit-scrollbar-corner {
+	background-color: #faeed1;
+}
+#bookList::-webkit-scrollbar-corner:hover {
+	background-color: #faeed1;
+}
+#bookList::-webkit-scrollbar-button {
+	background-color: #faeed1;
+}
+#bookList::-webkit-scrollbar-button:hover {
+	background-color: #faeed1;
+}
+
+#userSelect {
+	padding: 10px !important;
+}
+
+form.tab-view .btn {
+	flex: 1 1 auto;
+	min-width: 120px;
+	white-space: nowrap;
+}
+
+header {
+	display: flex;
+	justify-content: space-between;
+}
+
+html,
+body {
+	background-color: #faeed1;
+	color: #443627;
+	display: flex;
+	flex-direction: column;
+	font-size: 16px;
+	height: 100vh;
+	margin: 0;
+}
+
+#bookArea {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	border-top: 2px solid #a27b5c;
+}
+
+#bookInfoCol {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+#bookDescription {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+#bookAnalysis {
+	height: 100%;
+	width: 100%;
+}
+
+.hidden {
+	display: none;
+}
+
+.slide {
+	transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+	max-height: 0;
+	overflow: hidden;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.slide.open {
+	max-height: 500px; /* Adjust if needed */
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+.toggle-icon {
+	transition: transform 0.3s ease;
+}
+
+.toggle-icon.rotated {
+	transform: rotate(180deg);
+}
+
+.star-rating i {
+	color: gold;
+	font-size: 1.5rem;
+	margin-right: 4px;
+	cursor: pointer;
+	transition: color 0.2s ease;
+}
+
+#timeline {
+	max-height: 600px;
+	border: 1px solid #ccc;
+}
+.vis-item.group-authors {
+	background-color: #ffdd99;
+	border-color: #e6b800;
+	color: #000;
+}
+
+.vis-item.group-mybooks {
+	background-color: #c1f0c1;
+	border-color: #33cc33;
+	color: #000;
+}
+
+.vis-item.group-otherbooks {
+	background-color: #d0d0f0;
+	border-color: #7777cc;
+	color: #000;
+}
