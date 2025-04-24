@@ -48,16 +48,14 @@ $(".addBtn").on("click", function (event) {
 });
 
 //Add the selected book to my books
-//TODO: Change the function to filter for authors
-function filterBooks() {
+//TEST: Function has not been tested yet
+function filterAuthorss() {
 	const searchInput = document.getElementById("filterBar").value.toLowerCase();
 	const cards = document.querySelectorAll(".card-body");
 	cards.forEach((card) => {
-		const title = card.querySelector(".card-title").textContent.toLowerCase();
 		const author = card.querySelector(".card-text").textContent.toLowerCase();
-		console.log(`The title is ${title}`);
 		console.log(`The author is ${author}`);
-		if (title.includes(searchInput) || author.includes(searchInput)) {
+		if (author.includes(searchInput)) {
 			card.parentElement.style.display = "block";
 			// card.classList.remove("hidden");
 		} else {

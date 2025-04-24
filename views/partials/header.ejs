@@ -33,7 +33,6 @@
 	</head>
 	
 	<body>
-		<!-- TODO:Check the spinner is working fine -->
 		<div id="loadingOverlay" style="display: none;">
 			<div class="spinner-wrapper">
 				<img src="/images/Spinner-Ring.png" class="spinner-ring" alt="Loading spinner" />
@@ -92,37 +91,47 @@
 									class="d-flex flex-wrap gap-2 me-3"
 									action="/tab"
 									method="post"
-								>
+									>
 									<button
 										type="submit"
 										name="tab"
 										value="Library"
 										id="goLibrary"
 										class="btn fontFlex"
-									>
+										>
 										Library
+									</button>	
+
+									<button
+										type="submit"
+										name="tab"
+										value="Authors"
+										id="goAuthors"
+										class="btn fontFlex"
+										>
+										Authors
 									</button>
 
 									<button
-									type="submit"
-									name="tab"
-									value="Timeline"
-									id="goTimeline"
-									class="btn fontFlex"
-								>
-									Timeline
-								</button>
+										type="submit"
+										name="tab"
+										value="Timeline"
+										id="goTimeline"
+										class="btn fontFlex"
+										>
+										Timeline
+									</button>
 
 									<button
-									type="submit"
-									name="tab"
-									value="myBooks"
-									id="goMyBooks"
-									class="btn fontFlex"
-									<%= locals.userName !== null ? '' :
-									'hidden' %>
-								>My Books
-								</button>
+										type="submit"
+										name="tab"
+										value="myBooks"
+										id="goMyBooks"
+										class="btn fontFlex"
+										<%= locals.userName !== null ? '' :
+										'hidden' %>
+										>My Books
+									</button>
 
 									<input type="submit" name="tab" value="New Book" id="newBook"
 									class="btn fontFlex" <%= locals.userName !== null ? '' :

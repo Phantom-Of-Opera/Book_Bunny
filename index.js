@@ -74,6 +74,18 @@ app.get("/", async (req, res) => {
 });
 
 //TODO: Add the handler for the authors access
+app.get("/authors", async (req, res) => {
+	const authorList = await getAuthors();
+	res.render("authors.ejs", {
+		page: "authors",
+		authorList: authorList,
+		userName: selectedName,
+		userId: selectedUser,
+		userIcon: selectedIcon,
+		myBooks: false,
+		hideAdd: selectedName === null,
+	});
+});
 
 app.get("/myBooks", async (req, res) => {
 	const bookList = await getMyBooks(selectedUser);
@@ -156,6 +168,10 @@ app.post("/tab", (req, res) => {
 			res.redirect("/");
 			break;
 
+		case "Authors":
+			res.redirect("/authors");
+			break;
+
 		case "Timeline":
 			res.redirect("/timeline");
 			break;
@@ -200,9 +216,12 @@ app.post("/addbook", async (req, res) => {
 	const bookSelection = JSON.parse(req.body.selectedBooks);
 	var newBook_id = null;
 	var newAuthor_id = null;
+	console.log("Adding book to the library");
+	console.log(req.body.selectedBooks);
 
 	for (const book of bookSelection) {
 		// Start by inserting the book info into the database
+		console.log("Add the book to the books table");
 		newBook_id = await addBookId(book);
 		// Now, manage the various authors of the book
 		// for (const author of book.author_key) {
@@ -305,9 +324,9 @@ app.post("/delete", async (req, res) => {
 	//Delete the record in books_readers with the bookId and userId
 	const bookId = req.body.bookId;
 	const userId = req.body.userId;
-	const deleteWork = await db.query("SELECT delete_reader_cleanup($1,$2)", [
-		bookId,
+	const deleteWork = await db.query("SELECT delete_book($1,$2)", [
 		userId,
+		bookId,
 	]);
 	if (deleteWork) {
 		console.log("Delete successful");
@@ -460,29 +479,29 @@ async function getAuthorInfo(authorRef) {
 	//get the rest of the information from the API
 	let authorInfo = {
 		name: null,
-		work: null,
+		bio: null,
 		birth: null,
 		death: null,
-		wiki: null,
+		pic: null,
 	};
 	try {
 		const authorURL = `https://openlibrary.org/authors/${authorRef}.json`;
 		const authorData = await axios.get(authorURL);
 		authorInfo.name = authorData.data.name || "no name";
-		authorInfo.work = authorData.data.top_work || "no work";
+		authorInfo.bio = authorData.data.bio || "no bio";
 		authorInfo.birth = parseDateString(authorData.data.birth_date);
 		authorInfo.death = parseDateString(authorData.data.death_date);
-		authorInfo.wiki = "wikidata"; //authorData.data.remote_ids["wikidata"];
+		authorInfo.pic = authorData.data.photos[0] || null; //authorData.data.remote_ids["wikidata"];
 	} catch (err) {
 		// If the author data is not available, set default values
 		console.log("Error fetching author data for author:", authorRef);
 		console.log("Error:", err);
 		// Set default values
 		authorInfo.name = null;
-		authorInfo.work = null;
+		authorInfo.bio = null;
 		authorInfo.birth = null;
 		authorInfo.death = null;
-		authorInfo.wiki = null;
+		authorInfo.pic = null;
 	}
 	return authorInfo;
 }
@@ -495,14 +514,20 @@ async function updateAuthorInfo(authorInfo, authorId) {
 			"UPDATE authors SET author_name = $1, author_top_work = $2, author_birth_date = $3, author_death_date = $4, author_wikidata = $5 WHERE id_author = $6",
 			[
 				authorInfo.name,
-				authorInfo.work,
+				authorInfo.bio,
 				authorInfo.birth,
 				authorInfo.death,
-				authorInfo.wiki,
+				authorInfo.pic,
 				authorId,
 			]
 		);
 
+		//Delete the records where name is null
+		// try {
+		// 	await db.query("DELETE FROM authors WHERE author_name IS NULL");
+		// } catch (err) {
+		// 	console.log("Error deleting authors with null name");
+		// }
 		updateResult = true;
 	} catch (err) {
 		console.log(
@@ -538,11 +563,22 @@ async function addAuthorId(authorRef) {
 		if (problem.type === "DUPLICATE") {
 			console.log("Author already exists in the database: ", authorRef);
 			// Get the newAuthor_id of the author that already exist in the db
-			authorKey = await db.query(
-				"SELECT id_author FROM authors WHERE author_key = $1",
-				[authorRef]
-			);
-			authorId = parseInt(authorKey.rows[0].id_author);
+			try {
+				console.log(
+					"Trying to get the author id that is already in the database"
+				);
+				authorKey = await db.query(
+					"SELECT id_author FROM authors WHERE author_key = $1",
+					[authorRef]
+				);
+				authorId = parseInt(authorKey.rows[0].id_author);
+				console.log("I found the author with id: ", authorId);
+			} catch (err) {
+				console.log(
+					"Error getting the author id that is already in the database"
+				);
+				console.log(err);
+			}
 		} else if (problem.type === "CONNECTION") {
 			console.log("Connection error while inserting author:", problem);
 		} else {
@@ -553,6 +589,7 @@ async function addAuthorId(authorRef) {
 }
 
 async function getBookWork(bookRef) {
+	console.log("Getting book work for:", bookRef.works);
 	let bookSummary = null;
 	// Get the works json file from OpenLibrary using the bookRef.works reference
 	try {
@@ -572,6 +609,8 @@ async function addBookId(bookRef) {
 	let bookId = null;
 	let bookKey = null;
 	bookRef.bookSummary = await getBookWork(bookRef);
+	console.log("The book to insert", bookRef);
+
 	//Insert the book into a database and return the book_id
 	try {
 		bookKey = await db.query(
@@ -586,14 +625,31 @@ async function addBookId(bookRef) {
 			]
 		);
 		bookId = bookKey.rows[0].id_book;
+		console.log("Got the book inserted with id :", bookId);
 	} catch (err) {
 		const problem = categorizeSQLError(err);
+		console.log("Problem adding the book");
+		console.log(err);
 		if (problem.type === "DUPLICATE") {
-			bookKey = await db.query(
-				"SELECT id_book FROM books WHERE book_oleid = $1",
-				[bookRef.oleId]
-			);
-			bookId = bookKey.rows[0].id_book;
+			console.log("The book is aldready in the database");
+			try {
+				console.log(
+					"Trying to get the book id that is already in the database"
+				);
+				// Get the book_id of the book that already exist in the db
+				bookKey = await db.query(
+					"SELECT id_book FROM books WHERE book_oleid = $1",
+					[bookRef.oleId]
+				);
+
+				bookId = bookKey.rows[0].id_book;
+				console.log("I found the book with id: ", bookId);
+			} catch (err) {
+				console.log(
+					"Error getting the book id that is already in the database"
+				);
+				console.log(err);
+			}
 		} else if (problem.type === "CONNECTION") {
 			console.log("Connection error while inserting book:", bookRef);
 		} else {
@@ -718,8 +774,21 @@ async function getCollections() {
 	);
 	return collectList.rows;
 }
+
+async function getAuthors() {
+	//Get the list of authors from the database
+	const authorList = await db.query(
+		"SELECT DISTINCT * FROM authors ORDER BY author_name"
+	);
+	console.log("Author list:", authorList.rows);
+	const cleanList = authorList.rows;
+	cleanList.forEach((author) => {
+		author.author_birth_date = parseDateString(author.author_birth_date);
+		author.author_death_date = parseDateString(author.author_death_date);
+	});
+	return cleanList;
+}
+
 //TODO: Add a function to query with axios the openlibrary website and collect the information on that author's work
 //	The author key has an URL that returns a json https://openlibrary.org/authors/OL23919A.json
 //	The json has a bio field, links field for websites
-
-//TODO: Write a function to query the authors of the database

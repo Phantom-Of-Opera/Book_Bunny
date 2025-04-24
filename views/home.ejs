@@ -23,7 +23,7 @@
 					<h5 class="card-title simonetta-black"><%= book.book_title %></h5>
 					<% const cover = book.book_cover_id || 'default-cover'; %>
 					<img
-						<%if ( cover == "NoCover" ) {%>
+						<%if ( cover == "default-cover" ) {%>
 							src="images/blank_cover.jpeg" <%}else{%>
 							src="https://covers.openlibrary.org/b/olid/<%=cover%>-M.jpg"
 							<%}%>
