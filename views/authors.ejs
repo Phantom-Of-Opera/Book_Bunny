@@ -1,5 +1,4 @@
 <%-include("partials/header.ejs") %>
-<!-- TODO:Reconfigure the file for authors -->
 <div class="container mt-4">
 	<div class="mb-3">
 		<input
@@ -28,7 +27,11 @@
 						)
 					</p>
 					<!-- TODO: Change the buttons to have just like a "view more" -->
-					<button type="button" class="btn btn-primary bookBtn fontFlex">
+					<button
+						type="button"
+						class="btn btn-primary moreBtn fontFlex"
+						data-key="<%= author.id_author %>"
+					>
 						View More
 					</button>
 				</div>

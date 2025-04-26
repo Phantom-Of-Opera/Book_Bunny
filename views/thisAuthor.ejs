@@ -2,89 +2,65 @@
 
 <div class="container my-3 scrollable">
 	<div class="row align-items-start border-bottom" style="flex: 1 1 auto">
-		<!-- Book Cover -->
+		<!-- Author Picture -->
 		<div class="col-12 col-md-3" style="text-align: center">
-			
 			<picture>
 				<!-- Medium size for small screens -->
-				<source 
-					srcset="https://covers.openlibrary.org/b/olid/<%= locals.thisBook.book_cover_id %>-M.jpg" 
-					media="(max-width: 768px)" 
+				<source
+					srcset="
+						//covers.openlibrary.org/a/id/<%=locals.thisAuthor.author_wikidata%>-M.jpg
+					"
+					media="(max-width: 768px)"
 				/>
 				<!-- Large size for larger screens -->
-				<source 
-					srcset="https://covers.openlibrary.org/b/olid/<%= locals.thisBook.book_cover_id %>-L.jpg" 
-					media="(min-width: 769px)" 
+				<source
+					srcset="
+						//covers.openlibrary.org/a/id/<%=locals.thisAuthor.author_wikidata%>-L.jpg
+					"
+					media="(min-width: 769px)"
 				/>
 				<!-- Fallback image -->
-				<img 
-					<% if (locals.thisBook.book_cover_id == "NoCover") { %>
-						src="images/blank_cover.jpeg" 
-					<% } else { %>
-						src="https://covers.openlibrary.org/b/olid/<%= locals.thisBook.book_cover_id %>-L.jpg"
-					<% } %>
-					alt="Book cover" 
-					class="img-fluid" 
-				/>
+				<img <% if (locals.thisAuthor.author_wikidata == null) { %>
+				src="images/blank_cover.jpeg" <% } else { %>
+				src="https://covers.openlibrary.org/b/olid/<%=
+				locals.thisAuthor.author_wikidata%>-L.jpg" <% } %> alt="Author Picture"
+				class="img-fluid" />
 			</picture>
 
-
-			<!-- Add a dropdown menu to select the book collection and select the one coming from thisBook.book_collection -->
-			<div class="dropdown">
-				<select
-					class="form-select simonetta-regular my-2 searchBorders text-center"
-					id="bookCollectionSelect"
-					name="bookCollection"
-					style="width: 100%"
-				>	
-				<% locals.collections.forEach((collection) => { %>
-					<option
-						value="<%= collection.collection_name %>"
-						<% if (collection.collection_name == locals.thisBook.book_collection) { %>
-							selected
-						<% } %>
-					>
-						<%= collection.collection_name %>
-					</option>
-				<% }); %>
-				</select>
-			</div>
 			<!-- Star rating system -->
 			<div class="star-rating interactive">
 				<input
 					type="hidden"
-					name="book_rating"
-					id="book_rating"
-					value="<%= locals.thisBook.book_rating || 0 %>"
+					name="author_rating"
+					id="author_rating"
+					value="<%= locals.thisAuthor.author_rating || 0 %>"
 				/>
 				<% for (let i = 1; i <= 5; i++) { %>
 				<i
-					class="bi <%= i <= locals.thisBook.book_rating ? 'bi-star-fill' : 'bi-star' %>"
+					class="bi <%= i <= locals.thisAuthor.author_rating ? 'bi-star-fill' : 'bi-star' %>"
 					data-value="<%= i %>"
 				></i>
 				<% } %>
 			</div>
 		</div>
 
-
-		<!-- Book Info -->
+		<!--TODO:Update the author info-->
+		<!-- Author Info -->
 		<div class="col-12 col-md-9" id="bookInfoCol">
 			<div>
 				<h2 class="simonetta-black fontFlex-h2" style="text-align: left">
-					<%=locals.thisBook.book_title%>
-					<span style="font-size: small;">(<%=locals.thisBook.book_first_publish%>)</span>
+					<%=locals.thisAuthor.author_name%>
+					<span style="font-size: small"
+						>(<%=locals.thisAuthor.author_birth_date%> /
+						<%=locals.thisAuthor.author_death_date%>)</span
+					>
 				</h2>
-				
 
 				<!-- Add a div to get h3 on the left of the screen and the button on the right on the same line -->
-
 				<div
 					class="d-flex justify-content-between align-items-center mt-2"
 					style="flex-wrap: wrap"
 				>
-					<h3 class="simonetta-regular fontFlex-h3" style="text-align: left">
-						<%=locals.thisBook.author_name%>
-					</h3>
 					<button
 						type="button"
 						class="btn btn-secondary d-flex align-items-center fontFlex"
@@ -102,13 +78,14 @@
 					class="fontFlex simonetta-regular-italic slide open mt-2"
 					id="bookDescription"
 				>
-					<%=locals.thisBook.book_summary%>
+					<%=locals.thisAuthor.author_top_work%>
 				</p>
 			</div>
 
+			<!-- TODO: Change the author area. If I want to put notes about and author, I need to add a authors_readers database-->
 			<div id="bookArea">
 				<form
-					action="/myBooks"
+					action="/authors"
 					method="GET"
 					style="display: flex; flex-direction: column; height: 100%"
 					id="bookAnalysisForm"
@@ -118,15 +95,12 @@
 						style="flex-wrap: wrap"
 					>
 						<h3 class="simonetta-black fontFlex-h3" style="text-align: left">
-							My book analysis
+							My author notes
 						</h3>
 
 						<div>
 							<button type="button" class="btn fontFlex" id="btnSave">
 								Save
-							</button>
-							<button type="button" class="btn fontFlex" id="btnDelete">
-								Delete
 							</button>
 							<button type="submit" class="btn fontFlex" id="btnCancel">
 								Cancel
@@ -139,28 +113,22 @@
 							class="form-control simonetta-regular"
 							style="height: 90%; font-size: 1rem"
 						>
-							<%- thisBook.book_notes%>
+							<%- thisAuthor.author_notes%>
 						</div>
-						<input type="hidden" name="bookAnalysis" id="bookAnalysis" />
-						<input
-							type="hidden"
-							name="bookStructure"
-							id="bookStructure"
-							value="No Structure"
-						/>
-						<input type="hidden" name="bookRating" id="bookRating" />
+						<input type="hidden" name="authorNotes" id="authorNotes" />
+						<input type="hidden" name="authorRating" id="authorRating" />
 
 						<input
 							type="hidden"
-							name="bookId"
-							id="bookId"
-							value="<%= locals.thisBook.id_book %>"
+							name="authorId"
+							id="authorId"
+							value="<%= locals.thisAuthor.id_author %>"
 						/>
 						<input
 							type="hidden"
 							name="userId"
 							id="userId"
-							value="<%= locals.thisBook.id_reader %>"
+							value="<%= locals.thisAuthor.id_reader %>"
 						/>
 					</div>
 				</form>
@@ -168,5 +136,4 @@
 		</div>
 	</div>
 </div>
-	<%-include("partials/footer.ejs") %>
-
+<%-include("partials/footer.ejs") %>

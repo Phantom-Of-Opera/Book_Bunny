@@ -52,8 +52,6 @@ function filterBooks() {
 	cards.forEach((card) => {
 		const title = card.querySelector(".card-title").textContent.toLowerCase();
 		const author = card.querySelector(".card-text").textContent.toLowerCase();
-		console.log(`The title is ${title}`);
-		console.log(`The author is ${author}`);
 		if (title.includes(searchInput) || author.includes(searchInput)) {
 			card.parentElement.style.display = "block";
 			// card.classList.remove("hidden");

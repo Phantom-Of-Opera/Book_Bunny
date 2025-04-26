@@ -21,7 +21,7 @@ const saved = localStorage.getItem(storageKey);
 if (saved) {
 	quill.root.innerHTML = saved;
 } else {
-	const initialFromServer = "<%- thisBook.book_notes%>";
+	const initialFromServer = "<%- thisAuthor.author_notes%>";
 	localStorage.setItem(storageKey, initialFromServer);
 }
 
@@ -59,34 +59,9 @@ $("#btnSave").on("click", function () {
 	saveData();
 });
 
-// Attach event listener to the delete button
-$("#btnDelete").on("click", function () {
-	// Show an alert for confirmation
-	if (confirm("Are you sure you want to delete this book and you summaries?")) {
-		const bookId = $("#bookId").val();
-		const userId = $("#userId").val();
-		// Send POST request to /delete route
-		$.ajax({
-			url: "/delete", // Server endpoint
-			type: "POST", // HTTP method
-			contentType: "application/json", // Sending JSON data
-			data: JSON.stringify({ bookId: bookId, userId: userId }), // Optional data
-			success: function (response) {
-				console.log("Delete successful:", response);
-				alert("Delete was successful!");
-				// Optionally redirect or update UI
-				location.assign("/"); // Redirect after deletion
-			},
-			error: function (xhr, status, error) {
-				console.error("Delete failed:", error);
-			},
-		});
-	}
-});
-
 //Star rating functionality
 const stars = document.querySelectorAll(".star-rating.interactive i");
-const ratingInput = document.getElementById("book_rating");
+const ratingInput = document.getElementById("author_rating");
 
 function updateStars(rating) {
 	stars.forEach((star, index) => {
@@ -98,7 +73,7 @@ function updateStars(rating) {
 			star.classList.remove("bi-star-fill");
 		}
 	});
-	document.getElementById("bookRating").value = rating;
+	document.getElementById("authorRating").value = rating;
 }
 
 stars.forEach((star) => {
@@ -118,18 +93,27 @@ updateStars(parseInt(ratingInput.value));
 
 function saveData() {
 	//Send POST request to /save route
+	console.log("Saving data...");
+	console.log("Author ID:", $("#authorId").val());
+	console.log("User ID:", $("#userId").val());
+	console.log("Author Notes:", quill.root.innerHTML);
+	console.log("Author Rating:", $("#authorRating").val());
+	console.log("Author Genre:", $("#bookCollectionSelect").val());
+	// Send POST request to /save route
+
 	$.ajax({
-		url: "/saveBook", // Server endpoint
+		url: "/saveAuthor", // Server endpoint
 		type: "POST", // HTTP method
 		contentType: "application/json", // Sending JSON data
 		data: JSON.stringify({
-			bookId: $("#bookId").val(),
+			authorId: $("#authorId").val(),
 			userId: $("#userId").val(),
-			bookAnalysis: quill.root.innerHTML,
-			bookStructure: "No structuer yet",
-			bookRating: $("#bookRating").val(),
-			bookCollection: $("#bookCollectionSelect").val(),
-		}), // Optional data
+			authorNotes: quill.root.innerHTML,
+			authorRating: $("#authorRating").val(),
+			authorGenre: "no genre yet", // $("#bookCollectionSelect").val(),
+		}),
+
+		// Optional data
 		success: function (response) {
 			localStorage.removeItem(storageKey);
 			console.log("Save successful:", response);

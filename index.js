@@ -43,6 +43,7 @@ var selectedUser = null;
 var selectedName = null;
 var selectedIcon = null;
 var selectedBook = null;
+var selectedAuthor = null;
 var errMsg = null;
 
 //------------ Use of App ----------------
@@ -76,6 +77,7 @@ app.get("/", async (req, res) => {
 //TODO: Add the handler for the authors access
 app.get("/authors", async (req, res) => {
 	const authorList = await getAuthors();
+	// console.log("Author list: ", authorList);
 	res.render("authors.ejs", {
 		page: "authors",
 		authorList: authorList,
@@ -183,8 +185,6 @@ app.post("/tab", (req, res) => {
 });
 
 app.post("/searchbook", async (req, res) => {
-	console.log("Search request received");
-
 	let searchKey = req.body.searchType;
 	let searchValue = req.body.searchValue;
 	let searchKey2 = req.body.searchType2;
@@ -198,7 +198,6 @@ app.post("/searchbook", async (req, res) => {
 		[searchKey]: searchValue,
 		[searchKey2]: searchValue2,
 	});
-	console.log(searchString.toString());
 	try {
 		let searchURL =
 			apiSearch + "?" + searchString.toString().replace(/%20/g, "+");
@@ -216,12 +215,9 @@ app.post("/addbook", async (req, res) => {
 	const bookSelection = JSON.parse(req.body.selectedBooks);
 	var newBook_id = null;
 	var newAuthor_id = null;
-	console.log("Adding book to the library");
-	console.log(req.body.selectedBooks);
 
 	for (const book of bookSelection) {
 		// Start by inserting the book info into the database
-		console.log("Add the book to the books table");
 		newBook_id = await addBookId(book);
 		// Now, manage the various authors of the book
 		// for (const author of book.author_key) {
@@ -259,6 +255,29 @@ app.post("/addbook", async (req, res) => {
 	});
 });
 
+//TODO: Add the handler for the authors detailed page
+app.post("/more", async (req, res) => {
+	let authorId = parseInt(req.body.key);
+	try {
+		let result = await db.query(
+			//TODO: Update both the table and the view in the render database
+			"SELECT * FROM author_fields WHERE id_author=$1 AND id_reader=$2",
+			[authorId, selectedUser]
+		);
+		selectedAuthor = result.rows[0];
+		selectedAuthor.author_birth_date = parseDateString(
+			selectedAuthor.author_birth_date
+		);
+		selectedAuthor.author_death_date = parseDateString(
+			selectedAuthor.author_death_date
+		);
+	} catch (error) {
+		console.error("Error executing query", error.stack);
+		return null;
+	}
+	res.json("OK");
+});
+
 app.post("/select", async (req, res) => {
 	let bookId = parseInt(req.body.key);
 	try {
@@ -274,10 +293,20 @@ app.post("/select", async (req, res) => {
 	res.json("OK");
 });
 
+//TODO: Make a specific Author page
+//get the specific author page
+app.get("/author", async (req, res) => {
+	//Get the book information from the database
+	res.render("thisAuthor.ejs", {
+		page: "thisAuthor",
+		thisAuthor: selectedAuthor,
+	});
+});
+
 app.get("/book", async (req, res) => {
 	//Get the list of collections from the database
 	listOfCollections = await getCollections();
-	//Get the book information from the database
+	//Render the page
 	res.render("book.ejs", {
 		page: "book",
 		thisBook: selectedBook,
@@ -301,7 +330,25 @@ app.post("/addOne", async (req, res) => {
 	}
 });
 
-app.post("/save", (req, res) => {
+app.post("/saveAuthor", async (req, res) => {
+	console.log("Saving author");
+	//Save the author in the database
+	let saveOk = updateAuthorAnalysis(
+		req.body.authorId,
+		req.body.userId,
+		req.body.authorNotes,
+		req.body.authorRating,
+		req.body.authorGenre
+	);
+	if (saveOk) {
+		res.status(200);
+	} else {
+		console.log("Update failed");
+		res.status(500);
+	}
+});
+
+app.post("/saveBook", (req, res) => {
 	//Save the book analysis in the database
 	let saveOk = updateBookAnalysis(
 		req.body.bookId,
@@ -381,9 +428,7 @@ app.get("/timeline", async (req, res) => {
 
 app.post("/deleteReader", async (req, res) => {
 	if (req.body.confirmPhrase === "I want to delete my Account!") {
-		console.log("Delete request confirmed");
 		if (await checkPassword(selectedUser, req.body.deletePwd)) {
-			console.log("Password is correct");
 			// Delete the record in readers with the userId
 			const deleteWork = await db.query(
 				"SELECT delete_reader_and_cleanup($1)",
@@ -558,10 +603,8 @@ async function addAuthorId(authorRef) {
 		);
 		authorId = parseInt(authorKey.rows[0].id_author);
 	} catch (err) {
-		console.log("Failed insert author:", authorRef);
 		const problem = categorizeSQLError(err);
 		if (problem.type === "DUPLICATE") {
-			console.log("Author already exists in the database: ", authorRef);
 			// Get the newAuthor_id of the author that already exist in the db
 			try {
 				console.log(
@@ -589,7 +632,6 @@ async function addAuthorId(authorRef) {
 }
 
 async function getBookWork(bookRef) {
-	console.log("Getting book work for:", bookRef.works);
 	let bookSummary = null;
 	// Get the works json file from OpenLibrary using the bookRef.works reference
 	try {
@@ -609,8 +651,6 @@ async function addBookId(bookRef) {
 	let bookId = null;
 	let bookKey = null;
 	bookRef.bookSummary = await getBookWork(bookRef);
-	console.log("The book to insert", bookRef);
-
 	//Insert the book into a database and return the book_id
 	try {
 		bookKey = await db.query(
@@ -625,13 +665,9 @@ async function addBookId(bookRef) {
 			]
 		);
 		bookId = bookKey.rows[0].id_book;
-		console.log("Got the book inserted with id :", bookId);
 	} catch (err) {
 		const problem = categorizeSQLError(err);
-		console.log("Problem adding the book");
-		console.log(err);
 		if (problem.type === "DUPLICATE") {
-			console.log("The book is aldready in the database");
 			try {
 				console.log(
 					"Trying to get the book id that is already in the database"
@@ -670,7 +706,6 @@ async function addAuthorsBooks(authorId, bookId, isMain) {
 		);
 		insertResult = true;
 	} catch (err) {
-		console.log("Error inserting books_authors");
 		const problem = categorizeSQLError(err);
 		if (problem.type === "DUPLICATE") {
 			console.error("Error inserting books_authors: Shows DUPLICATE");
@@ -708,6 +743,31 @@ async function addBooksReaders(readerId, bookId) {
 		}
 	}
 	return insertResult;
+}
+
+async function updateAuthorAnalysis(writerId, userId, Notes, Rating, Genre) {
+	let updateResult = false;
+	//Insert the relationship into the authors_readers table
+
+	try {
+		await db.query(
+			"UPDATE authors_readers SET author_notes = $1, author_rating = $2, author_genre= $3 WHERE id_author = $4 AND id_reader = $5",
+			[Notes, Rating, Genre, writerId, userId]
+		);
+		updateResult = true;
+	} catch (err) {
+		console.log("Error updating authors_readers");
+		const problem = categorizeSQLError(err);
+		if (problem.type === "DUPLICATE") {
+			console.error("Error updating authors_readers: Shows DUPLICATE");
+		} else if (problem.type === "CONNECTION") {
+			console.error("Error updating authors_readers: Shows CONNECTION");
+		} else {
+			console.error("Error updating authors_readers");
+			console.error("Unexpected SQL issue in update book analysis:", problem);
+		}
+	}
+	return updateResult;
 }
 
 async function updateBookAnalysis(
@@ -780,7 +840,6 @@ async function getAuthors() {
 	const authorList = await db.query(
 		"SELECT DISTINCT * FROM authors ORDER BY author_name"
 	);
-	console.log("Author list:", authorList.rows);
 	const cleanList = authorList.rows;
 	cleanList.forEach((author) => {
 		author.author_birth_date = parseDateString(author.author_birth_date);

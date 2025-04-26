@@ -1,21 +1,20 @@
-//TODO: Reconfigure for authors
-
 //Opent the details of the selected book
-$(".bookBtn").on("click", function (event) {
+
+$(".moreBtn").on("click", function (event) {
 	event.preventDefault(); // Prevent form submission
 
 	// Retrieve data from the button's data-* attributes
-	const bookKey = $(this).data("key");
+	const authorId = $(this).data("key");
 	// Send data to the server using jQuery's AJAX method
 	$.ajax({
-		url: "/select",
+		url: "/more",
 		type: "POST",
 		contentType: "application/json",
-		data: JSON.stringify({ key: bookKey }),
+		data: JSON.stringify({ key: authorId }),
 		success: function (response) {
 			console.log("Data sent successfully:", response);
 			// Handle response (redirect, show message, etc.)
-			location.assign("/book");
+			location.assign("/author");
 		},
 		error: function (xhr, status, error) {
 			console.log("Error:", error);
@@ -23,38 +22,12 @@ $(".bookBtn").on("click", function (event) {
 	});
 });
 
-//Add the selected book to my books
-$(".addBtn").on("click", function (event) {
-	event.preventDefault(); // Prevent form submission
-
-	// Retrieve data from the button's data-* attributes
-	const bookKey = $(this).data("key");
-	const user_Id = $("#userId").val();
-	// Send data to the server using jQuery's AJAX method
-	$.ajax({
-		url: "/addOne",
-		type: "POST",
-		contentType: "application/json",
-		data: JSON.stringify({ bookId: bookKey, userId: user_Id }),
-		success: function (response) {
-			console.log("Data sent successfully:", response);
-			// Handle response (redirect, show message, etc.)
-			location.assign("/myBooks");
-		},
-		error: function (xhr, status, error) {
-			console.log("Error:", error);
-		},
-	});
-});
-
-//Add the selected book to my books
-//TEST: Function has not been tested yet
-function filterAuthorss() {
+// Filter authors based on the search input
+function filterAuthors() {
 	const searchInput = document.getElementById("filterBar").value.toLowerCase();
 	const cards = document.querySelectorAll(".card-body");
 	cards.forEach((card) => {
-		const author = card.querySelector(".card-text").textContent.toLowerCase();
-		console.log(`The author is ${author}`);
+		const author = card.querySelector(".card-title").textContent.toLowerCase();
 		if (author.includes(searchInput)) {
 			card.parentElement.style.display = "block";
 			// card.classList.remove("hidden");

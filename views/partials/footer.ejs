@@ -6,10 +6,13 @@
 <script src = "https://cdn.quilljs.com/1.3.6/quill.js"> </script>
 
 <% if(locals.page == "book"){ %>
-    <script src="js/book.js"></script>
-    
+    <script src="js/book.js"></script>  
 <%} else if (locals.page == "home"){%>
     <script src="js/home.js"></script>
+<%} else if (locals.page == "authors"){%>
+    <script src="js/authors.js"></script>
+<%} else if (locals.page == "thisAuthor"){%>
+    <script src="js/thisAuthor.js"></script>
 <%}%>
 
 </main>
