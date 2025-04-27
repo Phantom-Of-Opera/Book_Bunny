@@ -6,12 +6,13 @@
 		<div class="col-12 col-md-3" style="text-align: center">
 			<picture>
 				<!-- Medium size for small screens -->
-				<source
+				<% if (locals.thisAuthor.author_wikidata) { %>
+					<source	
 					srcset="
 						//covers.openlibrary.org/a/id/<%=locals.thisAuthor.author_wikidata%>-M.jpg
 					"
 					media="(max-width: 768px)"
-				/>
+					/>
 				<!-- Large size for larger screens -->
 				<source
 					srcset="
@@ -19,11 +20,14 @@
 					"
 					media="(min-width: 769px)"
 				/>
-				<!-- Fallback image -->
-				<img <% if (locals.thisAuthor.author_wikidata == null) { %>
-				src="images/blank_cover.jpeg" <% } else { %>
-				src="https://covers.openlibrary.org/b/olid/<%=
-				locals.thisAuthor.author_wikidata%>-L.jpg" <% } %> alt="Author Picture"
+				<% } else { %>
+					<source
+					srcset="images/blank_cover.jpeg"/> 				
+					 <%}%>
+					 <!-- Fallback image -->
+				<img 
+				src="images/blank_cover.jpeg" 
+				alt="Author Picture"
 				class="img-fluid" />
 			</picture>
 
@@ -31,7 +35,6 @@
 
 			<!-- Star rating system -->
 			<div class="star-rating interactive"
-			
 			<%= locals.userId== null ? 'hidden' : '' %> >
 				<input
 					type="hidden"
@@ -81,7 +84,7 @@
 				</div>
 				<div id="bookDescription" class="open slide">
 				<p
-					class="fontFlex simonetta-regular-italic "
+					class="fontFlex simonetta-regular-italic"
 				>
 					<%=locals.thisAuthor.author_top_work%>
 				</p>

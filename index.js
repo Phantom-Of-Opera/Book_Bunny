@@ -90,15 +90,19 @@ app.get("/authors", async (req, res) => {
 
 app.get("/myBooks", async (req, res) => {
 	const bookList = await getMyBooks(selectedUser);
-	res.render("home.ejs", {
-		page: "home",
-		bookList: bookList,
-		userName: selectedName,
-		userId: selectedUser,
-		userIcon: selectedIcon,
-		myBooks: true,
-		hideAdd: true,
-	});
+	if (bookList == null) {
+		res.redirect("/");
+	} else {
+		res.render("home.ejs", {
+			page: "home",
+			bookList: bookList,
+			userName: selectedName,
+			userId: selectedUser,
+			userIcon: selectedIcon,
+			myBooks: true,
+			hideAdd: true,
+		});
+	}
 });
 
 app.get("/user", async (req, res) => {
@@ -247,6 +251,15 @@ app.post("/addbook", async (req, res) => {
 		if (!insertBookReader) {
 			console.log("Reader-book relationship not inserted");
 		}
+
+		// Insert the relationship into the authors_readers table
+		let insertAuthorReader = await addAuthorsReaders(
+			selectedUser,
+			newAuthor_id
+		);
+		if (!insertAuthorReader) {
+			console.log("Reader-author relationship not inserted");
+		}
 	}
 	res.render("newBook.ejs", {
 		userName: selectedName,
@@ -254,8 +267,9 @@ app.post("/addbook", async (req, res) => {
 	});
 });
 
-app.post("/more", async (req, res) => {
+app.post("/moreAuthor", async (req, res) => {
 	let authorId = parseInt(req.body.key);
+	console.log("Author id: ", authorId);
 	const itsOK = await getThisAuthor(authorId, selectedUser);
 	if (itsOK) {
 		res.json("OK");
@@ -264,20 +278,18 @@ app.post("/more", async (req, res) => {
 	}
 });
 
-//TODO: Modify the select so that there is a way to get the description although there is no user id
-app.post("/select", async (req, res) => {
+//TODO: Modify the call so that we can get more information on the book
+app.post("/moreBook", async (req, res) => {
 	let bookId = parseInt(req.body.key);
-	try {
-		let result = await db.query(
-			"SELECT * FROM main_fields WHERE id_book=$1 AND id_reader=$2",
-			[bookId, selectedUser]
-		);
-		selectedBook = result.rows[0];
-	} catch (error) {
-		console.error("Error executing query", error.stack);
-		return null;
+	console.log("Book id: ", bookId);
+	console.log("User id: ", selectedUser);
+	//Get the book information from the database
+	const itsOK = await getThisBook(bookId, selectedUser);
+	if (itsOK) {
+		res.json("OK");
+	} else {
+		res.json("Error");
 	}
-	res.json("OK");
 });
 
 //get the specific author page
@@ -291,24 +303,32 @@ app.get("/thisAuthor", async (req, res) => {
 	});
 });
 
-app.get("/book", async (req, res) => {
+app.get("/thisBook", async (req, res) => {
 	//Get the list of collections from the database
 	listOfCollections = await getCollections();
 	//Render the page
-	res.render("book.ejs", {
-		page: "book",
+	console.log("Selected book: ", selectedBook);
+	res.render("thisBook.ejs", {
+		page: "thisBook",
 		thisBook: selectedBook,
+		userId: selectedUser,
 		userName: selectedName,
 		userIcon: selectedIcon,
 		collections: listOfCollections,
 	});
 });
 
+//TEST: This is the modification to add the authors_readers table
 app.post("/addOne", async (req, res) => {
 	const bookId = parseInt(req.body.bookId);
 	const userId = parseInt(req.body.userId);
+	const authorId = await db.query(
+		"SELECT id_author FROM books_authors WHERE id_book=$1",
+		[bookId]
+	);
 	const insertBookReader = await addBooksReaders(userId, bookId);
-	if (insertBookReader) {
+	const insertAuthorReader = await addAuthorsReaders(userId, authorId);
+	if (insertBookReader && insertAuthorReader) {
 		console.log("Insert successful");
 		res.status(200);
 		res.redirect("/myBooks");
@@ -462,9 +482,7 @@ app.post("/deleteReader", async (req, res) => {
 async function getLibrary() {
 	try {
 		let result = null;
-		result = await db.query(
-			"SELECT * FROM book_author_view ORDER BY book_title"
-		);
+		result = await db.query("SELECT * FROM book_fields ORDER BY book_title");
 		return result.rows;
 	} catch (err) {
 		console.error("Error executing query", err.stack);
@@ -473,15 +491,19 @@ async function getLibrary() {
 }
 
 async function getMyBooks(idReader) {
-	try {
-		let result = null;
-
-		result = await db.query("SELECT * FROM get_reader_books($1)", [idReader]);
-
-		return result.rows;
-	} catch (err) {
-		console.error("Error executing query", err.stack);
+	if (idReader == null) {
 		return null;
+	} else {
+		try {
+			let result = null;
+
+			result = await db.query("SELECT * FROM get_reader_books($1)", [idReader]);
+
+			return result.rows;
+		} catch (err) {
+			console.error("Error executing query", err.stack);
+			return null;
+		}
 	}
 }
 
@@ -522,27 +544,32 @@ async function getAuthorInfo(authorRef) {
 		pic: null,
 		links: null,
 	};
-	try {
-		const authorURL = `https://openlibrary.org/authors/${authorRef}.json`;
-		const authorData = await axios.get(authorURL);
-		authorInfo.name = authorData.data.name || "no name";
-		authorInfo.bio = authorData.data.bio || "no bio";
+	const authorURL = `https://openlibrary.org/authors/${authorRef}.json`;
+	const authorData = await axios.get(authorURL);
+	console.log("Author data: ", authorData.data);
+	authorInfo.name = authorData.data.name || "no name";
+	authorInfo.bio = authorData.data.bio || "no bio";
+	if (authorData.data.birth_date) {
 		authorInfo.birth = parseDateString(authorData.data.birth_date);
-		authorInfo.death = parseDateString(authorData.data.death_date);
-		authorInfo.pic = authorData.data.photos[0] || null; //authorData.data.remote_ids["wikidata"];
-		authorInfo.links = JSON.stringify(authorData.data.links) || null;
-	} catch (err) {
-		// If the author data is not available, set default values
-		console.log("Error fetching author data for author:", authorRef);
-		console.log("Error:", err);
-		// Set default values
-		authorInfo.name = null;
-		authorInfo.bio = null;
+	} else {
 		authorInfo.birth = null;
+	}
+	if (authorData.data.death_date) {
+		authorInfo.death = parseDateString(authorData.data.death_date);
+	} else {
 		authorInfo.death = null;
+	}
+	if (authorData.data.photos) {
+		authorInfo.pic = authorData.data.photos[0];
+	} else {
 		authorInfo.pic = null;
+	}
+	if (authorData.data.links) {
+		authorInfo.links = JSON.stringify(authorData.data.links);
+	} else {
 		authorInfo.links = null;
 	}
+
 	return authorInfo;
 }
 
@@ -627,30 +654,45 @@ async function addAuthorId(authorRef) {
 	return parseInt(authorId);
 }
 
-async function getBookWork(bookRef) {
+async function getBookDetails(bookRef) {
 	let bookSummary = null;
+	let bookLinks = null;
 	// Get the works json file from OpenLibrary using the bookRef.works reference
 	try {
 		let worksURL = `https://openlibrary.org/${bookRef.works}.json`;
 		let worksData = await axios.get(worksURL);
 		bookSummary = worksData.data.description.value || "no description";
+		bookLinks = worksData.data.links || null;
+		if (bookLinks) {
+			bookLinks = JSON.stringify(bookLinks);
+		} else {
+			bookLinks = null;
+		}
 	} catch (err) {
 		console.log("Error fetching works data for book:", bookRef.works);
 		console.log("Error:", err);
 		// Set default values
 		bookSummary = null;
+		bookLinks = null;
 	}
-	return bookSummary;
+	return {
+		bookSummary: bookSummary,
+		bookLinks: bookLinks,
+	};
 }
 
 async function addBookId(bookRef) {
 	let bookId = null;
 	let bookKey = null;
-	bookRef.bookSummary = await getBookWork(bookRef);
+
+	const { bookSummary, bookLinks } = await getBookDetails(bookRef);
+
+	bookRef.bookSummary = bookSummary;
+	bookRef.bookLinks = bookLinks;
 	//Insert the book into a database and return the book_id
 	try {
 		bookKey = await db.query(
-			"INSERT INTO books (book_title, book_cover_id, book_first_publish, book_oleid, book_works,book_summary) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_book",
+			"INSERT INTO books (book_title, book_cover_id, book_first_publish, book_oleid, book_works,book_summary,book_links) VALUES ($1, $2, $3, $4, $5, $6,$7) RETURNING id_book",
 			[
 				bookRef.title,
 				bookRef.cover,
@@ -658,6 +700,7 @@ async function addBookId(bookRef) {
 				bookRef.oleId,
 				bookRef.works,
 				bookRef.bookSummary,
+				bookRef.bookLinks,
 			]
 		);
 		bookId = bookKey.rows[0].id_book;
@@ -736,6 +779,29 @@ async function addBooksReaders(readerId, bookId) {
 		} else {
 			console.error("Error inserting books_readers:");
 			console.error("Unexpected SQL issue in book_reader:", problem);
+		}
+	}
+	return insertResult;
+}
+
+async function addAuthorsReaders(readerId, authorId) {
+	let insertResult = false;
+	//Insert the relationship into the books_readers table
+	try {
+		await db.query(
+			"INSERT INTO authors_readers (id_author, id_reader) VALUES ($1, $2)",
+			[authorId, readerId]
+		);
+		insertResult = true;
+	} catch (err) {
+		const problem = categorizeSQLError(err);
+		if (problem.type === "DUPLICATE") {
+			console.log("The reader already conected to that author");
+		} else if (problem.type === "CONNECTION") {
+			console.log("Connection error while inserting authors_readers");
+		} else {
+			console.error("Error inserting authors_readers:");
+			console.error("Unexpected SQL issue in author_reader:", problem);
 		}
 	}
 	return insertResult;
@@ -871,6 +937,30 @@ async function getThisAuthor(writerId, userId) {
 		}
 		if (selectedAuthor.author_links) {
 			selectedAuthor.author_links = JSON.parse(selectedAuthor.author_links);
+		}
+		return true;
+	} catch (error) {
+		console.error("Error executing query", error.stack);
+		return null;
+	}
+}
+
+async function getThisBook(bookId, userId) {
+	let queryStr = "";
+	let queryParams = [];
+	if (userId == null) {
+		queryStr = "SELECT DISTINCT * FROM book_fields WHERE id_book=$1";
+		queryParams = [bookId];
+	} else {
+		queryStr = "SELECT * FROM main_fields WHERE id_book=$1 AND id_reader=$2";
+		queryParams = [bookId, userId];
+	}
+
+	try {
+		let result = await db.query(queryStr, queryParams);
+		selectedBook = result.rows[0];
+		if (selectedBook.book_links) {
+			selectedBook.book_links = JSON.parse(selectedBook.book_links);
 		}
 		return true;
 	} catch (error) {

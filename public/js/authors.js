@@ -7,7 +7,7 @@ $(".moreBtn").on("click", function (event) {
 	const authorId = $(this).data("key");
 	// Send data to the server using jQuery's AJAX method
 	$.ajax({
-		url: "/more",
+		url: "/moreAuthor",
 		type: "POST",
 		contentType: "application/json",
 		data: JSON.stringify({ key: authorId }),

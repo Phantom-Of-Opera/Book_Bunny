@@ -18,11 +18,22 @@
 			<div class="card text-center mb-3" style="width: 100%">
 				<div class="card-body">
 					<h5 class="card-title simonetta-black"><%= author.author_name %></h5>
-					<% const cover = author.author_wikidata || 'default-picture'; %> <img
-					<%if ( cover == "default-picture" ) {%> src="/images/blank_cover.jpeg"
-					<%}else{%> src="//covers.openlibrary.org/a/id/<%=cover%>-M.jpg" <%}%>
-					alt="author picture" height="200px" />
-					<p class="card-text simonetta-regular-italic">
+					<% const cover = author.author_wikidata || 'default-picture'; %> 
+					<picture>
+						<!-- Fallback image -->
+						<%if (cover == "default-picture" ) {%>
+							<source	srcset="images/Books_Bunny_180.png"/> 	
+						<%}else{%>
+							<source
+							srcset="//covers.openlibrary.org/a/id/<%=cover%>-M.jpg"
+							/>
+						<%}%>
+						<img 
+						src="images/Books_Bunny_180.png" 
+						alt="author_key Picture"
+						class="img-fluid samples" />
+					</picture>
+					<p class="card-text simonetta-regular-italic fontFlex">
 						( <%= author.author_birth_date %> / <%= author.author_death_date %>
 						)
 					</p>
