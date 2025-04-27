@@ -74,7 +74,6 @@ app.get("/", async (req, res) => {
 	});
 });
 
-//TODO: Add the handler for the authors access
 app.get("/authors", async (req, res) => {
 	const authorList = await getAuthors();
 	// console.log("Author list: ", authorList);
@@ -255,29 +254,17 @@ app.post("/addbook", async (req, res) => {
 	});
 });
 
-//TODO: Add the handler for the authors detailed page
 app.post("/more", async (req, res) => {
 	let authorId = parseInt(req.body.key);
-	try {
-		let result = await db.query(
-			//TODO: Update both the table and the view in the render database
-			"SELECT * FROM author_fields WHERE id_author=$1 AND id_reader=$2",
-			[authorId, selectedUser]
-		);
-		selectedAuthor = result.rows[0];
-		selectedAuthor.author_birth_date = parseDateString(
-			selectedAuthor.author_birth_date
-		);
-		selectedAuthor.author_death_date = parseDateString(
-			selectedAuthor.author_death_date
-		);
-	} catch (error) {
-		console.error("Error executing query", error.stack);
-		return null;
+	const itsOK = await getThisAuthor(authorId, selectedUser);
+	if (itsOK) {
+		res.json("OK");
+	} else {
+		res.json("Error");
 	}
-	res.json("OK");
 });
 
+//TODO: Modify the select so that there is a way to get the description although there is no user id
 app.post("/select", async (req, res) => {
 	let bookId = parseInt(req.body.key);
 	try {
@@ -293,13 +280,14 @@ app.post("/select", async (req, res) => {
 	res.json("OK");
 });
 
-//TODO: Make a specific Author page
 //get the specific author page
-app.get("/author", async (req, res) => {
+app.get("/thisAuthor", async (req, res) => {
 	//Get the book information from the database
+	console.log("Selected author: ", selectedAuthor);
 	res.render("thisAuthor.ejs", {
 		page: "thisAuthor",
 		thisAuthor: selectedAuthor,
+		userId: selectedUser,
 	});
 });
 
@@ -331,19 +319,23 @@ app.post("/addOne", async (req, res) => {
 });
 
 app.post("/saveAuthor", async (req, res) => {
-	console.log("Saving author");
-	//Save the author in the database
-	let saveOk = updateAuthorAnalysis(
-		req.body.authorId,
-		req.body.userId,
-		req.body.authorNotes,
-		req.body.authorRating,
-		req.body.authorGenre
-	);
-	if (saveOk) {
-		res.status(200);
+	if (selectedUser !== null) {
+		console.log("Saving author");
+		//Save the author in the database
+		let saveOk = updateAuthorAnalysis(
+			req.body.authorId,
+			req.body.userId,
+			req.body.authorNotes,
+			req.body.authorRating,
+			req.body.authorGenre
+		);
+		if (saveOk) {
+			res.status(200);
+		} else {
+			console.log("Update failed");
+			res.status(500);
+		}
 	} else {
-		console.log("Update failed");
 		res.status(500);
 	}
 });
@@ -528,6 +520,7 @@ async function getAuthorInfo(authorRef) {
 		birth: null,
 		death: null,
 		pic: null,
+		links: null,
 	};
 	try {
 		const authorURL = `https://openlibrary.org/authors/${authorRef}.json`;
@@ -537,6 +530,7 @@ async function getAuthorInfo(authorRef) {
 		authorInfo.birth = parseDateString(authorData.data.birth_date);
 		authorInfo.death = parseDateString(authorData.data.death_date);
 		authorInfo.pic = authorData.data.photos[0] || null; //authorData.data.remote_ids["wikidata"];
+		authorInfo.links = JSON.stringify(authorData.data.links) || null;
 	} catch (err) {
 		// If the author data is not available, set default values
 		console.log("Error fetching author data for author:", authorRef);
@@ -547,6 +541,7 @@ async function getAuthorInfo(authorRef) {
 		authorInfo.birth = null;
 		authorInfo.death = null;
 		authorInfo.pic = null;
+		authorInfo.links = null;
 	}
 	return authorInfo;
 }
@@ -556,13 +551,14 @@ async function updateAuthorInfo(authorInfo, authorId) {
 
 	try {
 		await db.query(
-			"UPDATE authors SET author_name = $1, author_top_work = $2, author_birth_date = $3, author_death_date = $4, author_wikidata = $5 WHERE id_author = $6",
+			"UPDATE authors SET author_name = $1, author_top_work = $2, author_birth_date = $3, author_death_date = $4, author_wikidata = $5, author_links=$6 WHERE id_author = $7",
 			[
 				authorInfo.name,
 				authorInfo.bio,
 				authorInfo.birth,
 				authorInfo.death,
 				authorInfo.pic,
+				authorInfo.links,
 				authorId,
 			]
 		);
@@ -843,11 +839,42 @@ async function getAuthors() {
 	const cleanList = authorList.rows;
 	cleanList.forEach((author) => {
 		author.author_birth_date = parseDateString(author.author_birth_date);
-		author.author_death_date = parseDateString(author.author_death_date);
+		if (author.author_death_date) {
+			author.author_death_date = parseDateString(author.author_death_date);
+		}
 	});
 	return cleanList;
 }
+//TODO: Update both the table and the view in the render database, as well as adding a column for links in the authors table
+async function getThisAuthor(writerId, userId) {
+	let queryStr = "";
+	let queryParams = [];
+	if (userId == null) {
+		queryStr = "SELECT * FROM authors WHERE id_author=$1";
+		queryParams = [writerId];
+	} else {
+		queryStr =
+			"SELECT * FROM author_fields WHERE id_author=$1 AND id_reader=$2";
+		queryParams = [writerId, userId];
+	}
 
-//TODO: Add a function to query with axios the openlibrary website and collect the information on that author's work
-//	The author key has an URL that returns a json https://openlibrary.org/authors/OL23919A.json
-//	The json has a bio field, links field for websites
+	try {
+		let result = await db.query(queryStr, queryParams);
+		selectedAuthor = result.rows[0];
+		selectedAuthor.author_birth_date = parseDateString(
+			selectedAuthor.author_birth_date
+		);
+		if (selectedAuthor.author_death_date) {
+			selectedAuthor.author_death_date = parseDateString(
+				selectedAuthor.author_death_date
+			);
+		}
+		if (selectedAuthor.author_links) {
+			selectedAuthor.author_links = JSON.parse(selectedAuthor.author_links);
+		}
+		return true;
+	} catch (error) {
+		console.error("Error executing query", error.stack);
+		return null;
+	}
+}

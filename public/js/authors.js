@@ -14,7 +14,7 @@ $(".moreBtn").on("click", function (event) {
 		success: function (response) {
 			console.log("Data sent successfully:", response);
 			// Handle response (redirect, show message, etc.)
-			location.assign("/author");
+			location.assign("/thisAuthor");
 		},
 		error: function (xhr, status, error) {
 			console.log("Error:", error);

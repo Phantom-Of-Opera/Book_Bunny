@@ -125,12 +125,14 @@
 }
 
 .scrollable {
+	display: flex;
+	flex-direction: column;
 	flex: 1 1 auto;
 	overflow-y: auto;
 	min-height: 0;
 	padding-right: 4px;
 	height: 100%;
-	margin-bottom: 120px;
+	margin-bottom: 2px;
 }
 
 .scrollable::-webkit-scrollbar {
@@ -384,18 +386,15 @@
 	overflow-y: auto;
 	min-height: 0;
 	padding-right: 4px;
-	margin-top: 10px;
-}
-
-#bookDescription {
-	margin-top: 5px;
-	margin-bottom: 5px;
+	/* margin-top: 5px; */
+	/* margin-bottom: 5px; */
 }
 
 #bookInfoCol {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+	max-height: -webkit-fill-available;
 }
 
 #bookList {
@@ -453,7 +452,7 @@
 	background-color: red;
 }
 
-#btnSubmit:hover {
+#btnSave:hover {
 	background-color: green;
 }
 
@@ -604,14 +603,20 @@ body {
 	position: absolute;
 	width: 60%;
 	z-index: 3;
+	aspect-ratio: 1 / 1;
 	animation: spin 1.5s linear infinite;
 }
 
 .spinner-icon {
 	position: absolute;
 	width: 60%;
-	height: 60%;
+	/* Maintain the 1:1 aspect ration */
+	aspect-ratio: 1 / 1;
 	z-index: 2;
+}
+
+div[hidden] {
+	display: none !important;
 }
 
 @keyframes spin {

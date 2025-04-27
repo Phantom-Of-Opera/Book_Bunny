@@ -92,36 +92,30 @@ updateStars(parseInt(ratingInput.value));
 //-----------------------------------------
 
 function saveData() {
-	//Send POST request to /save route
-	console.log("Saving data...");
-	console.log("Author ID:", $("#authorId").val());
-	console.log("User ID:", $("#userId").val());
-	console.log("Author Notes:", quill.root.innerHTML);
-	console.log("Author Rating:", $("#authorRating").val());
-	console.log("Author Genre:", $("#bookCollectionSelect").val());
 	// Send POST request to /save route
+	if (!$("userId").val()) {
+		$.ajax({
+			url: "/saveAuthor", // Server endpoint
+			type: "POST", // HTTP method
+			contentType: "application/json", // Sending JSON data
+			data: JSON.stringify({
+				authorId: $("#authorId").val(),
+				userId: $("#userId").val(),
+				authorNotes: quill.root.innerHTML,
+				authorRating: $("#authorRating").val(),
+				authorGenre: "no genre yet", // $("#bookCollectionSelect").val(),
+			}),
 
-	$.ajax({
-		url: "/saveAuthor", // Server endpoint
-		type: "POST", // HTTP method
-		contentType: "application/json", // Sending JSON data
-		data: JSON.stringify({
-			authorId: $("#authorId").val(),
-			userId: $("#userId").val(),
-			authorNotes: quill.root.innerHTML,
-			authorRating: $("#authorRating").val(),
-			authorGenre: "no genre yet", // $("#bookCollectionSelect").val(),
-		}),
-
-		// Optional data
-		success: function (response) {
-			localStorage.removeItem(storageKey);
-			console.log("Save successful:", response);
-			alert("Save was successful!");
-		},
-		error: function (xhr, status, error) {
-			console.error("Save failed:", error);
-			alert("Save failed. Please try again.");
-		},
-	});
+			// Optional data
+			success: function (response) {
+				localStorage.removeItem(storageKey);
+				console.log("Save successful:", response);
+				alert("Save was successful!");
+			},
+			error: function (xhr, status, error) {
+				console.error("Save failed:", error);
+				alert("Save failed. Please try again.");
+			},
+		});
+	}
 }

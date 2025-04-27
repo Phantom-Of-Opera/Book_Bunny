@@ -1,7 +1,7 @@
 <%-include("partials/header.ejs") %>
 
-<div class="container my-3 scrollable">
-	<div class="row align-items-start border-bottom" style="flex: 1 1 auto">
+<div class="container mt-3 scrollable">
+	<div class="row align-items-start" style="flex: 1 1 auto">
 		<!-- Book Cover -->
 		<div class="col-12 col-md-3" style="text-align: center">
 			
@@ -68,7 +68,7 @@
 
 
 		<!-- Book Info -->
-		<div class="col-12 col-md-9" id="bookInfoCol">
+		<div class="col-12 col-md-9 mt-2" id="bookInfoCol">
 			<div>
 				<h2 class="simonetta-black fontFlex-h2" style="text-align: left">
 					<%=locals.thisBook.book_title%>
@@ -129,11 +129,11 @@
 								Delete
 							</button>
 							<button type="submit" class="btn fontFlex" id="btnCancel">
-								Cancel
+								Back
 							</button>
 						</div>
 					</div>
-					<div class="mb-3 scrollable">
+					<div class="scrollable">
 						<div
 							id="quillEditor"
 							class="form-control simonetta-regular"

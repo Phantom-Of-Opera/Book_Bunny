@@ -1,7 +1,7 @@
 <%-include("partials/header.ejs") %>
 
-<div class="container my-3 scrollable">
-	<div class="row align-items-start border-bottom" style="flex: 1 1 auto">
+<div class="container mt-3 scrollable">
+	<div class="row align-items-start" style="flex: 1 1 auto">
 		<!-- Author Picture -->
 		<div class="col-12 col-md-3" style="text-align: center">
 			<picture>
@@ -27,8 +27,12 @@
 				class="img-fluid" />
 			</picture>
 
+			<!--TODO: Looks at adding the dropdown for the genre of the author-->
+
 			<!-- Star rating system -->
-			<div class="star-rating interactive">
+			<div class="star-rating interactive"
+			
+			<%= locals.userId== null ? 'hidden' : '' %> >
 				<input
 					type="hidden"
 					name="author_rating"
@@ -44,9 +48,9 @@
 			</div>
 		</div>
 
-		<!--TODO:Update the author info-->
+
 		<!-- Author Info -->
-		<div class="col-12 col-md-9" id="bookInfoCol">
+		<div class="col-12 col-md-9 mt-2" id="bookInfoCol">
 			<div>
 				<h2 class="simonetta-black fontFlex-h2" style="text-align: left">
 					<%=locals.thisAuthor.author_name%>
@@ -60,6 +64,7 @@
 				<div
 					class="d-flex justify-content-between align-items-center mt-2"
 					style="flex-wrap: wrap"
+					<% if(locals.userId == null) { %> hidden <% } %>
 				>
 					<button
 						type="button"
@@ -74,16 +79,39 @@
 						></i>
 					</button>
 				</div>
+				<div id="bookDescription" class="open slide">
 				<p
-					class="fontFlex simonetta-regular-italic slide open mt-2"
-					id="bookDescription"
+					class="fontFlex simonetta-regular-italic "
 				>
 					<%=locals.thisAuthor.author_top_work%>
 				</p>
+				<!--Only show the paragprah if there are links in the thisAuthor.author_links-->
+				<% if(locals.thisAuthor.author_links) { %>
+				<p class="fontFlex simonetta-regular-italic  m-0 p-0">
+					External links about the author:
+				</p>
+				<% } %>
+				<ul
+					class="list-group list-group-flush fontFlex simonetta-regular-italic mb-1 mx-5">
+				<!-- List all the links contained in the thisAuthor.author_links-->
+				<% if (locals.thisAuthor.author_links) { %>
+					<% locals.thisAuthor.author_links.forEach(link => { %>
+						<li >
+							<a
+								href="<%=link.url%>"
+								target="_blank"
+								>
+								<%=link.title%>
+							</a>
+						</li>
+					<% }) }%>
+				</ul>
+				</div>
 			</div>
 
-			<!-- TODO: Change the author area. If I want to put notes about and author, I need to add a authors_readers database-->
-			<div id="bookArea">
+			<div id="bookArea"
+			<%= locals.userId== null ? 'hidden' : '' %>
+			>
 				<form
 					action="/authors"
 					method="GET"
@@ -103,11 +131,11 @@
 								Save
 							</button>
 							<button type="submit" class="btn fontFlex" id="btnCancel">
-								Cancel
+								Back
 							</button>
 						</div>
 					</div>
-					<div class="mb-3 scrollable">
+					<div class="scrollable">
 						<div
 							id="quillEditor"
 							class="form-control simonetta-regular"
@@ -133,6 +161,7 @@
 					</div>
 				</form>
 			</div>
+			<a type="button" class="btn fontFlex" href="/authors" <%= locals.userId== null ? '' : 'hidden' %>>Back to authors page</a>
 		</div>
 	</div>
 </div>
