@@ -181,6 +181,10 @@ app.post("/tab", (req, res) => {
 			res.redirect("/timeline");
 			break;
 
+		case "Login":
+			res.redirect("/user");
+			break;
+			
 		default:
 			res.send("OK");
 			break;

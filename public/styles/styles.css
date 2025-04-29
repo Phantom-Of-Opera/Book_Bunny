@@ -668,3 +668,55 @@ div[hidden] {
   .ql-container.ql-snow {
 	border: none;
   }
+  .sidebar {
+	display: flex;
+	flex-direction: column;
+	justify-content:flex-start;
+	align-items: flex-start;
+	position: absolute;
+	height: 100%;
+	/* top: 70px; /* height of strip/navbar */
+	left: -220px; /* initially hidden */
+	/* width: 220px;
+	/* height: calc(100vh - 130px); /* 100vh minus header and footer */
+	background-color:#a27b5c; /* #faeed1;*/
+	box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+	padding-top: 1rem;
+	transition: left 0.6s ease;
+	z-index: 1000;
+	overflow-y: auto;
+	border-right: 2px solid #a27b5c;
+	font-family: 'Simonetta', serif; /* Bunny style */
+  }
+  
+  /* When menu open */
+  .sidebar.show {
+	left: 0;
+  }
+  
+  /* Hide sidebar and hamburger above large screens */
+  @media (min-width: 992px) {
+	#menuToggle, #sidebarMenu {
+	  display: none;
+	}
+	#navbarButtons {
+	  display: flex !important;
+	}
+  }
+
+.sideForm{
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	height: 100%;
+
+  }
+
+  .btnSidebar {
+	background-color: #faeed1;
+	border: none;
+	color: #a27b5c;
+	width: 100px;
+	align-self: center;
+	border-radius: 3px;
+  }

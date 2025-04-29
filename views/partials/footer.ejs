@@ -58,6 +58,23 @@
     </div>
 </footer>
 <script>
+const menuToggle = document.getElementById("menuToggle");
+const sidebarMenu = document.getElementById("sidebarMenu");
+
+menuToggle.addEventListener("click", (event) => {
+  event.stopPropagation(); // Don't trigger document click
+  sidebarMenu.classList.toggle("show");
+  document.body.classList.toggle("sidebar-open");
+});
+
+// Close sidebar when clicking outside
+document.addEventListener("click", (event) => {
+  if (sidebarMenu.classList.contains("show") && !sidebarMenu.contains(event.target)) {
+    sidebarMenu.classList.remove("show");
+    document.body.classList.remove("sidebar-open");
+  }
+});
+
     function hideOverlay() {
       const overlay = document.getElementById("loadingOverlay");
       overlay.style.opacity = 0;
