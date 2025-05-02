@@ -45,6 +45,8 @@ var selectedIcon = null;
 var selectedBook = null;
 var selectedAuthor = null;
 var errMsg = null;
+var isMyAuthor = false;
+var isMyBook = false;
 
 //------------ Use of App ----------------
 
@@ -76,7 +78,6 @@ app.get("/", async (req, res) => {
 
 app.get("/authors", async (req, res) => {
 	const authorList = await getAuthors();
-	// console.log("Author list: ", authorList);
 	res.render("authors.ejs", {
 		page: "authors",
 		authorList: authorList,
@@ -184,7 +185,7 @@ app.post("/tab", (req, res) => {
 		case "Login":
 			res.redirect("/user");
 			break;
-			
+
 		default:
 			res.send("OK");
 			break;
@@ -273,7 +274,7 @@ app.post("/addbook", async (req, res) => {
 
 app.post("/moreAuthor", async (req, res) => {
 	let authorId = parseInt(req.body.key);
-	console.log("Author id: ", authorId);
+	// console.log("Author id: ", authorId);
 	const itsOK = await getThisAuthor(authorId, selectedUser);
 	if (itsOK) {
 		res.json("OK");
@@ -282,11 +283,8 @@ app.post("/moreAuthor", async (req, res) => {
 	}
 });
 
-//TODO: Modify the call so that we can get more information on the book
 app.post("/moreBook", async (req, res) => {
 	let bookId = parseInt(req.body.key);
-	console.log("Book id: ", bookId);
-	console.log("User id: ", selectedUser);
 	//Get the book information from the database
 	const itsOK = await getThisBook(bookId, selectedUser);
 	if (itsOK) {
@@ -299,11 +297,11 @@ app.post("/moreBook", async (req, res) => {
 //get the specific author page
 app.get("/thisAuthor", async (req, res) => {
 	//Get the book information from the database
-	console.log("Selected author: ", selectedAuthor);
 	res.render("thisAuthor.ejs", {
 		page: "thisAuthor",
 		thisAuthor: selectedAuthor,
 		userId: selectedUser,
+		isMyAuthor: isMyAuthor,
 	});
 });
 
@@ -311,7 +309,7 @@ app.get("/thisBook", async (req, res) => {
 	//Get the list of collections from the database
 	listOfCollections = await getCollections();
 	//Render the page
-	console.log("Selected book: ", selectedBook);
+	// console.log("Selected book: ", selectedBook);
 	res.render("thisBook.ejs", {
 		page: "thisBook",
 		thisBook: selectedBook,
@@ -319,17 +317,20 @@ app.get("/thisBook", async (req, res) => {
 		userName: selectedName,
 		userIcon: selectedIcon,
 		collections: listOfCollections,
+		isMyBook: isMyBook,
 	});
 });
 
-//TEST: This is the modification to add the authors_readers table
 app.post("/addOne", async (req, res) => {
+	console.log("Adding book and author");
+	//Get the book information from the database
 	const bookId = parseInt(req.body.bookId);
 	const userId = parseInt(req.body.userId);
-	const authorId = await db.query(
+	const fetchAuthorId = await db.query(
 		"SELECT id_author FROM books_authors WHERE id_book=$1",
 		[bookId]
 	);
+	const authorId = fetchAuthorId.rows[0].id_author;
 	const insertBookReader = await addBooksReaders(userId, bookId);
 	const insertAuthorReader = await addAuthorsReaders(userId, authorId);
 	if (insertBookReader && insertAuthorReader) {
@@ -346,6 +347,7 @@ app.post("/saveAuthor", async (req, res) => {
 	if (selectedUser !== null) {
 		console.log("Saving author");
 		//Save the author in the database
+		console.log("Author id: ", req.body);
 		let saveOk = updateAuthorAnalysis(
 			req.body.authorId,
 			req.body.userId,
@@ -778,6 +780,7 @@ async function addBooksReaders(readerId, bookId) {
 		const problem = categorizeSQLError(err);
 		if (problem.type === "DUPLICATE") {
 			console.log("The reader already read that book");
+			return true;
 		} else if (problem.type === "CONNECTION") {
 			console.log("Connection error while inserting books_readers");
 		} else {
@@ -801,6 +804,7 @@ async function addAuthorsReaders(readerId, authorId) {
 		const problem = categorizeSQLError(err);
 		if (problem.type === "DUPLICATE") {
 			console.log("The reader already conected to that author");
+			return true;
 		} else if (problem.type === "CONNECTION") {
 			console.log("Connection error while inserting authors_readers");
 		} else {
@@ -919,12 +923,24 @@ async function getAuthors() {
 async function getThisAuthor(writerId, userId) {
 	let queryStr = "";
 	let queryParams = [];
-	if (userId == null) {
-		queryStr = "SELECT * FROM authors WHERE id_author=$1";
+	isMyAuthor = false;
+	//Check if the selected author has been read by the user
+	let hasRead = await db.query(
+		"SELECT * FROM main_fields WHERE id_author=$1 AND id_reader=$2",
+		[writerId, userId]
+	);
+
+	if (hasRead.rows.length > 0) {
+		isMyAuthor = true;
+	} else {
+		isMyAuthor = false;
+	}
+
+	if (userId == null || isMyAuthor == false) {
+		queryStr = "SELECT * FROM author_fields WHERE id_author=$1";
 		queryParams = [writerId];
 	} else {
-		queryStr =
-			"SELECT * FROM author_fields WHERE id_author=$1 AND id_reader=$2";
+		queryStr = "SELECT * FROM main_fields WHERE id_author=$1 AND id_reader=$2";
 		queryParams = [writerId, userId];
 	}
 
@@ -952,7 +968,19 @@ async function getThisAuthor(writerId, userId) {
 async function getThisBook(bookId, userId) {
 	let queryStr = "";
 	let queryParams = [];
-	if (userId == null) {
+	isMyBook = false;
+	//Check if the selected book has been read by the user
+	let hasRead = await db.query(
+		"SELECT * FROM main_fields WHERE id_book=$1 AND id_reader=$2",
+		[bookId, userId]
+	);
+	if (hasRead.rows.length > 0) {
+		isMyBook = true;
+	} else {
+		isMyBook = false;
+	}
+	//Get the book information from the database
+	if (userId == null || isMyBook == false) {
 		queryStr = "SELECT DISTINCT * FROM book_fields WHERE id_book=$1";
 		queryParams = [bookId];
 	} else {

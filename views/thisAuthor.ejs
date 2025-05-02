@@ -4,38 +4,28 @@
 	<div class="row align-items-start" style="flex: 1 1 auto">
 		<!-- Author Picture -->
 		<div class="col-12 col-md-3" style="text-align: center">
+			<% const cover = locals.thisAuthor.author_wikidata || 'default-picture'; %> 
 			<picture>
-				<!-- Medium size for small screens -->
-				<% if (locals.thisAuthor.author_wikidata) { %>
-					<source	
-					srcset="
-						//covers.openlibrary.org/a/id/<%=locals.thisAuthor.author_wikidata%>-M.jpg
-					"
-					media="(max-width: 768px)"
-					/>
-				<!-- Large size for larger screens -->
-				<source
-					srcset="
-						//covers.openlibrary.org/a/id/<%=locals.thisAuthor.author_wikidata%>-L.jpg
-					"
-					media="(min-width: 769px)"
-				/>
-				<% } else { %>
+				<!-- Fallback image -->
+				<%if (cover == "default-picture" ) {%>
+					<source	srcset="images/Books_Bunny_180.png"/> 	
+				<%}else{%>
 					<source
-					srcset="images/blank_cover.jpeg"/> 				
-					 <%}%>
-					 <!-- Fallback image -->
+					srcset="//covers.openlibrary.org/a/id/<%=cover%>-L.jpg"
+					/>
+				<%}%>
 				<img 
-				src="images/blank_cover.jpeg" 
-				alt="Author Picture"
-				class="img-fluid" />
+				src="images/Books_Bunny_180.png" 
+				alt="author_key Picture"
+				class="img-fluid samples" />
 			</picture>
+
 
 			<!--TODO: Looks at adding the dropdown for the genre of the author-->
 
 			<!-- Star rating system -->
 			<div class="star-rating interactive"
-			<%= locals.userId== null ? 'hidden' : '' %> >
+			<%= locals.userId== null || locals.isMyAuthor == false? 'hidden' : '' %> >
 				<input
 					type="hidden"
 					name="author_rating"
@@ -67,7 +57,7 @@
 				<div
 					class="d-flex justify-content-between align-items-center mt-2"
 					style="flex-wrap: wrap"
-					<% if(locals.userId == null) { %> hidden <% } %>
+					<% if(locals.userId == null || locals.isMyAuthor ==false) { %> hidden <% } %>
 				>
 					<button
 						type="button"
@@ -113,7 +103,7 @@
 			</div>
 
 			<div id="bookArea"
-			<%= locals.userId== null ? 'hidden' : '' %>
+			<%= locals.userId== null  || locals.isMyAuthor ==false ? 'hidden' : '' %>
 			>
 				<form
 					action="/authors"
@@ -164,7 +154,10 @@
 					</div>
 				</form>
 			</div>
-			<a type="button" class="btn fontFlex" href="/authors" <%= locals.userId== null ? '' : 'hidden' %>>Back to authors page</a>
+			<a type="button" class="btn fontFlex" href="/authors" <%= locals.userId== null  || locals.isMyAuthor ==false? '' : 'hidden' %>>Back to authors page</a>
+			<h3 class="simonetta-black fontFlex-h3 mt-3" style="text-align: center;color: red;" <%= locals.userId !== null && locals.isMyAuthor ==false ? '' : 'hidden' %>>
+				You haven't read this author yet
+			</h3>
 		</div>
 	</div>
 </div>
