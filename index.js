@@ -1,4 +1,5 @@
 import express from "express";
+import session from "express-session";
 import bodyParser from "body-parser";
 import * as fs from "node:fs";
 import { dirname } from "path";
@@ -39,20 +40,27 @@ const db = new pg.Pool({
 const apiSearch = "https://openlibrary.org/search.json";
 
 var listOfCollections = null;
-var selectedUser = null;
-var selectedName = null;
-var selectedIcon = null;
-var selectedBook = null;
-var selectedAuthor = null;
+// var selectedBook = null; -- Done
+// var selectedAuthor = null; -- Done
 var errMsg = null;
-var isMyAuthor = false;
-var isMyBook = false;
+// var isMyAuthor = false; -- Done
+// var isMyBook = false; -- Done
 
 //------------ Use of App ----------------
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(
+	session({
+		secret: "books-bunny-secret", // 🐰 make this secure and unique in production!
+		resave: false,
+		saveUninitialized: false,
+		cookie: {
+			maxAge: 1000 * 60 * 60 * 2, // 2 hours
+		},
+	})
+);
 
 //------------- Handlers ----------------
 
@@ -68,11 +76,11 @@ app.get("/", async (req, res) => {
 	res.render("home.ejs", {
 		page: "home",
 		bookList: bookList,
-		userName: selectedName,
-		userId: selectedUser,
-		userIcon: selectedIcon,
+		userName: req.session.selectedName,
+		userId: req.session.selectedUser,
+		userIcon: req.session.selectedIcon,
 		myBooks: false,
-		hideAdd: selectedName === null,
+		hideAdd: req.session.selectedName === null,
 	});
 });
 
@@ -81,11 +89,11 @@ app.get("/authors", async (req, res) => {
 	res.render("authors.ejs", {
 		page: "authors",
 		authorList: authorList,
-		userName: selectedName,
-		userId: selectedUser,
-		userIcon: selectedIcon,
+		userName: req.session.selectedName,
+		userId: req.session.selectedUser,
+		userIcon: req.session.selectedIcon,
 		myBooks: false,
-		hideAdd: selectedName === null,
+		hideAdd: req.session.selectedName === null,
 	});
 });
 
@@ -97,9 +105,9 @@ app.get("/myBooks", async (req, res) => {
 		res.render("home.ejs", {
 			page: "home",
 			bookList: bookList,
-			userName: selectedName,
-			userId: selectedUser,
-			userIcon: selectedIcon,
+			userName: req.session.selectedName,
+			userId: req.session.selectedUser,
+			userIcon: req.session.selectedIcon,
 			myBooks: true,
 			hideAdd: true,
 		});
@@ -111,31 +119,33 @@ app.get("/user", async (req, res) => {
 	res.render("user.ejs", {
 		usersList: resultUser.rows,
 		errMsg: errMsg,
-		userName: selectedName,
-		userIcon: selectedIcon,
-		userId: selectedUser,
+		userName: req.session.selectedName,
+		userIcon: req.session.selectedIcon,
+		userId: req.session.selectedUser,
 	});
 });
 
 app.get("/logout", (req, res) => {
-	selectedUser = null;
-	selectedName = null;
-	selectedIcon = null;
+	req.session.selectedUser = null;
+	req.session.selectedName = null;
+	req.session.selectedIcon = null;
 	errMsg = null;
+	req.session.destroy(() => {
+		res.redirect("/");
+	});
 	res.redirect("/");
 });
 
 app.post("/login", async (req, res) => {
 	const newUser = req.body.isNewUser;
 	if (newUser == null || newUser == "false") {
-		selectedUser = parseInt(req.body.user);
+		req.session.selectedUser = parseInt(req.body.user);
 		const submittedPwd = req.body.password;
 		let passwordOK = await checkPassword(selectedUser, submittedPwd);
-console.log("Password check: ", passwordOK);
+
 		if (passwordOK) {
 			res.redirect("/myBooks");
 		} else {
-			console.log("Password is incorrect");
 			res.redirect("/user");
 		}
 	} else {
@@ -148,9 +158,9 @@ console.log("Password check: ", passwordOK);
 				[newName, newIcon, newPwd]
 			);
 			res.redirect("/user");
-			selectedUser = newID.rows[0].id_reader;
-			selectedName = newName;
-			selectedIcon = newIcon;
+			req.session.selectedUser = newID.rows[0].id_reader;
+			req.session.selectedName = newName;
+			req.session.selectedIcon = newIcon;
 		} catch (error) {
 			console.error("Error inserting data:", error);
 			res.status(500).send("Error inserting data");
@@ -162,8 +172,8 @@ app.post("/tab", (req, res) => {
 	switch (req.body.tab) {
 		case "New Book":
 			res.render("newBook.ejs", {
-				userName: selectedName,
-				userIcon: selectedIcon,
+				userName: req.session.selectedName,
+				userIcon: req.session.selectedIcon,
 			});
 			break;
 
@@ -268,8 +278,8 @@ app.post("/addbook", async (req, res) => {
 		}
 	}
 	res.render("newBook.ejs", {
-		userName: selectedName,
-		userIcon: selectedIcon,
+		userName: req.session.selectedName,
+		userIcon: req.session.selectedIcon,
 	});
 });
 
@@ -280,9 +290,9 @@ app.post("/moreAuthor", async (req, res) => {
 	if (itsOK) {
 		res.render("thisAuthor.ejs", {
 			page: "thisAuthor",
-			thisAuthor: selectedAuthor,
-			userId: selectedUser,
-			isMyAuthor: isMyAuthor,
+			thisAuthor: req.session.selectedAuthor,
+			userId: req.session.selectedUser,
+			isMyAuthor: req.session.isMyAuthor,
 		});
 	} else {
 		res.json("Error");
@@ -305,9 +315,9 @@ app.get("/thisAuthor", async (req, res) => {
 	//Get the book information from the database
 	res.render("thisAuthor.ejs", {
 		page: "thisAuthor",
-		thisAuthor: selectedAuthor,
-		userId: selectedUser,
-		isMyAuthor: isMyAuthor,
+		thisAuthor: req.session.selectedAuthor,
+		userId: req.session.selectedUser,
+		isMyAuthor: req.session.isMyAuthor,
 	});
 });
 
@@ -315,13 +325,12 @@ app.get("/thisBook", async (req, res) => {
 	//Get the list of collections from the database
 	listOfCollections = await getCollections();
 	//Render the page
-	// console.log("Selected book: ", selectedBook);
 	res.render("thisBook.ejs", {
 		page: "thisBook",
-		thisBook: selectedBook,
-		userId: selectedUser,
-		userName: selectedName,
-		userIcon: selectedIcon,
+		thisBook: req.session.selectedBook,
+		userId: req.session.selectedUser,
+		userName: req.session.selectedName,
+		userIcon: req.session.selectedIcon,
 		collections: listOfCollections,
 		isMyBook: isMyBook,
 	});
@@ -442,10 +451,10 @@ app.get("/timeline", async (req, res) => {
 		myAuthors: timeMyAuthors,
 		myBooks: timeMyBooks,
 		allBooks: timeAllBooks,
-		userName: selectedName,
-		userIcon: selectedIcon,
-		userId: selectedUser,
-		hideAdd: selectedName === null,
+		userName: req.session.selectedName,
+		userIcon: req.session.selectedIcon,
+		userId: req.session.selectedUser,
+		hideAdd: req.session.selectedName === null,
 	});
 });
 
@@ -459,9 +468,9 @@ app.post("/deleteReader", async (req, res) => {
 			);
 			if (deleteWork) {
 				console.log("Delete successful");
-				selectedUser = null;
-				selectedName = null;
-				selectedIcon = null;
+				req.session.selectedUser = null;
+				req.session.selectedName = null;
+				req.session.selectedIcon = null;
 				errMsg = null;
 
 				res.redirect("/");
@@ -880,14 +889,14 @@ async function checkPassword(userId, tryPwd) {
 		const goodPwd = resultPwd.rows[0].password;
 		if (tryPwd == goodPwd) {
 			errMsg = null;
-			selectedName = resultPwd.rows[0].name;
-			selectedIcon = resultPwd.rows[0].icon;
+			req.session.selectedName = resultPwd.rows[0].name;
+			req.session.selectedIcon = resultPwd.rows[0].icon;
 			return true;
 		} else {
-			selectedUser = null;
+			req.session.selectedUser = null;
 			errMsg = "Password is incorrect";
-			selectedName = null;
-			selectedIcon = null;
+			req.session.selectedName = null;
+			req.session.selectedIcon = null;
 			return false;
 		}
 	} catch (error) {
@@ -922,7 +931,7 @@ async function getAuthors() {
 async function getThisAuthor(writerId, userId) {
 	let queryStr = "";
 	let queryParams = [];
-	isMyAuthor = false;
+	req.session.isMyAuthor = false;
 	//Check if the selected author has been read by the user
 	let hasRead = await db.query(
 		"SELECT * FROM main_fields WHERE id_author=$1 AND id_reader=$2",
@@ -930,12 +939,12 @@ async function getThisAuthor(writerId, userId) {
 	);
 
 	if (hasRead.rows.length > 0) {
-		isMyAuthor = true;
+		req.session.isMyAuthor = true;
 	} else {
-		isMyAuthor = false;
+		req.session.isMyAuthor = false;
 	}
 
-	if (userId == null || isMyAuthor == false) {
+	if (userId == null || req.session.isMyAuthor == false) {
 		queryStr = "SELECT * FROM author_fields WHERE id_author=$1";
 		queryParams = [writerId];
 	} else {
@@ -946,17 +955,19 @@ async function getThisAuthor(writerId, userId) {
 	try {
 		let result = await db.query(queryStr, queryParams);
 
-		selectedAuthor = result.rows[0];
-		selectedAuthor.author_birth_date = parseDateString(
-			selectedAuthor.author_birth_date
+		req.session.selectedAuthor = result.rows[0];
+		req.session.selectedAuthor.author_birth_date = parseDateString(
+			req.session.selectedAuthor.author_birth_date
 		);
-		if (selectedAuthor.author_death_date) {
-			selectedAuthor.author_death_date = parseDateString(
-				selectedAuthor.author_death_date
+		if (req.session.selectedAuthor.author_death_date) {
+			req.session.selectedAuthor.author_death_date = parseDateString(
+				req.session.selectedAuthor.author_death_date
 			);
 		}
-		if (selectedAuthor.author_links) {
-			selectedAuthor.author_links = JSON.parse(selectedAuthor.author_links);
+		if (req.session.selectedAuthor.author_links) {
+			req.session.selectedAuthor.author_links = JSON.parse(
+				req.session.selectedAuthor.author_links
+			);
 		}
 
 		return true;
@@ -969,19 +980,19 @@ async function getThisAuthor(writerId, userId) {
 async function getThisBook(bookId, userId) {
 	let queryStr = "";
 	let queryParams = [];
-	isMyBook = false;
+	req.session.isMyBook = false;
 	//Check if the selected book has been read by the user
 	let hasRead = await db.query(
 		"SELECT * FROM main_fields WHERE id_book=$1 AND id_reader=$2",
 		[bookId, userId]
 	);
 	if (hasRead.rows.length > 0) {
-		isMyBook = true;
+		req.session.isMyBook = true;
 	} else {
-		isMyBook = false;
+		req.session.isMyBook = false;
 	}
 	//Get the book information from the database
-	if (userId == null || isMyBook == false) {
+	if (userId == null || req.session.isMyBook == false) {
 		queryStr = "SELECT DISTINCT * FROM book_fields WHERE id_book=$1";
 		queryParams = [bookId];
 	} else {
@@ -991,9 +1002,11 @@ async function getThisBook(bookId, userId) {
 
 	try {
 		let result = await db.query(queryStr, queryParams);
-		selectedBook = result.rows[0];
-		if (selectedBook.book_links) {
-			selectedBook.book_links = JSON.parse(selectedBook.book_links);
+		req.session.selectedBook = result.rows[0];
+		if (req.session.selectedBook.book_links) {
+			req.session.selectedBook.book_links = JSON.parse(
+				req.session.selectedBook.book_links
+			);
 		}
 		return true;
 	} catch (error) {
