@@ -42,7 +42,7 @@ const apiSearch = "https://openlibrary.org/search.json";
 var listOfCollections = null;
 // var selectedBook = null; -- Done
 // var selectedAuthor = null; -- Done
-var errMsg = null;
+// var errMsg = null; --Done
 // var isMyAuthor = false; -- Done
 // var isMyBook = false; -- Done
 
@@ -118,7 +118,7 @@ app.get("/user", async (req, res) => {
 	const resultUser = await db.query("SELECT * FROM readers ORDER BY name");
 	res.render("user.ejs", {
 		usersList: resultUser.rows,
-		errMsg: errMsg,
+		errMsg: req.session.errMsg,
 		userName: req.session.selectedName,
 		userIcon: req.session.selectedIcon,
 		userId: req.session.selectedUser,
@@ -129,7 +129,7 @@ app.get("/logout", (req, res) => {
 	req.session.selectedUser = null;
 	req.session.selectedName = null;
 	req.session.selectedIcon = null;
-	errMsg = null;
+	req.session.errMsg = null;
 	req.session.destroy(() => {
 		res.redirect("/");
 	});
@@ -471,7 +471,7 @@ app.post("/deleteReader", async (req, res) => {
 				req.session.selectedUser = null;
 				req.session.selectedName = null;
 				req.session.selectedIcon = null;
-				errMsg = null;
+				req.session.errMsg = null;
 
 				res.redirect("/");
 			} else {
@@ -480,12 +480,12 @@ app.post("/deleteReader", async (req, res) => {
 			}
 		} else {
 			console.log("Password is incorrect");
-			errMsg = "Password is incorrect, you have been logged out";
+			req.session.errMsg = "Password is incorrect, you have been logged out";
 			res.redirect("/user");
 		}
 	} else {
 		console.log("Delete request not confirmed");
-		errMsg =
+		req.session.errMsg =
 			"Please confirm the deletion by typing 'I want to delete my Account!'";
 		res.redirect("/user");
 	}
@@ -888,13 +888,13 @@ async function checkPassword(userId, tryPwd) {
 		);
 		const goodPwd = resultPwd.rows[0].password;
 		if (tryPwd == goodPwd) {
-			errMsg = null;
+			req.session.errMsg = null;
 			req.session.selectedName = resultPwd.rows[0].name;
 			req.session.selectedIcon = resultPwd.rows[0].icon;
 			return true;
 		} else {
 			req.session.selectedUser = null;
-			errMsg = "Password is incorrect";
+			req.session.errMsg = "Password is incorrect";
 			req.session.selectedName = null;
 			req.session.selectedIcon = null;
 			return false;
