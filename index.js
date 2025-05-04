@@ -98,7 +98,7 @@ app.get("/authors", async (req, res) => {
 });
 
 app.get("/myBooks", async (req, res) => {
-	const bookList = await getMyBooks(selectedUser);
+	const bookList = await getMyBooks(req.session.selectedUser);
 	if (bookList == null) {
 		res.redirect("/");
 	} else {
@@ -141,7 +141,10 @@ app.post("/login", async (req, res) => {
 	if (newUser == null || newUser == "false") {
 		req.session.selectedUser = parseInt(req.body.user);
 		const submittedPwd = req.body.password;
-		let passwordOK = await checkPassword(selectedUser, submittedPwd);
+		let passwordOK = await checkPassword(
+			req.session.selectedUser,
+			submittedPwd
+		);
 
 		if (passwordOK) {
 			res.redirect("/myBooks");
@@ -263,14 +266,17 @@ app.post("/addbook", async (req, res) => {
 		}
 
 		// Insert the relationship into the books_readers table
-		let insertBookReader = await addBooksReaders(selectedUser, newBook_id);
+		let insertBookReader = await addBooksReaders(
+			req.session.selectedUser,
+			newBook_id
+		);
 		if (!insertBookReader) {
 			console.log("Reader-book relationship not inserted");
 		}
 
 		// Insert the relationship into the authors_readers table
 		let insertAuthorReader = await addAuthorsReaders(
-			selectedUser,
+			req.session.selectedUser,
 			newAuthor_id
 		);
 		if (!insertAuthorReader) {
@@ -286,7 +292,7 @@ app.post("/addbook", async (req, res) => {
 app.post("/moreAuthor", async (req, res) => {
 	let authorId = parseInt(req.body.key);
 	// console.log("Author id: ", authorId);
-	const itsOK = await getThisAuthor(authorId, selectedUser);
+	const itsOK = await getThisAuthor(authorId, req.session.selectedUser);
 	if (itsOK) {
 		res.render("thisAuthor.ejs", {
 			page: "thisAuthor",
@@ -302,7 +308,7 @@ app.post("/moreAuthor", async (req, res) => {
 app.post("/moreBook", async (req, res) => {
 	let bookId = parseInt(req.body.key);
 	//Get the book information from the database
-	const itsOK = await getThisBook(bookId, selectedUser);
+	const itsOK = await getThisBook(bookId, req.session.selectedUser);
 	if (itsOK) {
 		res.json("OK");
 	} else {
@@ -359,7 +365,7 @@ app.post("/addOne", async (req, res) => {
 });
 
 app.post("/saveAuthor", async (req, res) => {
-	if (selectedUser !== null) {
+	if (req.session.selectedUser !== null) {
 		//Save the author in the database
 
 		let saveOk = updateAuthorAnalysis(
@@ -432,17 +438,17 @@ app.get("/timeline", async (req, res) => {
 	);
 	timeAllBooks = resultBooks.rows;
 	//Check if there is a user selected
-	if (selectedUser !== null) {
+	if (req.session.selectedUser !== null) {
 		//Get the list of myBooks
 		let resultMyBooks = await db.query(
 			"SELECT book_title, book_first_publish FROM main_fields WHERE id_reader=$1 ORDER BY book_first_publish",
-			[selectedUser]
+			[req.session.selectedUser]
 		);
 		timeMyBooks = resultMyBooks.rows;
 		//Get the list of myAuthors
 		let resultMyAuthors = await db.query(
 			"SELECT DISTINCT author_name, author_birth_date, author_death_date FROM main_fields WHERE id_reader=$1 ORDER BY author_birth_date",
-			[selectedUser]
+			[req.session.selectedUser]
 		);
 		timeMyAuthors = resultMyAuthors.rows;
 	}
@@ -460,11 +466,11 @@ app.get("/timeline", async (req, res) => {
 
 app.post("/deleteReader", async (req, res) => {
 	if (req.body.confirmPhrase === "I want to delete my Account!") {
-		if (await checkPassword(selectedUser, req.body.deletePwd)) {
+		if (await checkPassword(req.session.selectedUser, req.body.deletePwd)) {
 			// Delete the record in readers with the userId
 			const deleteWork = await db.query(
 				"SELECT delete_reader_and_cleanup($1)",
-				[selectedUser]
+				[req.session.selectedUser]
 			);
 			if (deleteWork) {
 				console.log("Delete successful");
