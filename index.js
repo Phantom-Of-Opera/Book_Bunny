@@ -130,11 +130,12 @@ app.post("/login", async (req, res) => {
 	if (newUser == null || newUser == "false") {
 		selectedUser = parseInt(req.body.user);
 		const submittedPwd = req.body.password;
-		let passwordOK = checkPassword(selectedUser, submittedPwd);
-
+		let passwordOK = await checkPassword(selectedUser, submittedPwd);
+console.log("Password check: ", passwordOK);
 		if (passwordOK) {
 			res.redirect("/myBooks");
 		} else {
+			console.log("Password is incorrect");
 			res.redirect("/user");
 		}
 	} else {
@@ -277,7 +278,12 @@ app.post("/moreAuthor", async (req, res) => {
 	// console.log("Author id: ", authorId);
 	const itsOK = await getThisAuthor(authorId, selectedUser);
 	if (itsOK) {
-		res.json("OK");
+		res.render("thisAuthor.ejs", {
+			page: "thisAuthor",
+			thisAuthor: selectedAuthor,
+			userId: selectedUser,
+			isMyAuthor: isMyAuthor,
+		});
 	} else {
 		res.json("Error");
 	}
@@ -345,9 +351,8 @@ app.post("/addOne", async (req, res) => {
 
 app.post("/saveAuthor", async (req, res) => {
 	if (selectedUser !== null) {
-		console.log("Saving author");
 		//Save the author in the database
-		console.log("Author id: ", req.body);
+
 		let saveOk = updateAuthorAnalysis(
 			req.body.authorId,
 			req.body.userId,
@@ -552,7 +557,7 @@ async function getAuthorInfo(authorRef) {
 	};
 	const authorURL = `https://openlibrary.org/authors/${authorRef}.json`;
 	const authorData = await axios.get(authorURL);
-	console.log("Author data: ", authorData.data);
+
 	authorInfo.name = authorData.data.name || "no name";
 	authorInfo.bio = authorData.data.bio || "no bio";
 	if (authorData.data.birth_date) {
@@ -636,9 +641,6 @@ async function addAuthorId(authorRef) {
 		if (problem.type === "DUPLICATE") {
 			// Get the newAuthor_id of the author that already exist in the db
 			try {
-				console.log(
-					"Trying to get the author id that is already in the database"
-				);
 				authorKey = await db.query(
 					"SELECT id_author FROM authors WHERE author_key = $1",
 					[authorRef]
@@ -724,7 +726,6 @@ async function addBookId(bookRef) {
 				);
 
 				bookId = bookKey.rows[0].id_book;
-				console.log("I found the book with id: ", bookId);
 			} catch (err) {
 				console.log(
 					"Error getting the book id that is already in the database"
@@ -760,8 +761,6 @@ async function addAuthorsBooks(authorId, bookId, isMain) {
 		} else {
 			console.error("Error inserting books_authors");
 			console.error("Unexpected SQL issue in books Authors:", problem);
-			console.log("Author id:", authorId, typeof authorId);
-			console.log("Book id:", bookId, typeof bookId);
 		}
 	}
 	return insertResult;
@@ -946,6 +945,7 @@ async function getThisAuthor(writerId, userId) {
 
 	try {
 		let result = await db.query(queryStr, queryParams);
+
 		selectedAuthor = result.rows[0];
 		selectedAuthor.author_birth_date = parseDateString(
 			selectedAuthor.author_birth_date
@@ -958,6 +958,7 @@ async function getThisAuthor(writerId, userId) {
 		if (selectedAuthor.author_links) {
 			selectedAuthor.author_links = JSON.parse(selectedAuthor.author_links);
 		}
+
 		return true;
 	} catch (error) {
 		console.error("Error executing query", error.stack);

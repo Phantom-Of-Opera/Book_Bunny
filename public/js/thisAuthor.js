@@ -91,10 +91,10 @@ updateStars(parseInt(ratingInput.value));
 //--------------- Functions ---------------
 //-----------------------------------------
 
-//FIXME: This function is not working. The one in books is working but the authors are not.
 function saveData() {
 	// Send POST request to /save route
 	if (!$("userId").val()) {
+
 		$.ajax({
 			url: "/saveAuthor", // Server endpoint
 			type: "POST", // HTTP method

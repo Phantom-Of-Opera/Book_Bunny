@@ -126,7 +126,7 @@ function saveData() {
 			bookId: $("#bookId").val(),
 			userId: $("#userId").val(),
 			bookAnalysis: quill.root.innerHTML,
-			bookStructure: "No structuer yet",
+			bookStructure: "No structure yet",
 			bookRating: $("#bookRating").val(),
 			bookCollection: $("#bookCollectionSelect").val(),
 		}), // Optional data
