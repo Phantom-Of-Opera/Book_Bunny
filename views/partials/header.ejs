@@ -33,114 +33,72 @@
 	</head>
 	
 	<body>
-		<div id="loadingOverlay" style="display: none;">
-			<div class="bunny-spinner">
-			  <div class="ear ear-left"></div>
-			  <div class="ear ear-right"></div>
-			  <div class="face"></div>
+		<div id="loadingOverlay" style="display: none;"> 
+			<div class="spinner-wrapper">
+				<img src="/images/Spinner-Ring.png" class="spinner-ring" alt="Loading spinner" />
+				<img src="/images/Spinner-Icon.png" class="spinner-icon" alt="Books Bunny icon" />
 			</div>
-		  </div>
+		</div>
 		<main class="main-content">
 			<div class="strip">
-				<nav
-					class="navbar navbar-expand-lg navbar-light bg-light border-bottom"
-				>
+				<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
 					<div class="container-fluid">
 						<!-- Logo and Title -->
 						 
 						<div class="navbar-brand d-flex align-items-center" >
-						<!-- Take a small or high resolution picture depending on the screen size-->
-						<picture>
-							<source
-								srcset="images/Books Bunny 180.png"
-								media="(min-width: 768px)"
-							/>
-							<source
-								srcset="images/Books Bunny 90.png"
-								media="(max-width: 767px)"
-							/>
+							<!-- Take a small or high resolution picture depending on the screen size-->
+							<picture>
+								<source
+									srcset="images/Books_Bunny_180.png"
+									media="(min-width: 768px)"
+								/>
+								<source
+									srcset="images/Books_Bunny_90.png"
+									media="(max-width: 767px)"
+								/>
+							
+								<img
+									src="images/Books_Bunny_180.png"
+									class="bi me-2 logo"
+									alt="The Books Bunny logo"
+								/>
+							</picture>
+							<h1 class="m-0 special-elite-regular fs-4 fontFlex-h1">Books Bunny</h1>
+							
+						</div>
+							<!-- Hamburger - small screens only -->
+							<button class="navbar-toggler ms-2" type="button" id="menuToggle" aria-label="Toggle navigation">
+								<span class="navbar-toggler-icon"></span>
+							</button>
+						<!-- Normal Menu - large screens only -->
+						<div id="navbarButtons" class="d-none d-lg-flex align-items-center gap-3 ms-auto">
+							<form class="d-flex flex-wrap gap-2 me-3" action="/tab" method="post">
+							<button type="submit" name="tab" value="Library" class="btn fontFlex">Library</button>
+							<button type="submit" name="tab" value="Authors" class="btn fontFlex">Authors</button>
+							<button type="submit" name="tab" value="Timeline" class="btn fontFlex">Timeline</button>
+							<button type="submit" name="tab" value="myBooks" class="btn fontFlex" <%= locals.userName !== null ? '' : 'hidden' %>>My Books</button>
+							<input type="submit" name="tab" value="New Book" id="newBook" class="btn fontFlex" <%= locals.userName !== null ? '' : 'hidden' %> />
+							</form>
+							|
+							<a type="button" class="btn fontFlex" href="/user">
+							<%= locals.userName == null ? 'Login' : 'Logout' %>
+							</a>
+						</div>
+
 						
-							<img
-								src="images/Books Bunny 180.png"
-								class="bi me-2 logo"
-								alt="The Books Bunny logo"
-							/>
-						</picture>
-							<h1 class="m-0 special-elite-regular fs-4 fontFlex-h1">
-								Books Bunny
-							</h1>
-						</div>
-
-						<!-- Toggler Button -->
-						<button
-							class="navbar-toggler"
-							type="button"
-							data-bs-toggle="collapse"
-							data-bs-target="#navbarBunny"
-							aria-label="navbar toggler button"
-						>
-							<span class="navbar-toggler-icon"></span>
-						</button>
-
-						<!-- Collapsible Content -->
-						<div class="collapse navbar-collapse" id="navbarBunny">
-							<div
-								class="ms-auto d-flex align-items-center gap-3 flex-wrap mb-1"
-							>
-								<!-- Form Buttons -->
-								<form
-									class="d-flex flex-wrap gap-2 me-3"
-									action="/tab"
-									method="post"
-								>
-									<button
-										type="submit"
-										name="tab"
-										value="Library"
-										id="goLibrary"
-										class="btn fontFlex"
-									>
-										Library
-									</button>
-
-									<button
-									type="submit"
-									name="tab"
-									value="Timeline"
-									id="goTimeline"
-									class="btn fontFlex"
-								>
-									Timeline
-								</button>
-
-									<button
-									type="submit"
-									name="tab"
-									value="myBooks"
-									id="goMyBooks"
-									class="btn fontFlex"
-									<%= locals.userName !== null ? '' :
-									'hidden' %>
-								>My Books
-								</button>
-
-									<input type="submit" name="tab" value="New Book" id="newBook"
-									class="btn fontFlex" <%= locals.userName !== null ? '' :
-									'hidden' %> />
-								</form>
-								|
-								<!-- Login and Icon -->
-								<a type="button" class="btn fontFlex" href="/user" aria-label="Login/Logout">
-									<%= locals.userName == null ? 'Login' : 'Logout' %>
-								</a>
-								<div class="align-items-center text-center">
-									<h2 class="m-0"><%=locals.userIcon%></h2>
-									<p class="m-0"><%=locals.userName%></p>
-
-								</div>
-							</div>
-						</div>
-					</div>
+					</div>	
 				</nav>
 			</div>
+			<!-- Sidebar -->
+
 			<div id="pageContent" class="fade-target hidden">
+				<div id="sidebarMenu" class="sidebar">
+					<form class="d-flex flex-column p-3 sideForm" action="/tab" method="post">
+						<button type="submit" name="tab" value="Library" class="btnSidebar fontFlex">Library</button>
+						<button type="submit" name="tab" value="Authors" class="btnSidebar fontFlex">Authors</button>
+						<button type="submit" name="tab" value="Timeline" class="btnSidebar fontFlex">Timeline</button>
+						<button type="submit" name="tab" value="myBooks" class="btnSidebar fontFlex" <%= locals.userName !== null ? '' : 'hidden' %>>My Books</button>
+						<button type="submit" name="tab" value="New Book" id="newBook" class="btnSidebar fontFlex" <%= locals.userName !== null ? '' : 'hidden' %>>New Book</button>
+						<button type="submit" name="tab" value="Login" class="btnSidebar fontFlex mt-3"> <%= locals.userName == null ? 'Login' : 'Logout' %></button>
+					</form>
+				</div>

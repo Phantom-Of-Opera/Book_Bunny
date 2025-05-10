@@ -119,14 +119,14 @@ updateStars(parseInt(ratingInput.value));
 function saveData() {
 	//Send POST request to /save route
 	$.ajax({
-		url: "/save", // Server endpoint
+		url: "/saveBook", // Server endpoint
 		type: "POST", // HTTP method
 		contentType: "application/json", // Sending JSON data
 		data: JSON.stringify({
 			bookId: $("#bookId").val(),
 			userId: $("#userId").val(),
 			bookAnalysis: quill.root.innerHTML,
-			bookStructure: "No structuer yet",
+			bookStructure: "No structure yet",
 			bookRating: $("#bookRating").val(),
 			bookCollection: $("#bookCollectionSelect").val(),
 		}), // Optional data
@@ -141,3 +141,27 @@ function saveData() {
 		},
 	});
 }
+
+//Add the selected book to my books
+$(".addBtn").on("click", function (event) {
+	event.preventDefault(); // Prevent form submission
+
+	// Retrieve data from the button's data-* attributes
+	const bookKey = $(this).data("key");
+	const user_Id = $("#userId").val();
+	// Send data to the server using jQuery's AJAX method
+	$.ajax({
+		url: "/addOne",
+		type: "POST",
+		contentType: "application/json",
+		data: JSON.stringify({ bookId: bookKey, userId: user_Id }),
+		success: function (response) {
+			console.log("Data sent successfully:", response);
+			// Handle response (redirect, show message, etc.)
+			location.assign("/myBooks");
+		},
+		error: function (xhr, status, error) {
+			console.log("Error:", error);
+		},
+	});
+});

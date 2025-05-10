@@ -157,7 +157,7 @@
 						const authors = book.author_name?.join(", ") || "Unknown Author";
 						const author_key = book.author_key || "Unknown Author Key";
 						const olid = book.key.split("/").pop(); // Extract OLID if needed
-						const coverCode = book.cover_edition_key || "NoCover";
+						const coverCode = book.cover_edition_key || null;
 						const publishedYear = book.first_publish_year || "Unknown Year";
 						const works = book.key || "Unknown Works";
 
@@ -203,6 +203,7 @@
 									author_key: author_key,
 									works: works,
 									summary: "",
+									links: "",
 								};
 
 								if (this.checked) {

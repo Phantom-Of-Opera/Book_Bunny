@@ -5,11 +5,14 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src = "https://cdn.quilljs.com/1.3.6/quill.js"> </script>
 
-<% if(locals.page == "book"){ %>
-    <script src="js/book.js"></script>
-    
+<% if(locals.page == "thisBook"){ %>
+    <script src="js/thisBook.js"></script>  
 <%} else if (locals.page == "home"){%>
     <script src="js/home.js"></script>
+<%} else if (locals.page == "authors"){%>
+    <script src="js/authors.js"></script>
+<%} else if (locals.page == "thisAuthor"){%>
+    <script src="js/thisAuthor.js"></script>
 <%}%>
 
 </main>
@@ -55,6 +58,23 @@
     </div>
 </footer>
 <script>
+const menuToggle = document.getElementById("menuToggle");
+const sidebarMenu = document.getElementById("sidebarMenu");
+
+menuToggle.addEventListener("click", (event) => {
+  event.stopPropagation(); // Don't trigger document click
+  sidebarMenu.classList.toggle("show");
+  document.body.classList.toggle("sidebar-open");
+});
+
+// Close sidebar when clicking outside
+document.addEventListener("click", (event) => {
+  if (sidebarMenu.classList.contains("show") && !sidebarMenu.contains(event.target)) {
+    sidebarMenu.classList.remove("show");
+    document.body.classList.remove("sidebar-open");
+  }
+});
+
     function hideOverlay() {
       const overlay = document.getElementById("loadingOverlay");
       overlay.style.opacity = 0;

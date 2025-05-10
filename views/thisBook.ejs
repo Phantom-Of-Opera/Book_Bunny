@@ -1,12 +1,12 @@
 <%-include("partials/header.ejs") %>
 
-<div class="container my-3 scrollable">
-	<div class="row align-items-start border-bottom" style="flex: 1 1 auto">
+<div class="container mt-3 scrollable">
+	<div class="row align-items-start" style="flex: 1 1 auto">
 		<!-- Book Cover -->
-		<div class="col-12 col-md-3" style="text-align: center">
-			
+		<div class="col-12 col-md-3" style="text-align: center">			
 			<picture>
 				<!-- Medium size for small screens -->
+				<% if (locals.thisBook.book_cover_id) { %>
 				<source 
 					srcset="https://covers.openlibrary.org/b/olid/<%= locals.thisBook.book_cover_id %>-M.jpg" 
 					media="(max-width: 768px)" 
@@ -16,21 +16,21 @@
 					srcset="https://covers.openlibrary.org/b/olid/<%= locals.thisBook.book_cover_id %>-L.jpg" 
 					media="(min-width: 769px)" 
 				/>
+				<% } else { %>
+					<source
+					srcset="images/blank_cover.jpeg"/> 
+				<%}%>
 				<!-- Fallback image -->
 				<img 
-					<% if (locals.thisBook.book_cover_id == "NoCover") { %>
 						src="images/blank_cover.jpeg" 
-					<% } else { %>
-						src="https://covers.openlibrary.org/b/olid/<%= locals.thisBook.book_cover_id %>-L.jpg"
-					<% } %>
 					alt="Book cover" 
-					class="img-fluid" 
-				/>
+					class="img-fluid" />
 			</picture>
 
 
 			<!-- Add a dropdown menu to select the book collection and select the one coming from thisBook.book_collection -->
-			<div class="dropdown">
+			<div class="dropdown"
+			<%= locals.userId== null  || locals.isMyBook ==false? 'hidden' : '' %>>
 				<select
 					class="form-select simonetta-regular my-2 searchBorders text-center"
 					id="bookCollectionSelect"
@@ -50,7 +50,8 @@
 				</select>
 			</div>
 			<!-- Star rating system -->
-			<div class="star-rating interactive">
+			<div class="star-rating interactive"
+			<%= locals.userId== null ? 'hidden' : '' %> >
 				<input
 					type="hidden"
 					name="book_rating"
@@ -68,19 +69,18 @@
 
 
 		<!-- Book Info -->
-		<div class="col-12 col-md-9" id="bookInfoCol">
+		<div class="col-12 col-md-9 mt-2" id="bookInfoCol">
 			<div>
-				<h2 class="simonetta-black fontFlex-h2" style="text-align: left">
+				<h2 class="simonetta-black fontFlex-h2" style="text-align: left;white-space: wrap">
 					<%=locals.thisBook.book_title%>
 					<span style="font-size: small;">(<%=locals.thisBook.book_first_publish%>)</span>
-				</h2>
-				
+				</h2>			
 
 				<!-- Add a div to get h3 on the left of the screen and the button on the right on the same line -->
-
 				<div
 					class="d-flex justify-content-between align-items-center mt-2"
 					style="flex-wrap: wrap"
+					<% if(locals.userId == null || locals.isMyBook ==false) { %> hidden <% } %>
 				>
 					<h3 class="simonetta-regular fontFlex-h3" style="text-align: left">
 						<%=locals.thisBook.author_name%>
@@ -98,15 +98,39 @@
 						></i>
 					</button>
 				</div>
+				<div id="bookDescription" class="open slide">
 				<p
-					class="fontFlex simonetta-regular-italic slide open mt-2"
-					id="bookDescription"
+					class="fontFlex simonetta-regular-italic"
 				>
-					<%=locals.thisBook.book_summary%>
+					<%=locals.thisBook.book_summary%>	
 				</p>
+				<!--Only show the paragprah if there are links in the thisAuthor.author_links-->
+				<% if(locals.thisBook.book_links) { %>
+					<p class="fontFlex simonetta-regular-italic  m-0 p-0">
+						External links about the book:
+					</p>
+					<% } %>
+					<ul
+						class="list-group list-group-flush fontFlex simonetta-regular-italic mb-1 mx-5">
+					<!-- List all the links contained in the thisAuthor.author_links-->
+					<% if (locals.thisBook.book_links) { %>
+						<% locals.thisBook.book_links.forEach(link => { %>
+							<li >
+								<a
+									href="<%=link.url%>"
+									target="_blank"
+									>
+									<%=link.title%>
+								</a>
+							</li>
+						<% }) }%>
+					</ul>
+					</div>
 			</div>
 
-			<div id="bookArea">
+			<div id="bookArea"
+			<%= locals.userId== null || locals.isMyBook ==false ? 'hidden' : '' %>
+			>
 				<form
 					action="/myBooks"
 					method="GET"
@@ -129,11 +153,11 @@
 								Delete
 							</button>
 							<button type="submit" class="btn fontFlex" id="btnCancel">
-								Cancel
+								Back
 							</button>
 						</div>
 					</div>
-					<div class="mb-3 scrollable">
+					<div class="scrollable">
 						<div
 							id="quillEditor"
 							class="form-control simonetta-regular"
@@ -160,13 +184,18 @@
 							type="hidden"
 							name="userId"
 							id="userId"
-							value="<%= locals.thisBook.id_reader %>"
+							value="<%= locals.userId %>"
 						/>
 					</div>
 				</form>
 			</div>
+			<a type="button" class="btn fontFlex" href="/" <%= locals.userId== null || locals.isMyBook ==false ? '' : 'hidden' %>>Back to library</a>
+			<h3 class="simonetta-black fontFlex-h3 my-3" style="text-align: center;color: red;" <%= locals.userId !== null && locals.isMyBook ==false ? '' : 'hidden' %>>
+				You haven't read this book yet
+			</h3>
+			<button type="submit" class="btn fontFlex addBtn" data-key="<%= locals.thisBook.id_book %>" <%= locals.userId !== null && locals.isMyBook==false? '' : 'hidden' %>>Add to my Books</button>
 		</div>
 	</div>
-
-	<%-include("partials/footer.ejs") %>
 </div>
+	<%-include("partials/footer.ejs") %>
+

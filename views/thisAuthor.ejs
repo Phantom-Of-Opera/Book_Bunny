@@ -1,0 +1,164 @@
+<%-include("partials/header.ejs") %>
+
+<div class="container mt-3 scrollable">
+	<div class="row align-items-start" style="flex: 1 1 auto">
+		<!-- Author Picture -->
+		<div class="col-12 col-md-3" style="text-align: center">
+			<% const cover = locals.thisAuthor.author_wikidata || 'default-picture'; %> 
+			<picture>
+				<!-- Fallback image -->
+				<%if (cover == "default-picture" ) {%>
+					<source	srcset="images/Books_Bunny_180.png"/> 	
+				<%}else{%>
+					<source
+					srcset="//covers.openlibrary.org/a/id/<%=cover%>-L.jpg"
+					/>
+				<%}%>
+				<img 
+				src="images/Books_Bunny_180.png" 
+				alt="author_key Picture"
+				class="img-fluid samples" />
+			</picture>
+
+
+			<!--TODO: Looks at adding the dropdown for the genre of the author-->
+
+			<!-- Star rating system -->
+			<div class="star-rating interactive"
+			<%= locals.userId== null || locals.isMyAuthor == false? 'hidden' : '' %> >
+				<input
+					type="hidden"
+					name="author_rating"
+					id="author_rating"
+					value="<%= locals.thisAuthor.author_rating || 0 %>"
+				/>
+				<% for (let i = 1; i <= 5; i++) { %>
+				<i
+					class="bi <%= i <= locals.thisAuthor.author_rating ? 'bi-star-fill' : 'bi-star' %>"
+					data-value="<%= i %>"
+				></i>
+				<% } %>
+			</div>
+		</div>
+
+
+		<!-- Author Info -->
+		<div class="col-12 col-md-9 mt-2" id="bookInfoCol">
+			<div>
+				<h2 class="simonetta-black fontFlex-h2" style="text-align: left">
+					<%=locals.thisAuthor.author_name%>
+					<span style="font-size: small"
+						>(<%=locals.thisAuthor.author_birth_date%> /
+						<%=locals.thisAuthor.author_death_date%>)</span
+					>
+				</h2>
+
+				<!-- Add a div to get h3 on the left of the screen and the button on the right on the same line -->
+				<div
+					class="d-flex justify-content-between align-items-center mt-2"
+					style="flex-wrap: wrap"
+					<% if(locals.userId == null || locals.isMyAuthor ==false) { %> hidden <% } %>
+				>
+					<button
+						type="button"
+						class="btn btn-secondary d-flex align-items-center fontFlex"
+						id="toggleDescription"
+					>
+						<span id="toggleText">Hide Description</span>
+						<i
+							class="bi bi-chevron-down ms-2 toggle-icon rotated"
+							id="descIcon"
+							style="color: white"
+						></i>
+					</button>
+				</div>
+				<div id="bookDescription" class="open slide">
+				<p
+					class="fontFlex simonetta-regular-italic"
+				>
+					<%=locals.thisAuthor.author_top_work%>
+				</p>
+				<!--Only show the paragprah if there are links in the thisAuthor.author_links-->
+				<% if(locals.thisAuthor.author_links) { %>
+				<p class="fontFlex simonetta-regular-italic  m-0 p-0">
+					External links about the author:
+				</p>
+				<% } %>
+				<ul
+					class="list-group list-group-flush fontFlex simonetta-regular-italic mb-1 mx-5">
+				<!-- List all the links contained in the thisAuthor.author_links-->
+				<% if (locals.thisAuthor.author_links) { %>
+					<% locals.thisAuthor.author_links.forEach(link => { %>
+						<li >
+							<a
+								href="<%=link.url%>"
+								target="_blank"
+								>
+								<%=link.title%>
+							</a>
+						</li>
+					<% }) }%>
+				</ul>
+				</div>
+			</div>
+
+			<div id="bookArea"
+			<%= locals.userId== null  || locals.isMyAuthor ==false ? 'hidden' : '' %>
+			>
+				<form
+					action="/authors"
+					method="GET"
+					style="display: flex; flex-direction: column; height: 100%"
+					id="bookAnalysisForm"
+				>
+					<div
+						class="d-flex justify-content-between align-items-center my-2"
+						style="flex-wrap: wrap"
+					>
+						<h3 class="simonetta-black fontFlex-h3" style="text-align: left">
+							My author notes
+						</h3>
+
+						<div>
+							<button type="button" class="btn fontFlex" id="btnSave">
+								Save
+							</button>
+							<button type="submit" class="btn fontFlex" id="btnCancel">
+								Back
+							</button>
+						</div>
+					</div>
+					<div class="scrollable">
+						<div
+							id="quillEditor"
+							class="form-control simonetta-regular"
+							style="height: 90%; font-size: 1rem"
+						>
+							<%- thisAuthor.author_notes%>
+						</div>
+						<input type="hidden" name="authorNotes" id="authorNotes" />
+						<input type="hidden" name="authorRating" id="authorRating" />
+
+						<input
+							type="hidden"
+							name="authorId"
+							id="authorId"
+							value="<%= locals.thisAuthor.id_author %>"
+						/>
+						<input
+							type="hidden"
+							name="userId"
+							id="userId"
+							value="<%= locals.thisAuthor.id_reader %>"
+						/>
+					</div>
+				</form>
+			</div>
+			<a type="button" class="btn fontFlex" href="/authors" <%= locals.userId== null  || locals.isMyAuthor ==false? '' : 'hidden' %>>Back to authors page</a>
+			<h3 class="simonetta-black fontFlex-h3 mt-3" style="text-align: center;color: red;" <%= locals.userId !== null && locals.isMyAuthor ==false ? '' : 'hidden' %>>
+				You haven't read this author yet
+			</h3>
+		</div>
+	</div>
+</div>
+<%-include("partials/footer.ejs") %>

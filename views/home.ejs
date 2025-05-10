@@ -1,17 +1,15 @@
 <%-include("partials/header.ejs") %>
 
 <div class="container mt-4">
-		<div class="mb-3">
-			<input
-				type="text"
-				id="filterBar"
-				class="form-control"
-				placeholder="Filter your books..."
-				onkeyup="filterBooks()"
-			/>
-		</div>
-
-
+	<div class="mb-3">
+		<input
+			type="text"
+			id="filterBar"
+			class="form-control"
+			placeholder="Filter your books..."
+			onkeyup="filterBooks()"
+		/>
+	</div>
 
 	<div class="row justify-content-start" id="bookList">
 		<!-- Save the user id for future use. -->
@@ -21,36 +19,32 @@
 			<div class="card text-center mb-3" style="width: 100%">
 				<div class="card-body">
 					<h5 class="card-title simonetta-black"><%= book.book_title %></h5>
-					<% const cover = book.book_cover_id || 'default-cover'; %>
-					<img
-						<%if ( cover == "NoCover" ) {%>
-							src="images/blank_cover.jpeg" <%}else{%>
-							src="https://covers.openlibrary.org/b/olid/<%=cover%>-M.jpg"
-							<%}%>
-						alt="standard book cover"
-						height="200px"
-					/>
-					<p class="card-text simonetta-regular-italic">
+					<% const cover = book.book_cover_id || 'default-cover'; %> 					
+					<picture>
+						<!-- Fallback image -->
+						<%if (cover == "default-cover" ) {%>
+							<source	srcset="images/blank_cover.jpeg"/> 	
+						<%}else{%>
+							<source
+							srcset="https://covers.openlibrary.org/b/olid/<%=cover%>-M.jpg"
+							/>
+						<%}%>
+						<img 
+						src="images/blank_cover.jpeg" 
+						alt="Book Cover Picture"
+						class="img-fluid samples" />
+					</picture>
+					<p class="card-text simonetta-regular-italic fontFlex">
 						by <%= book.author_name %>
 					</p>
-					<button
-						type="button"
-						class="btn btn-primary bookBtn fontFlex"
-						<%= myBooks == false? 'hidden' : '' %>
-						data-key="<%= book.id_book %>"
-					>
-						Select
-					</button>
-					<button
-						type="button"
-						class="btn btn-primary addBtn fontFlex"
-						<%= locals.hideAdd == true? 'hidden' : '' %>
-						data-key="<%= book.id_book %>"
-					
-					>
-						add to My Books
-					</button>
 
+					<button
+						type="button"
+						class="btn btn-primary moreBtn fontFlex"
+						data-key="<%= book.id_book %>"
+					>
+						View More
+					</button>
 				</div>
 			</div>
 		</div>

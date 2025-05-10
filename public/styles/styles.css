@@ -9,6 +9,10 @@
 	flex-basis: auto;
 }
 
+#resultArea {
+	margin-bottom: 125px;
+}
+
 .boxBorder {
 	border-color: #a27b5c;
 	border-radius: 5px;
@@ -24,6 +28,8 @@
 	background-color: #a27b5c;
 	border: none;
 	color: white;
+	max-width: 300px;
+	align-self: center;
 }
 
 .btn:hover {
@@ -37,10 +43,24 @@
 	border-radius: 30px;
 	border-style: solid;
 	overflow: hidden;
+	background-color: #f8f0e5;
+}
+
+.moreBtn {
+	margin-top: auto;
+}
+
+.samples {
+	max-height: 200px;
 }
 
 .card-body {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
 	background-color: #f8f0e5;
+	height: 100%;
+	object-fit: contain;
 }
 
 .container {
@@ -125,10 +145,14 @@
 }
 
 .scrollable {
+	display: flex;
+	flex-direction: column;
 	flex: 1 1 auto;
 	overflow-y: auto;
 	min-height: 0;
 	padding-right: 4px;
+	height: 100%;
+	margin-bottom: 2px;
 }
 
 .scrollable::-webkit-scrollbar {
@@ -295,6 +319,9 @@
 
 .strip {
 	background-color: #dac0a3;
+	position: sticky;
+	top: 0;
+	z-index: 1000
 }
 
 .tab-view {
@@ -375,6 +402,7 @@
 	display: flex;
 	flex-direction: column;
 	border-top: 2px solid #a27b5c;
+	margin-top: 0.5rem;
 }
 
 #bookDescription {
@@ -382,27 +410,23 @@
 	overflow-y: auto;
 	min-height: 0;
 	padding-right: 4px;
-	margin-top: 10px;
-}
-
-#bookDescription {
-	margin-top: 5px;
-	margin-bottom: 5px;
+	/* margin-top: 5px; */
+	/* margin-bottom: 5px; */
 }
 
 #bookInfoCol {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
+	max-height: -webkit-fill-available;
 }
 
 #bookList {
 	overflow-y: auto;
 	min-height: 0;
 	padding-right: 4px;
+	margin-bottom: 150px;
 }
-
-/* TODO: Add a class fot the authors (or make bookList more general) to keep the scrollbar */
 
 #bookList::-webkit-scrollbar {
 	width: 4px;
@@ -450,7 +474,7 @@
 	background-color: red;
 }
 
-#btnSubmit:hover {
+#btnSave:hover {
 	background-color: green;
 }
 
@@ -550,77 +574,149 @@ body {
 	border-width: 1px;
 }
 
-#loadingOverlay {
-	position: fixed;
-	top: 0; left: 0;
-	width: 100vw;
-	height: 100vh;
-	background-color: #FAEED1;
-	z-index: 9999;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	transition: opacity 0.5s ease;
-  }
-  
-  .bunny-spinner {
-	position: relative;
-	width: 100px;
-	height: 100px;
-	animation: hop 1.2s infinite ease-in-out;
-  }
-  
-  .face {
-	width: 100px;
-	height: 100px;
-	background-color: #443627;
-	border-radius: 50%;
-  }
-  
-  .ear {
-	position: absolute;
-	width: 20px;
-	height: 50px;
-	background-color: #443627;
-	border-radius: 50%;
-  }
-  
-  .ear-left {
-	top: -40px;
-	left: 10px;
-  }
-  
-  .ear-right {
-	top: -40px;
-	right: 10px;
-  }
-  
-  @keyframes hop {
-	0%, 100% { transform: translateY(0); }
-	50% { transform: translateY(-10px); }
-  }
-
-  .fade-target {
+.fade-target {
 	opacity: 0;
 	transition: opacity 0.5s ease-in-out;
-  }
-  
-  .fade-target.visible {
+}
+
+.fade-target.visible {
 	opacity: 1;
-  }
-  
-  #pageContent {
+}
+
+#pageContent {
 	display: flex;
 	flex-direction: column;
 	height: 100%; /* Fill full screen height */
 	opacity: 0;
 	transition: opacity 0.5s ease-in-out;
-  }
-  
-  #pageContent.visible {
+}
+
+#pageContent.visible {
 	opacity: 1;
+}
+
+.hidden {
+	display: none;
+}
+
+#loadingOverlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: #ffe3b4;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 9999;
+}
+
+.spinner-wrapper {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.spinner-ring {
+	position: absolute;
+	width: 60%;
+	z-index: 3;
+	aspect-ratio: 1 / 1;
+	animation: spin 1.5s linear infinite;
+}
+
+.spinner-icon {
+	position: absolute;
+	width: 60%;
+	/* Maintain the 1:1 aspect ration */
+	aspect-ratio: 1 / 1;
+	z-index: 2;
+}
+
+div[hidden] {
+	display: none !important;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+#quillEditor {
+	/* height: 300px; or 400px, depending on your taste */
+	overflow-y: auto;
+	background-color: white;
+	border-radius: 10px;
+	padding: 0.5rem;
+	border:none;
+	/* box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); */
+  }
+
+  .ql-toolbar.ql-snow {
+	border: none;
+
+  }
+
+  .ql-container.ql-snow {
+	border: none;
+  }
+  .sidebar {
+	display: flex;
+	flex-direction: column;
+	justify-content:flex-start;
+	align-items: flex-start;
+	position: absolute;
+	height: 100%;
+	/* top: 70px; /* height of strip/navbar */
+	left: -220px; /* initially hidden */
+	/* width: 220px;
+	/* height: calc(100vh - 130px); /* 100vh minus header and footer */
+	background-color:#a27b5c; /* #faeed1;*/
+	box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+	padding-top: 1rem;
+	transition: left 0.6s ease;
+	z-index: 1000;
+	overflow-y: auto;
+	border-right: 2px solid #a27b5c;
+	font-family: 'Simonetta', serif; /* Bunny style */
   }
   
-  .hidden {
-	display: none;
+  /* When menu open */
+  .sidebar.show {
+	left: 0;
+  }
+  
+  /* Hide sidebar and hamburger above large screens */
+  @media (min-width: 992px) {
+	#menuToggle, #sidebarMenu {
+	  display: none;
+	}
+	#navbarButtons {
+	  display: flex !important;
+	}
+  }
+
+.sideForm{
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	height: 100%;
+
+  }
+
+  .btnSidebar {
+	background-color: #faeed1;
+	border: none;
+	color: #a27b5c;
+	width: 100px;
+	align-self: center;
+	border-radius: 3px;
   }

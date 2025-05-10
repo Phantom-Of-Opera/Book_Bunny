@@ -1,4 +1,5 @@
 import express from "express";
+import session from "express-session";
 import bodyParser from "body-parser";
 import * as fs from "node:fs";
 import { dirname } from "path";
@@ -39,17 +40,27 @@ const db = new pg.Pool({
 const apiSearch = "https://openlibrary.org/search.json";
 
 var listOfCollections = null;
-var selectedUser = null;
-var selectedName = null;
-var selectedIcon = null;
-var selectedBook = null;
-var errMsg = null;
+// var selectedBook = null; -- Done
+// var selectedAuthor = null; -- Done
+// var errMsg = null; --Done
+// var isMyAuthor = false; -- Done
+// var isMyBook = false; -- Done
 
 //------------ Use of App ----------------
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(
+	session({
+		secret: "books-bunny-secret", // 🐰 make this secure and unique in production!
+		resave: false,
+		saveUninitialized: false,
+		cookie: {
+			maxAge: 1000 * 60 * 60 * 2, // 2 hours
+		},
+	})
+);
 
 //------------- Handlers ----------------
 
@@ -65,54 +76,72 @@ app.get("/", async (req, res) => {
 	res.render("home.ejs", {
 		page: "home",
 		bookList: bookList,
-		userName: selectedName,
-		userId: selectedUser,
-		userIcon: selectedIcon,
+		userName: req.session.selectedName || null,
+		userId: req.session.selectedUser || null,
+		userIcon: req.session.selectedIcon || null,
 		myBooks: false,
-		hideAdd: selectedName === null,
+		hideAdd: req.session.selectedName === null,
 	});
 });
 
-//TODO: Add the handler for the authors access
+app.get("/authors", async (req, res) => {
+	const authorList = await getAuthors();
+	res.render("authors.ejs", {
+		page: "authors",
+		authorList: authorList,
+		userName: req.session.selectedName || null,
+		userId: req.session.selectedUser || null,
+		userIcon: req.session.selectedIcon || null,
+		myBooks: false,
+		hideAdd: req.session.selectedName === null,
+	});
+});
 
 app.get("/myBooks", async (req, res) => {
-	const bookList = await getMyBooks(selectedUser);
-	res.render("home.ejs", {
-		page: "home",
-		bookList: bookList,
-		userName: selectedName,
-		userId: selectedUser,
-		userIcon: selectedIcon,
-		myBooks: true,
-		hideAdd: true,
-	});
+	const bookList = await getMyBooks(req.session.selectedUser);
+	if (bookList == null) {
+		res.redirect("/");
+	} else {
+		res.render("home.ejs", {
+			page: "home",
+			bookList: bookList,
+			userName: req.session.selectedName || null,
+			userId: req.session.selectedUser || null,
+			userIcon: req.session.selectedIcon || null,
+			myBooks: true,
+			hideAdd: true,
+		});
+	}
 });
 
 app.get("/user", async (req, res) => {
 	const resultUser = await db.query("SELECT * FROM readers ORDER BY name");
 	res.render("user.ejs", {
 		usersList: resultUser.rows,
-		errMsg: errMsg,
-		userName: selectedName,
-		userIcon: selectedIcon,
-		userId: selectedUser,
+		errMsg: req.session.errMsg,
+		userName: req.session.selectedName || null,
+		userIcon: req.session.selectedIcon || null,
+		userId: req.session.selectedUser || null,
 	});
 });
 
 app.get("/logout", (req, res) => {
-	selectedUser = null;
-	selectedName = null;
-	selectedIcon = null;
-	errMsg = null;
+	req.session.selectedUser = null;
+	req.session.selectedName = null;
+	req.session.selectedIcon = null;
+	req.session.errMsg = null;
+	req.session.destroy(() => {
+		res.redirect("/");
+	});
 	res.redirect("/");
 });
 
 app.post("/login", async (req, res) => {
 	const newUser = req.body.isNewUser;
 	if (newUser == null || newUser == "false") {
-		selectedUser = parseInt(req.body.user);
+		req.session.selectedUser = parseInt(req.body.user);
 		const submittedPwd = req.body.password;
-		let passwordOK = checkPassword(selectedUser, submittedPwd);
+		let passwordOK = await checkPassword(req.session, submittedPwd);
 
 		if (passwordOK) {
 			res.redirect("/myBooks");
@@ -129,9 +158,9 @@ app.post("/login", async (req, res) => {
 				[newName, newIcon, newPwd]
 			);
 			res.redirect("/user");
-			selectedUser = newID.rows[0].id_reader;
-			selectedName = newName;
-			selectedIcon = newIcon;
+			req.session.selectedUser = newID.rows[0].id_reader;
+			req.session.selectedName = newName;
+			req.session.selectedIcon = newIcon;
 		} catch (error) {
 			console.error("Error inserting data:", error);
 			res.status(500).send("Error inserting data");
@@ -143,8 +172,8 @@ app.post("/tab", (req, res) => {
 	switch (req.body.tab) {
 		case "New Book":
 			res.render("newBook.ejs", {
-				userName: selectedName,
-				userIcon: selectedIcon,
+				userName: req.session.selectedName || null,
+				userIcon: req.session.selectedIcon || null,
 			});
 			break;
 
@@ -156,8 +185,16 @@ app.post("/tab", (req, res) => {
 			res.redirect("/");
 			break;
 
+		case "Authors":
+			res.redirect("/authors");
+			break;
+
 		case "Timeline":
 			res.redirect("/timeline");
+			break;
+
+		case "Login":
+			res.redirect("/user");
 			break;
 
 		default:
@@ -167,8 +204,6 @@ app.post("/tab", (req, res) => {
 });
 
 app.post("/searchbook", async (req, res) => {
-	console.log("Search request received");
-
 	let searchKey = req.body.searchType;
 	let searchValue = req.body.searchValue;
 	let searchKey2 = req.body.searchType2;
@@ -182,7 +217,6 @@ app.post("/searchbook", async (req, res) => {
 		[searchKey]: searchValue,
 		[searchKey2]: searchValue2,
 	});
-	console.log(searchString.toString());
 	try {
 		let searchURL =
 			apiSearch + "?" + searchString.toString().replace(/%20/g, "+");
@@ -229,50 +263,95 @@ app.post("/addbook", async (req, res) => {
 		}
 
 		// Insert the relationship into the books_readers table
-		let insertBookReader = await addBooksReaders(selectedUser, newBook_id);
+		let insertBookReader = await addBooksReaders(
+			req.session.selectedUser,
+			newBook_id
+		);
 		if (!insertBookReader) {
 			console.log("Reader-book relationship not inserted");
 		}
+
+		// Insert the relationship into the authors_readers table
+		let insertAuthorReader = await addAuthorsReaders(
+			req.session.selectedUser,
+			newAuthor_id
+		);
+		if (!insertAuthorReader) {
+			console.log("Reader-author relationship not inserted");
+		}
 	}
 	res.render("newBook.ejs", {
-		userName: selectedName,
-		userIcon: selectedIcon,
+		userName: req.session.selectedName || null,
+		userIcon: req.session.selectedIcon || null,
 	});
 });
 
-app.post("/select", async (req, res) => {
-	let bookId = parseInt(req.body.key);
-	try {
-		let result = await db.query(
-			"SELECT * FROM main_fields WHERE id_book=$1 AND id_reader=$2",
-			[bookId, selectedUser]
-		);
-		selectedBook = result.rows[0];
-	} catch (error) {
-		console.error("Error executing query", error.stack);
-		return null;
+app.post("/moreAuthor", async (req, res) => {
+	let authorId = parseInt(req.body.key);
+	// console.log("Author id: ", authorId);
+	const itsOK = await getThisAuthor(req.session, authorId);
+	if (itsOK) {
+		res.render("thisAuthor.ejs", {
+			page: "thisAuthor",
+			thisAuthor: req.session.selectedAuthor,
+			userId: req.session.selectedUser || null,
+			isMyAuthor: req.session.isMyAuthor,
+		});
+	} else {
+		res.json("Error");
 	}
-	res.json("OK");
 });
 
-app.get("/book", async (req, res) => {
+app.post("/moreBook", async (req, res) => {
+	let bookId = parseInt(req.body.key);
+	//Get the book information from the database
+	const itsOK = await getThisBook(req.session, bookId);
+	if (itsOK) {
+		res.json("OK");
+	} else {
+		res.json("Error");
+	}
+});
+
+//get the specific author page
+app.get("/thisAuthor", async (req, res) => {
+	//Get the book information from the database
+	res.render("thisAuthor.ejs", {
+		page: "thisAuthor",
+		thisAuthor: req.session.selectedAuthor,
+		userId: req.session.selectedUser || null,
+		isMyAuthor: req.session.isMyAuthor,
+	});
+});
+
+app.get("/thisBook", async (req, res) => {
 	//Get the list of collections from the database
 	listOfCollections = await getCollections();
-	//Get the book information from the database
-	res.render("book.ejs", {
-		page: "book",
-		thisBook: selectedBook,
-		userName: selectedName,
-		userIcon: selectedIcon,
+	//Render the page
+	res.render("thisBook.ejs", {
+		page: "thisBook",
+		thisBook: req.session.selectedBook || null,
+		userId: req.session.selectedUser || null,
+		userName: req.session.selectedName || null,
+		userIcon: req.session.selectedIcon || null,
 		collections: listOfCollections,
+		isMyBook: req.session.isMyBook || false,
 	});
 });
 
 app.post("/addOne", async (req, res) => {
+	console.log("Adding book and author");
+	//Get the book information from the database
 	const bookId = parseInt(req.body.bookId);
 	const userId = parseInt(req.body.userId);
+	const fetchAuthorId = await db.query(
+		"SELECT id_author FROM books_authors WHERE id_book=$1",
+		[bookId]
+	);
+	const authorId = fetchAuthorId.rows[0].id_author;
 	const insertBookReader = await addBooksReaders(userId, bookId);
-	if (insertBookReader) {
+	const insertAuthorReader = await addAuthorsReaders(userId, authorId);
+	if (insertBookReader && insertAuthorReader) {
 		console.log("Insert successful");
 		res.status(200);
 		res.redirect("/myBooks");
@@ -282,7 +361,29 @@ app.post("/addOne", async (req, res) => {
 	}
 });
 
-app.post("/save", (req, res) => {
+app.post("/saveAuthor", async (req, res) => {
+	if (req.session.selectedUser !== null) {
+		//Save the author in the database
+
+		let saveOk = updateAuthorAnalysis(
+			req.body.authorId,
+			req.body.userId,
+			req.body.authorNotes,
+			req.body.authorRating,
+			req.body.authorGenre
+		);
+		if (saveOk) {
+			res.status(200);
+		} else {
+			console.log("Update failed");
+			res.status(500);
+		}
+	} else {
+		res.status(500);
+	}
+});
+
+app.post("/saveBook", (req, res) => {
 	//Save the book analysis in the database
 	let saveOk = updateBookAnalysis(
 		req.body.bookId,
@@ -305,9 +406,9 @@ app.post("/delete", async (req, res) => {
 	//Delete the record in books_readers with the bookId and userId
 	const bookId = req.body.bookId;
 	const userId = req.body.userId;
-	const deleteWork = await db.query("SELECT delete_reader_cleanup($1,$2)", [
-		bookId,
+	const deleteWork = await db.query("SELECT delete_book($1,$2)", [
 		userId,
+		bookId,
 	]);
 	if (deleteWork) {
 		console.log("Delete successful");
@@ -334,17 +435,17 @@ app.get("/timeline", async (req, res) => {
 	);
 	timeAllBooks = resultBooks.rows;
 	//Check if there is a user selected
-	if (selectedUser !== null) {
+	if (req.session.selectedUser !== null) {
 		//Get the list of myBooks
 		let resultMyBooks = await db.query(
 			"SELECT book_title, book_first_publish FROM main_fields WHERE id_reader=$1 ORDER BY book_first_publish",
-			[selectedUser]
+			[req.session.selectedUser]
 		);
 		timeMyBooks = resultMyBooks.rows;
 		//Get the list of myAuthors
 		let resultMyAuthors = await db.query(
 			"SELECT DISTINCT author_name, author_birth_date, author_death_date FROM main_fields WHERE id_reader=$1 ORDER BY author_birth_date",
-			[selectedUser]
+			[req.session.selectedUser]
 		);
 		timeMyAuthors = resultMyAuthors.rows;
 	}
@@ -353,29 +454,27 @@ app.get("/timeline", async (req, res) => {
 		myAuthors: timeMyAuthors,
 		myBooks: timeMyBooks,
 		allBooks: timeAllBooks,
-		userName: selectedName,
-		userIcon: selectedIcon,
-		userId: selectedUser,
-		hideAdd: selectedName === null,
+		userName: req.session.selectedName || null,
+		userIcon: req.session.selectedIcon || null,
+		userId: req.session.selectedUser || null,
+		hideAdd: req.session.selectedName === null,
 	});
 });
 
 app.post("/deleteReader", async (req, res) => {
 	if (req.body.confirmPhrase === "I want to delete my Account!") {
-		console.log("Delete request confirmed");
-		if (await checkPassword(selectedUser, req.body.deletePwd)) {
-			console.log("Password is correct");
+		if (await checkPassword(req.session, req.body.deletePwd)) {
 			// Delete the record in readers with the userId
 			const deleteWork = await db.query(
 				"SELECT delete_reader_and_cleanup($1)",
-				[selectedUser]
+				[req.session.selectedUser]
 			);
 			if (deleteWork) {
 				console.log("Delete successful");
-				selectedUser = null;
-				selectedName = null;
-				selectedIcon = null;
-				errMsg = null;
+				req.session.selectedUser = null;
+				req.session.selectedName = null;
+				req.session.selectedIcon = null;
+				req.session.errMsg = null;
 
 				res.redirect("/");
 			} else {
@@ -384,12 +483,12 @@ app.post("/deleteReader", async (req, res) => {
 			}
 		} else {
 			console.log("Password is incorrect");
-			errMsg = "Password is incorrect, you have been logged out";
+			req.session.errMsg = "Password is incorrect, you have been logged out";
 			res.redirect("/user");
 		}
 	} else {
 		console.log("Delete request not confirmed");
-		errMsg =
+		req.session.errMsg =
 			"Please confirm the deletion by typing 'I want to delete my Account!'";
 		res.redirect("/user");
 	}
@@ -406,9 +505,7 @@ app.post("/deleteReader", async (req, res) => {
 async function getLibrary() {
 	try {
 		let result = null;
-		result = await db.query(
-			"SELECT * FROM book_author_view ORDER BY book_title"
-		);
+		result = await db.query("SELECT * FROM book_fields ORDER BY book_title");
 		return result.rows;
 	} catch (err) {
 		console.error("Error executing query", err.stack);
@@ -417,15 +514,19 @@ async function getLibrary() {
 }
 
 async function getMyBooks(idReader) {
-	try {
-		let result = null;
-
-		result = await db.query("SELECT * FROM get_reader_books($1)", [idReader]);
-
-		return result.rows;
-	} catch (err) {
-		console.error("Error executing query", err.stack);
+	if (idReader == null) {
 		return null;
+	} else {
+		try {
+			let result = null;
+
+			result = await db.query("SELECT * FROM get_reader_books($1)", [idReader]);
+
+			return result.rows;
+		} catch (err) {
+			console.error("Error executing query", err.stack);
+			return null;
+		}
 	}
 }
 
@@ -460,30 +561,38 @@ async function getAuthorInfo(authorRef) {
 	//get the rest of the information from the API
 	let authorInfo = {
 		name: null,
-		work: null,
+		bio: null,
 		birth: null,
 		death: null,
-		wiki: null,
+		pic: null,
+		links: null,
 	};
-	try {
-		const authorURL = `https://openlibrary.org/authors/${authorRef}.json`;
-		const authorData = await axios.get(authorURL);
-		authorInfo.name = authorData.data.name || "no name";
-		authorInfo.work = authorData.data.top_work || "no work";
+	const authorURL = `https://openlibrary.org/authors/${authorRef}.json`;
+	const authorData = await axios.get(authorURL);
+
+	authorInfo.name = authorData.data.name || "no name";
+	authorInfo.bio = authorData.data.bio || "no bio";
+	if (authorData.data.birth_date) {
 		authorInfo.birth = parseDateString(authorData.data.birth_date);
-		authorInfo.death = parseDateString(authorData.data.death_date);
-		authorInfo.wiki = "wikidata"; //authorData.data.remote_ids["wikidata"];
-	} catch (err) {
-		// If the author data is not available, set default values
-		console.log("Error fetching author data for author:", authorRef);
-		console.log("Error:", err);
-		// Set default values
-		authorInfo.name = null;
-		authorInfo.work = null;
+	} else {
 		authorInfo.birth = null;
-		authorInfo.death = null;
-		authorInfo.wiki = null;
 	}
+	if (authorData.data.death_date) {
+		authorInfo.death = parseDateString(authorData.data.death_date);
+	} else {
+		authorInfo.death = null;
+	}
+	if (authorData.data.photos) {
+		authorInfo.pic = authorData.data.photos[0];
+	} else {
+		authorInfo.pic = null;
+	}
+	if (authorData.data.links) {
+		authorInfo.links = JSON.stringify(authorData.data.links);
+	} else {
+		authorInfo.links = null;
+	}
+
 	return authorInfo;
 }
 
@@ -492,17 +601,24 @@ async function updateAuthorInfo(authorInfo, authorId) {
 
 	try {
 		await db.query(
-			"UPDATE authors SET author_name = $1, author_top_work = $2, author_birth_date = $3, author_death_date = $4, author_wikidata = $5 WHERE id_author = $6",
+			"UPDATE authors SET author_name = $1, author_top_work = $2, author_birth_date = $3, author_death_date = $4, author_wikidata = $5, author_links=$6 WHERE id_author = $7",
 			[
 				authorInfo.name,
-				authorInfo.work,
+				authorInfo.bio,
 				authorInfo.birth,
 				authorInfo.death,
-				authorInfo.wiki,
+				authorInfo.pic,
+				authorInfo.links,
 				authorId,
 			]
 		);
 
+		//Delete the records where name is null
+		// try {
+		// 	await db.query("DELETE FROM authors WHERE author_name IS NULL");
+		// } catch (err) {
+		// 	console.log("Error deleting authors with null name");
+		// }
 		updateResult = true;
 	} catch (err) {
 		console.log(
@@ -533,16 +649,22 @@ async function addAuthorId(authorRef) {
 		);
 		authorId = parseInt(authorKey.rows[0].id_author);
 	} catch (err) {
-		console.log("Failed insert author:", authorRef);
 		const problem = categorizeSQLError(err);
 		if (problem.type === "DUPLICATE") {
-			console.log("Author already exists in the database: ", authorRef);
 			// Get the newAuthor_id of the author that already exist in the db
-			authorKey = await db.query(
-				"SELECT id_author FROM authors WHERE author_key = $1",
-				[authorRef]
-			);
-			authorId = parseInt(authorKey.rows[0].id_author);
+			try {
+				authorKey = await db.query(
+					"SELECT id_author FROM authors WHERE author_key = $1",
+					[authorRef]
+				);
+				authorId = parseInt(authorKey.rows[0].id_author);
+				console.log("I found the author with id: ", authorId);
+			} catch (err) {
+				console.log(
+					"Error getting the author id that is already in the database"
+				);
+				console.log(err);
+			}
 		} else if (problem.type === "CONNECTION") {
 			console.log("Connection error while inserting author:", problem);
 		} else {
@@ -552,30 +674,45 @@ async function addAuthorId(authorRef) {
 	return parseInt(authorId);
 }
 
-async function getBookWork(bookRef) {
+async function getBookDetails(bookRef) {
 	let bookSummary = null;
+	let bookLinks = null;
 	// Get the works json file from OpenLibrary using the bookRef.works reference
 	try {
 		let worksURL = `https://openlibrary.org/${bookRef.works}.json`;
 		let worksData = await axios.get(worksURL);
 		bookSummary = worksData.data.description.value || "no description";
+		bookLinks = worksData.data.links || null;
+		if (bookLinks) {
+			bookLinks = JSON.stringify(bookLinks);
+		} else {
+			bookLinks = null;
+		}
 	} catch (err) {
 		console.log("Error fetching works data for book:", bookRef.works);
 		console.log("Error:", err);
 		// Set default values
 		bookSummary = null;
+		bookLinks = null;
 	}
-	return bookSummary;
+	return {
+		bookSummary: bookSummary,
+		bookLinks: bookLinks,
+	};
 }
 
 async function addBookId(bookRef) {
 	let bookId = null;
 	let bookKey = null;
-	bookRef.bookSummary = await getBookWork(bookRef);
+
+	const { bookSummary, bookLinks } = await getBookDetails(bookRef);
+
+	bookRef.bookSummary = bookSummary;
+	bookRef.bookLinks = bookLinks;
 	//Insert the book into a database and return the book_id
 	try {
 		bookKey = await db.query(
-			"INSERT INTO books (book_title, book_cover_id, book_first_publish, book_oleid, book_works,book_summary) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_book",
+			"INSERT INTO books (book_title, book_cover_id, book_first_publish, book_oleid, book_works,book_summary,book_links) VALUES ($1, $2, $3, $4, $5, $6,$7) RETURNING id_book",
 			[
 				bookRef.title,
 				bookRef.cover,
@@ -583,17 +720,30 @@ async function addBookId(bookRef) {
 				bookRef.oleId,
 				bookRef.works,
 				bookRef.bookSummary,
+				bookRef.bookLinks,
 			]
 		);
 		bookId = bookKey.rows[0].id_book;
 	} catch (err) {
 		const problem = categorizeSQLError(err);
 		if (problem.type === "DUPLICATE") {
-			bookKey = await db.query(
-				"SELECT id_book FROM books WHERE book_oleid = $1",
-				[bookRef.oleId]
-			);
-			bookId = bookKey.rows[0].id_book;
+			try {
+				console.log(
+					"Trying to get the book id that is already in the database"
+				);
+				// Get the book_id of the book that already exist in the db
+				bookKey = await db.query(
+					"SELECT id_book FROM books WHERE book_oleid = $1",
+					[bookRef.oleId]
+				);
+
+				bookId = bookKey.rows[0].id_book;
+			} catch (err) {
+				console.log(
+					"Error getting the book id that is already in the database"
+				);
+				console.log(err);
+			}
 		} else if (problem.type === "CONNECTION") {
 			console.log("Connection error while inserting book:", bookRef);
 		} else {
@@ -614,7 +764,6 @@ async function addAuthorsBooks(authorId, bookId, isMain) {
 		);
 		insertResult = true;
 	} catch (err) {
-		console.log("Error inserting books_authors");
 		const problem = categorizeSQLError(err);
 		if (problem.type === "DUPLICATE") {
 			console.error("Error inserting books_authors: Shows DUPLICATE");
@@ -624,8 +773,6 @@ async function addAuthorsBooks(authorId, bookId, isMain) {
 		} else {
 			console.error("Error inserting books_authors");
 			console.error("Unexpected SQL issue in books Authors:", problem);
-			console.log("Author id:", authorId, typeof authorId);
-			console.log("Book id:", bookId, typeof bookId);
 		}
 	}
 	return insertResult;
@@ -644,6 +791,7 @@ async function addBooksReaders(readerId, bookId) {
 		const problem = categorizeSQLError(err);
 		if (problem.type === "DUPLICATE") {
 			console.log("The reader already read that book");
+			return true;
 		} else if (problem.type === "CONNECTION") {
 			console.log("Connection error while inserting books_readers");
 		} else {
@@ -652,6 +800,55 @@ async function addBooksReaders(readerId, bookId) {
 		}
 	}
 	return insertResult;
+}
+
+async function addAuthorsReaders(readerId, authorId) {
+	let insertResult = false;
+	//Insert the relationship into the books_readers table
+	try {
+		await db.query(
+			"INSERT INTO authors_readers (id_author, id_reader) VALUES ($1, $2)",
+			[authorId, readerId]
+		);
+		insertResult = true;
+	} catch (err) {
+		const problem = categorizeSQLError(err);
+		if (problem.type === "DUPLICATE") {
+			console.log("The reader already conected to that author");
+			return true;
+		} else if (problem.type === "CONNECTION") {
+			console.log("Connection error while inserting authors_readers");
+		} else {
+			console.error("Error inserting authors_readers:");
+			console.error("Unexpected SQL issue in author_reader:", problem);
+		}
+	}
+	return insertResult;
+}
+
+async function updateAuthorAnalysis(writerId, userId, Notes, Rating, Genre) {
+	let updateResult = false;
+	//Insert the relationship into the authors_readers table
+
+	try {
+		await db.query(
+			"UPDATE authors_readers SET author_notes = $1, author_rating = $2, author_genre= $3 WHERE id_author = $4 AND id_reader = $5",
+			[Notes, Rating, Genre, writerId, userId]
+		);
+		updateResult = true;
+	} catch (err) {
+		console.log("Error updating authors_readers");
+		const problem = categorizeSQLError(err);
+		if (problem.type === "DUPLICATE") {
+			console.error("Error updating authors_readers: Shows DUPLICATE");
+		} else if (problem.type === "CONNECTION") {
+			console.error("Error updating authors_readers: Shows CONNECTION");
+		} else {
+			console.error("Error updating authors_readers");
+			console.error("Unexpected SQL issue in update book analysis:", problem);
+		}
+	}
+	return updateResult;
 }
 
 async function updateBookAnalysis(
@@ -686,7 +883,8 @@ async function updateBookAnalysis(
 	return updateResult;
 }
 
-async function checkPassword(userId, tryPwd) {
+async function checkPassword(session, tryPwd) {
+	let userId = session.selectedUser;
 	try {
 		const resultPwd = await db.query(
 			"SELECT * FROM readers WHERE id_reader=$1",
@@ -694,15 +892,15 @@ async function checkPassword(userId, tryPwd) {
 		);
 		const goodPwd = resultPwd.rows[0].password;
 		if (tryPwd == goodPwd) {
-			errMsg = null;
-			selectedName = resultPwd.rows[0].name;
-			selectedIcon = resultPwd.rows[0].icon;
+			session.errMsg = null;
+			session.selectedName = resultPwd.rows[0].name;
+			session.selectedIcon = resultPwd.rows[0].icon;
 			return true;
 		} else {
-			selectedUser = null;
-			errMsg = "Password is incorrect";
-			selectedName = null;
-			selectedIcon = null;
+			session.selectedUser = null;
+			session.errMsg = "Password is incorrect";
+			session.selectedName = null;
+			session.selectedIcon = null;
 			return false;
 		}
 	} catch (error) {
@@ -718,8 +916,107 @@ async function getCollections() {
 	);
 	return collectList.rows;
 }
-//TODO: Add a function to query with axios the openlibrary website and collect the information on that author's work
-//	The author key has an URL that returns a json https://openlibrary.org/authors/OL23919A.json
-//	The json has a bio field, links field for websites
 
-//TODO: Write a function to query the authors of the database
+async function getAuthors() {
+	//Get the list of authors from the database
+	const authorList = await db.query(
+		"SELECT DISTINCT * FROM authors ORDER BY author_name"
+	);
+	const cleanList = authorList.rows;
+	cleanList.forEach((author) => {
+		author.author_birth_date = parseDateString(author.author_birth_date);
+		if (author.author_death_date) {
+			author.author_death_date = parseDateString(author.author_death_date);
+		}
+	});
+	return cleanList;
+}
+//TODO: Update both the table and the view in the render database, as well as adding a column for links in the authors table
+async function getThisAuthor(session, writerId) {
+	let queryStr = "";
+	let queryParams = [];
+	let userId = session.selectedUser;
+	session.isMyAuthor = false;
+	//Check if the selected author has been read by the user
+	let hasRead = await db.query(
+		"SELECT * FROM main_fields WHERE id_author=$1 AND id_reader=$2",
+		[writerId, userId]
+	);
+
+	if (hasRead.rows.length > 0) {
+		session.isMyAuthor = true;
+	} else {
+		session.isMyAuthor = false;
+	}
+
+	if (userId == null || session.isMyAuthor == false) {
+		queryStr = "SELECT * FROM author_fields WHERE id_author=$1";
+		queryParams = [writerId];
+	} else {
+		queryStr = "SELECT * FROM main_fields WHERE id_author=$1 AND id_reader=$2";
+		queryParams = [writerId, userId];
+	}
+
+	try {
+		let result = await db.query(queryStr, queryParams);
+
+		session.selectedAuthor = result.rows[0];
+		session.selectedAuthor.author_birth_date = parseDateString(
+			session.selectedAuthor.author_birth_date
+		);
+		if (session.selectedAuthor.author_death_date) {
+			session.selectedAuthor.author_death_date = parseDateString(
+				session.selectedAuthor.author_death_date
+			);
+		}
+		if (session.selectedAuthor.author_links) {
+			session.selectedAuthor.author_links = JSON.parse(
+				session.selectedAuthor.author_links
+			);
+		}
+
+		return true;
+	} catch (error) {
+		console.error("Error executing query", error.stack);
+		return null;
+	}
+}
+
+async function getThisBook(session, bookId) {
+	let queryStr = "";
+	let queryParams = [];
+	let userId = session.selectedUser;
+	session.isMyBook = false;
+	//Check if the selected book has been read by the user
+	let hasRead = await db.query(
+		"SELECT * FROM main_fields WHERE id_book=$1 AND id_reader=$2",
+		[bookId, userId]
+	);
+	if (hasRead.rows.length > 0) {
+		session.isMyBook = true;
+	} else {
+		session.isMyBook = false;
+	}
+	//Get the book information from the database
+	if (userId == null || session.isMyBook == false) {
+		queryStr = "SELECT DISTINCT * FROM book_fields WHERE id_book=$1";
+		queryParams = [bookId];
+	} else {
+		queryStr = "SELECT * FROM main_fields WHERE id_book=$1 AND id_reader=$2";
+		queryParams = [bookId, userId];
+	}
+
+	try {
+		let result = await db.query(queryStr, queryParams);
+		session.selectedBook = result.rows[0];
+		if (session.selectedBook.book_links) {
+			session.selectedBook.book_links = JSON.parse(
+				session.selectedBook.book_links
+			);
+		}
+		return true;
+	} catch (error) {
+		console.error("Error executing query", error.stack);
+		return null;
+	}
+}
