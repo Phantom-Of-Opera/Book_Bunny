@@ -126,14 +126,13 @@ app.get("/user", async (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-	req.session.selectedUser = null;
-	req.session.selectedName = null;
-	req.session.selectedIcon = null;
-	req.session.errMsg = null;
-	req.session.destroy(() => {
+	req.session.destroy((err) => {
+		if (err) {
+			console.error("Logout error:", err);
+			return res.status(500).send("Could not log out.");
+		}
 		res.redirect("/");
 	});
-	res.redirect("/");
 });
 
 app.post("/login", async (req, res) => {
@@ -152,15 +151,17 @@ app.post("/login", async (req, res) => {
 		const newName = req.body.newName;
 		const newIcon = req.body.newIcon;
 		const newPwd = req.body.newPassword;
+		const newEmail = req.body.newEmail;
 		try {
 			const newID = await db.query(
-				"INSERT INTO readers (name, icon, password) VALUES ($1, $2, $3) RETURNING id_reader",
-				[newName, newIcon, newPwd]
+				"INSERT INTO readers (name, icon, password,email) VALUES ($1, $2, $3,$4) RETURNING id_reader",
+				[newName, newIcon, newPwd, newEmail]
 			);
 			res.redirect("/user");
 			req.session.selectedUser = newID.rows[0].id_reader;
 			req.session.selectedName = newName;
 			req.session.selectedIcon = newIcon;
+			req.session.selectedEmail = newEmail;
 		} catch (error) {
 			console.error("Error inserting data:", error);
 			res.status(500).send("Error inserting data");
@@ -895,6 +896,7 @@ async function checkPassword(session, tryPwd) {
 			session.errMsg = null;
 			session.selectedName = resultPwd.rows[0].name;
 			session.selectedIcon = resultPwd.rows[0].icon;
+			session.selectedEmail = resultPwd.rows[0].email;
 			return true;
 		} else {
 			session.selectedUser = null;

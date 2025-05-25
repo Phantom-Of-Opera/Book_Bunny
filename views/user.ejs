@@ -33,6 +33,7 @@
 		</div>
 
 		<!-- This is for a new user -->
+		 <!-- The new name -->
 		<div class="form-floating">
 			<input
 				type="text"
@@ -45,6 +46,7 @@
 				>Your new name here</label
 			>
 		</div>
+		<!-- The new password -->
 		<div class="form-floating">
 			<input
 				type="text"
@@ -61,6 +63,24 @@
 				>Your new password here</label
 			>
 		</div>
+		<!-- The new email -->
+		<div class="form-floating">
+			<input
+				type="text"
+				name="newEmail"
+				id="newEmailBox"
+				class="boxBorder form-control"
+				hidden
+			/>
+			<label
+				id="newEmailLabel"
+				for="newEmailBox"
+				style="color: red"
+				hidden
+				>Your email here</label
+			>
+		</div>
+		<!-- The new icon -->
 		<div class="form-floating">
 			<div id="iconDiv">
 				<label id="newIconLabel" hidden>Select your icon</label>
@@ -130,6 +150,8 @@
 				document.getElementById("newPasswordLabel").hidden = false;
 				document.getElementById("passwordLabel").hidden = true;
 				document.getElementById("newIconLabel").hidden = false;
+				document.getElementById("newEmailLabel").hidden = false;
+				document.getElementById("newEmailBox").hidden = false;
 			} else {
 				document.getElementById("userSelect").hidden = false;
 				document.getElementById("passwordBox").hidden = false;
@@ -140,6 +162,8 @@
 				document.getElementById("newIconBox").hidden = true;
 				document.getElementById("newIconLabel").hidden = true;
 				document.getElementById("passwordLabel").hidden = false;
+				document.getElementById("newEmailLabel").hidden = true;
+				document.getElementById("newEmailBox").hidden = true;
 			}
 		});
 </script>

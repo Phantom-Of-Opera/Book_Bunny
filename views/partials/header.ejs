@@ -94,11 +94,11 @@
 			<div id="pageContent" class="fade-target hidden">
 				<div id="sidebarMenu" class="sidebar">
 					<form class="d-flex flex-column p-3 sideForm" action="/tab" method="post">
-						<button type="submit" name="tab" value="Library" class="btnSidebar fontFlex">Library</button>
-						<button type="submit" name="tab" value="Authors" class="btnSidebar fontFlex">Authors</button>
-						<button type="submit" name="tab" value="Timeline" class="btnSidebar fontFlex">Timeline</button>
-						<button type="submit" name="tab" value="myBooks" class="btnSidebar fontFlex" <%= locals.userName !== null ? '' : 'hidden' %>>My Books</button>
-						<button type="submit" name="tab" value="New Book" id="newBook" class="btnSidebar fontFlex" <%= locals.userName !== null ? '' : 'hidden' %>>New Book</button>
-						<button type="submit" name="tab" value="Login" class="btnSidebar fontFlex mt-3"> <%= locals.userName == null ? 'Login' : 'Logout' %></button>
+						<button type="submit" name="tab" value="Library" class="btnSidebar ">Library</button>
+						<button type="submit" name="tab" value="Authors" class="btnSidebar ">Authors</button>
+						<button type="submit" name="tab" value="Timeline" class="btnSidebar ">Timeline</button>
+						<button type="submit" name="tab" value="myBooks" class="btnSidebar " <%= locals.userName !== null ? '' : 'hidden' %>>My Books</button>
+						<button type="submit" name="tab" value="New Book" id="newBook" class="btnSidebar " <%= locals.userName !== null ? '' : 'hidden' %>>New Book</button>
+						<button type="submit" name="tab" value="Login" class="btnSidebar  mt-3"> <%= locals.userName == null ? 'Login' : 'Logout' %></button>
 					</form>
 				</div>
