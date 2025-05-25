@@ -87,7 +87,7 @@
 }
 
 .fontFlex {
-	font-size: clamp(0.7rem, 1.5vw, 1rem);
+	font-size: clamp(0.9rem, 1.5vw, 1rem);
 }
 
 .fontFlex-h1 {
@@ -321,7 +321,7 @@
 	background-color: #dac0a3;
 	position: sticky;
 	top: 0;
-	z-index: 1000
+	z-index: 1000;
 }
 
 .tab-view {
@@ -656,22 +656,21 @@ div[hidden] {
 	background-color: white;
 	border-radius: 10px;
 	padding: 0.5rem;
-	border:none;
+	border: none;
 	/* box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1); */
-  }
+}
 
-  .ql-toolbar.ql-snow {
+.ql-toolbar.ql-snow {
 	border: none;
+}
 
-  }
-
-  .ql-container.ql-snow {
+.ql-container.ql-snow {
 	border: none;
-  }
-  .sidebar {
+}
+.sidebar {
 	display: flex;
 	flex-direction: column;
-	justify-content:flex-start;
+	justify-content: flex-start;
 	align-items: flex-start;
 	position: absolute;
 	height: 100%;
@@ -679,44 +678,50 @@ div[hidden] {
 	left: -220px; /* initially hidden */
 	/* width: 220px;
 	/* height: calc(100vh - 130px); /* 100vh minus header and footer */
-	background-color:#a27b5c; /* #faeed1;*/
-	box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+	background-color: #a27b5c; /* #faeed1;*/
+	box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 	padding-top: 1rem;
 	transition: left 0.6s ease;
 	z-index: 1000;
 	overflow-y: auto;
 	border-right: 2px solid #a27b5c;
-	font-family: 'Simonetta', serif; /* Bunny style */
-  }
-  
-  /* When menu open */
-  .sidebar.show {
+	font-family: "Simonetta", serif; /* Bunny style */
+}
+
+/* When menu open */
+.sidebar.show {
 	left: 0;
-  }
-  
-  /* Hide sidebar and hamburger above large screens */
-  @media (min-width: 992px) {
-	#menuToggle, #sidebarMenu {
-	  display: none;
+}
+
+/* Hide sidebar and hamburger above large screens */
+@media (min-width: 992px) {
+	#menuToggle,
+	#sidebarMenu {
+		display: none;
 	}
 	#navbarButtons {
-	  display: flex !important;
+		display: flex !important;
 	}
-  }
+}
 
-.sideForm{
+.sideForm {
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
 	height: 100%;
+}
 
-  }
-
-  .btnSidebar {
+.btnSidebar {
+	font-size: clamp(1rem, 1.5vw, 1.5rem);
 	background-color: #faeed1;
 	border: none;
 	color: #a27b5c;
 	width: 100px;
 	align-self: center;
 	border-radius: 3px;
-  }
+}
+
+.hyperLink {
+	color: #6f4e37;
+	text-decoration: underline;
+}
