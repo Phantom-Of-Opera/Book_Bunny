@@ -933,7 +933,7 @@ async function getAuthors() {
 	});
 	return cleanList;
 }
-//TODO: Update both the table and the view in the render database, as well as adding a column for links in the authors table
+
 async function getThisAuthor(session, writerId) {
 	let queryStr = "";
 	let queryParams = [];
