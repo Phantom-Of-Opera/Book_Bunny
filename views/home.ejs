@@ -1,3 +1,5 @@
+<!-- TODO: Add a banner on the card to show this book is in your library. -->
+
 <%-include("partials/header.ejs") %>
 
 <div class="container mt-4">
@@ -19,20 +21,21 @@
 			<div class="card text-center mb-3" style="width: 100%">
 				<div class="card-body">
 					<h5 class="card-title simonetta-black"><%= book.book_title %></h5>
-					<% const cover = book.book_cover_id || 'default-cover'; %> 					
+					<% const cover = book.book_cover_id || 'default-cover'; %>
 					<picture>
 						<!-- Fallback image -->
 						<%if (cover == "default-cover" ) {%>
-							<source	srcset="images/blank_cover.jpeg"/> 	
+						<source srcset="images/blank_cover.jpeg" />
 						<%}else{%>
-							<source
+						<source
 							srcset="https://covers.openlibrary.org/b/olid/<%=cover%>-M.jpg"
-							/>
+						/>
 						<%}%>
-						<img 
-						src="images/blank_cover.jpeg" 
-						alt="Book Cover Picture"
-						class="img-fluid samples" />
+						<img
+							src="images/blank_cover.jpeg"
+							alt="Book Cover Picture"
+							class="img-fluid samples"
+						/>
 					</picture>
 					<p class="card-text simonetta-regular-italic fontFlex">
 						by <%= book.author_name %>
