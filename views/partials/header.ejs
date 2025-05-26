@@ -63,8 +63,10 @@
 									alt="The Books Bunny logo"
 								/>
 							</picture>
-							<h1 class="m-0 special-elite-regular fs-4 fontFlex-h1">Books Bunny</h1>
-							
+							<div id="titleDiv">
+								<h1 class="m-0 special-elite-regular fs-4 fontFlex-h1">Books Bunny </h1>
+								<span id="titleUser" class="simonetta-regular-italic fontFlex-p" <%= locals.userName == null ? 'hidden':''%> ><%= locals.userName == null ? '': 'Hi, ' + locals.userName %> ! </span>
+							</div>
 						</div>
 							<!-- Hamburger - small screens only -->
 							<button class="navbar-toggler ms-2" type="button" id="menuToggle" aria-label="Toggle navigation">
